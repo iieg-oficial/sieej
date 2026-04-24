@@ -1,0 +1,11 @@
+name: CI
+
+on:
+  push:
+    branches-ignore: [develop, production]
+  pull_request:
+    branches: [develop, production]
+
+jobs:
+  test:
+    uses: ./.github/workflows/test-frontend.yml

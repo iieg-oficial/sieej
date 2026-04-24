@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="94" height="94" viewBox="0 0 94 94">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectángulo_13962" data-name="Rectángulo 13962" width="49.097" height="53.023" fill="#6e2f86" stroke="#6f2f87" stroke-width="1"/>
+    </clipPath>
+  </defs>
+  <g id="ico_avance_guardado" transform="translate(-667 -193)">
+    <path id="Trazado_24515" data-name="Trazado 24515" d="M47,0A47,47,0,1,1,0,47,47,47,0,0,1,47,0Z" transform="translate(667 193)" fill="#fbf2ff"/>
+    <g id="Grupo_15732" data-name="Grupo 15732" transform="translate(689.452 209.088)">
+      <g id="Grupo_15731" data-name="Grupo 15731" transform="translate(0 4)" clip-path="url(#clip-path)">
+        <path id="Trazado_24512" data-name="Trazado 24512" d="M34.2,10.587,27.191,2.081A5.572,5.572,0,0,0,22.9,0H5.736A5.544,5.544,0,0,0,1.684,1.819,6.469,6.469,0,0,0,0,6.195V32.3a6.47,6.47,0,0,0,1.684,4.376A5.546,5.546,0,0,0,5.736,38.5H29.91a5.545,5.545,0,0,0,4.052-1.819A6.471,6.471,0,0,0,35.646,32.3V14.713A6.529,6.529,0,0,0,34.2,10.587ZM33.83,32.3h0A4.42,4.42,0,0,1,32.683,35.3a3.786,3.786,0,0,1-2.773,1.24H5.737A4.088,4.088,0,0,1,1.815,32.3V6.2A4.088,4.088,0,0,1,5.737,1.961H22.9a3.778,3.778,0,0,1,2.929,1.419l7.007,8.506a4.425,4.425,0,0,1,.992,2.827Z" transform="translate(6.726 7.263)" fill="#6e2f86" stroke="#6f2f87" stroke-width="1"/>
+        <path id="Trazado_24513" data-name="Trazado 24513" d="M36.483,30.312a.853.853,0,0,0-1.114,0l-4.834,4.175h0a.977.977,0,0,0-.382.658,1.023,1.023,0,0,0,.192.75.9.9,0,0,0,.606.363.854.854,0,0,0,.664-.208l3.341-2.912V45.458a.9.9,0,1,0,1.8,0V33.141L40.1,36.052l0,0a.854.854,0,0,0,.664.208.894.894,0,0,0,.6-.364,1.012,1.012,0,0,0,.2-.716.983.983,0,0,0-.335-.656Z" transform="translate(-11.329 -9.804)" fill="#6e2f86" stroke="#6f2f87" stroke-width="1"/>
+        <path id="Trazado_24514" data-name="Trazado 24514" d="M31.132,23.076H40.8a.941.941,0,0,0,.9-.974.951.951,0,0,0-.9-.986H31.132a.951.951,0,0,0-.9.986.941.941,0,0,0,.9.974" transform="translate(-11.382 -4.707)" fill="#6e2f86" stroke="#6f2f87" stroke-width="1"/>
+      </g>
+    </g>
+  </g>
+</svg>

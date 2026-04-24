@@ -1,0 +1,10 @@
+<svg id="ico_error" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="14" height="14" viewBox="0 0 14 14">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectángulo_14003" data-name="Rectángulo 14003" width="14" height="14" fill="#ea4335"/>
+    </clipPath>
+  </defs>
+  <g id="Grupo_15769" data-name="Grupo 15769" clip-path="url(#clip-path)">
+    <path id="Trazado_24521" data-name="Trazado 24521" d="M1.248,7.073A5.825,5.825,0,1,0,7.073,1.248,5.825,5.825,0,0,0,1.248,7.073M7.073,0a7.073,7.073,0,1,0,7.073,7.073A7.074,7.074,0,0,0,7.073,0M6.449,4.161a.624.624,0,1,1,1.248,0V7.906a.624.624,0,1,1-1.248,0Zm.624,5.2a.624.624,0,1,0,.624.624.624.624,0,0,0-.624-.624" fill="#ea4335" fill-rule="evenodd"/>
+  </g>
+</svg>

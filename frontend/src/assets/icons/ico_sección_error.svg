@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="94" height="94" viewBox="0 0 94 94">
+  <g id="ico_sección_completada" transform="translate(-667 -193)">
+    <circle id="Elipse_202" data-name="Elipse 202" cx="47" cy="47" r="47" transform="translate(667 193)" fill="rgba(234,67,53,0.12)"/>
+    <path id="ico_delete_predeterminada" d="M19.67,0a2.127,2.127,0,0,0-2.126,2.126V17.543H2.126a2.126,2.126,0,1,0,0,4.253H17.543V37.213a2.126,2.126,0,1,0,4.253,0V21.8H37.213a2.126,2.126,0,1,0,0-4.253H21.8V2.126A2.127,2.127,0,0,0,19.67,0" transform="translate(714 212.183) rotate(45)" fill="#ea4335" stroke="#ea4334" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"/>
+  </g>
+</svg>

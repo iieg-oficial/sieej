@@ -1,29 +1,133 @@
-# SIEEJ
+# SIEEJ frontend
 
-**Sistema de Información Estadística del Estado de Jalisco**
+Frontend del **Sistema de Información Estadística del Estado de Jalisco** —
+plataforma de captura para que dependencias e instituciones de gobierno
+entreguen información estructurada al IIEG.
 
-Frontend de captura para que dependencias e instituciones de gobierno
-entreguen información estructurada al Instituto de Información Estadística
-y Geográfica de Jalisco (IIEG).
+**Version:** 1.1.4
+**Repo:** [iieg-oficial/sieej](https://github.com/iieg-oficial/sieej)
+
+> **Backend**: este repositorio **solo** contiene el frontend. La API la
+> sirve `mariachi/api` bajo `/api/administrador/formularios/*` (modulo
+> SIEEJ con schema dedicado `sieej` en `iieg_portal`).
+>
+> **Despliegue**: el `dist/` generado se sirve a traves de `mariachi-nginx`
+> en `/sieej/`. El `gateway-hub` enruta esa ruta al upstream `portal`
+> (= mariachi-nginx).
+
+## Requisitos
+
+- Docker >= v28.2.2
+- Docker Compose >= v2.36.2
+- Node.js 24 (si quieres correr fuera de Docker)
+- Git >= 2.48
+- Mariachi corriendo en `localhost:8000` (la api lo provee)
+
+## Inicio rapido
+
+### Desarrollo
+
+```bash
+cp .env.example .env.development
+# Editar VITE_*, BACKEND_DEV_TARGET si tu mariachi-api no es localhost:8000.
+
+make dev
+# Frontend (Vite):     http://localhost:5174
+# Backend (mariachi):  http://localhost:8000/api/administrador
+```
+
+El proxy de Vite reenvía las llamadas `/api/*` al `BACKEND_DEV_TARGET`.
+
+### Build para staging/produccion
+
+```bash
+cp .env.example .env.production
+# Editar VITE_BASE_PATH=/sieej/ y demas.
+
+make build
+# Genera ./frontend/dist/ con base path /sieej/
+# mariachi-nginx lo sirve via volumen (ver mariachi/docker-compose.yml).
+```
+
+## Comandos disponibles
+
+| Comando | Descripcion |
+|---------|-------------|
+| `make dev` | Modo desarrollo (Vite hot-reload) |
+| `make build` | Construir `dist/` consumido por mariachi-nginx |
+| `make down` | Detener servicios de desarrollo |
+| `make logs` | Ver logs |
+| `make status` | Estado de los servicios |
+| `make clean` | Detener servicios y limpiar `dist/`, `node_modules/`, volumenes |
+
+## Variables de entorno
+
+Ver `.env.example`. Las clave:
+
+- `VITE_BASE_PATH` — `/` en dev, `/sieej/` en staging/prod.
+- `VITE_BACKEND_API_HOST` — `/api/administrador` (apunta a las rutas de mariachi).
+- `BACKEND_DEV_TARGET` — `http://host.docker.internal:8000` (mariachi-api en dev).
+- `VITE_DISABLED_EDITION` — bandera para mostrar `ClosePage` en lugar del wizard.
+- `VITE_GOOGLE_ANALYTICS_ID`, `VITE_GOOGLE_RECAPTCHA_SITE_KEY` — opcionales.
+
+## Arquitectura
+
+### Desarrollo
+
+```
+Browser
+   |
+   v
+Vite Dev (:5174)
+   |- assets, index.html
+   `- /api/* --proxy--> http://host.docker.internal:8000 (mariachi-api)
+                                |
+                                v
+                        cookie+CSRF + PostgreSQL
+                                |
+                                v
+                            Acervo (MinIO) para diccionarios
+```
+
+### Staging / produccion
+
+```
+Browser HTTPS
+   |
+   v
+gateway-hub (:443)
+   `- /sieej/        --> portal (mariachi-nginx:80) --> /sieej/index.html (dist)
+   `- /api/admin/... --> portal --> mariachi-api FastAPI
+```
 
 ## Stack
 
-- React 19 + Vite 6
-- Tailwind CSS 4
-- React Router 7
-- Backend: consume `mariachi/api` via gateway-hub bajo `/api/administrador/formularios/*`
+- **React 19** + **React Router 7**
+- **Vite 6** + `@vitejs/plugin-react` + `@tailwindcss/vite`
+- **Tailwind CSS 4** con tokens institucionales (`#5C2472`, `#FF8300`, `#2e4372`)
+- **react-hook-form** para formularios multi-paso
+- **@react-pdf/renderer** para resumen del cuestionario
+- **react-ga4** (Google Analytics 4)
 
-## Estado
+## Auth
 
-🚧 **En migración a la arquitectura del ecosistema IIEG (gateway-hub + mariachi).**
-El código del frontend se moverá aquí desde `IIEG/SIEEJ/frontend/` cuando la
-fase de backend en `mariachi/api` esté lista.
+- Backend devuelve `csrf_token` + cookie HttpOnly (`access_token`).
+- Frontend guarda CSRF en `sessionStorage['sieej_csrf_token']`.
+- Cada `fetch` lleva `credentials: 'include'`. Mutaciones inyectan `X-CSRF-Token`.
+- 401 limpia CSRF y redirige a `/inicio-sesion`.
 
-## Documentación
+## Documentacion
 
-- Roadmap y arquitectura general en el repo `mariachi`.
-- Flujo de despliegue público a través de `gateway-hub` en `/sieej/`.
+| Documento | Descripcion |
+|-----------|-------------|
+| [Contexto del proyecto](docs/context.md) | Referencia completa: arquitectura, decisiones, integracion con mariachi |
+| [Arquitectura](docs/arquitectura.md) | Diagramas y flujos |
+| [Frontend](docs/frontend.md) | Detalles tecnicos del frontend |
+| [Gateway](docs/gateway.md) | Como se enruta `/sieej/` via gateway-hub + mariachi-nginx |
+| [CHANGELOG](docs/CHANGELOG.md) | Historial de cambios |
+| [Contribucion](docs/CONTRIBUTING.md) | Flujo de trabajo, convenciones |
+| [Codigo de conducta](docs/CODE_OF_CONDUCT.md) | Normas |
 
 ## Licencia
 
-[MIT](./LICENSE) — IIEG Jalisco.
+MIT - IIEG Jalisco. Ver [LICENSE](./LICENSE).
