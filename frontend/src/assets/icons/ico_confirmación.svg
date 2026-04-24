@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="94" height="94" viewBox="0 0 94 94">
+  <g id="ico_confirmación" transform="translate(-913 -4570)">
+    <g id="Grupo_15674" data-name="Grupo 15674" transform="translate(246 4377)">
+      <circle id="Elipse_202" data-name="Elipse 202" cx="47" cy="47" r="47" transform="translate(667 193)" fill="rgba(255,131,0,0.1)"/>
+    </g>
+    <g id="Grupo_15844" data-name="Grupo 15844" transform="translate(939 4596)">
+      <g id="Grupo_15845" data-name="Grupo 15845">
+        <path id="Trazado_24521" data-name="Trazado 24521" d="M3.834,21.726A17.892,17.892,0,1,0,21.726,3.834,17.891,17.891,0,0,0,3.834,21.726M21.726,0A21.726,21.726,0,1,0,43.451,21.726,21.726,21.726,0,0,0,21.726,0M19.809,12.78a1.917,1.917,0,1,1,3.834,0v11.5a1.917,1.917,0,1,1-3.834,0Zm1.917,15.975a1.917,1.917,0,1,0,1.917,1.917,1.918,1.918,0,0,0-1.917-1.917" fill="#ff8300" fill-rule="evenodd"/>
+      </g>
+    </g>
+  </g>
+</svg>

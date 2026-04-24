@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">
+  <g id="Grupo_15856" data-name="Grupo 15856" transform="translate(-968 -2503)">
+    <g id="Grupo_15674" data-name="Grupo 15674" transform="translate(301.455 2310.455)">
+      <circle id="Elipse_202" data-name="Elipse 202" cx="11" cy="11" r="11" transform="translate(666.545 192.545)" fill="#fcc"/>
+    </g>
+    <path id="ico_delete_activa" d="M5.605,0A.606.606,0,0,0,5,.606V5H.606a.606.606,0,1,0,0,1.212H5V10.6a.606.606,0,1,0,1.212,0V6.211H10.6A.606.606,0,1,0,10.6,5H6.211V.606A.606.606,0,0,0,5.605,0" transform="translate(978.926 2506.074) rotate(45)" fill="#e94337"/>
+    <path id="ico_delete_activa_-_Contorno" data-name="ico_delete_activa - Contorno" d="M5.605,11.71A1.107,1.107,0,0,1,4.5,10.6V6.711H.606a1.106,1.106,0,1,1,0-2.212H4.5V.606a1.106,1.106,0,1,1,2.212,0V4.5H10.6a1.106,1.106,0,0,1,0,2.212H6.711V10.6A1.107,1.107,0,0,1,5.605,11.71ZM.606,5.5a.106.106,0,1,0,0,.212H5a.5.5,0,0,1,.5.5V10.6a.106.106,0,0,0,.212,0V6.211a.5.5,0,0,1,.5-.5H10.6a.106.106,0,0,0,0-.212H6.211a.5.5,0,0,1-.5-.5V.606a.106.106,0,1,0-.212,0V5a.5.5,0,0,1-.5.5Z" transform="translate(978.926 2506.074) rotate(45)" fill="#ea4336"/>
+  </g>
+</svg>
