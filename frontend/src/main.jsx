@@ -8,6 +8,7 @@ import { CatalogProvider } from './context/CatalogContext.jsx';
 import { UserProvider } from './context/UserContext.jsx';
 import { HomeProvider } from './context/HomeContext.jsx';
 import Routes from './Routes.jsx';
+import ErrorPage from './pages/ErrorPage.jsx';
 import './index.css';
 
 const isDev = import.meta.env.VITE_NODE_ENV === 'development';
@@ -29,11 +30,10 @@ const basename = import.meta.env.VITE_BASE_PATH || '/';
 const root = createRoot(document.getElementById('root'));
 
 root.render(
-    <Sentry.ErrorBoundary fallback={({ error }) => (
-        <div style={{ padding: 24, fontFamily: 'system-ui' }}>
-            <h2>Algo salió mal.</h2>
-            <p>{error?.message || 'Error inesperado.'}</p>
-        </div>
+    <Sentry.ErrorBoundary fallback={({ error, resetError }) => (
+        <BrowserRouter basename={basename}>
+            <ErrorPage error={error} resetError={resetError} />
+        </BrowserRouter>
     )}>
         <BrowserRouter basename={basename}>
             <StrictMode>
