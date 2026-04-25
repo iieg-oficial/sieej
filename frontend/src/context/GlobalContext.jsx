@@ -55,7 +55,7 @@ const GlobalProvider = ({ children }) => {
     
     const isDevelopment = import.meta.env.VITE_NODE_ENV === 'development';
     const hostBackend = import.meta.env.VITE_BACKEND_API_HOST;
-    const isDisabledEdition = import.meta.env.VITE_DISABLED_EDITION;
+    const isDisabledEdition = import.meta.env.VITE_DISABLED_EDITION === 'true';
     const isMobile = screenSize.sm || screenSize.md;
     const isTablet = screenSize.md;
     const isDesktop = !isMobile && !isTablet;
