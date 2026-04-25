@@ -50,11 +50,11 @@ const Header = () => {
             "
         >
             <div className="flex items-center justify-center md:gap-4 lg:gap-18">
-                <img src={logoSIEEJ} alt="Logo SIEEJM header" className="h-11" />
-                <div className="relative h-11 hidden lg:block">
-                    <img src={logoIIEG} alt="Logo IIEG" className="h-11" />
+                <div className="relative h-11 inline-block">
+                    <img src={logoSIEEJ} alt="Logo SIEEJM header" className="h-11" />
                     <EnvBadge />
                 </div>
+                <img src={logoIIEG} alt="Logo IIEG" className="h-11 hidden lg:block" />
                 <img src={logoJal} alt="Logo Jalisco" className="h-11 hidden lg:block" />
             </div>
             <div className="flex items-center gap-3">
