@@ -93,10 +93,13 @@ const AuthProvider = ({ children }) => {
             sessionStorage.setItem(CSRF_KEY, csrf_token);
 
             const profile = await getProfile();
-            setUser(profile || loginUser);
+            const finalUser = profile || loginUser;
+            setUser(finalUser);
             setIsAuthenticated(true);
             authAnalyticsEvent('Iniciar sesión', 'Inicio de sesión exitoso');
-            navigate(originPage);
+
+            const target = finalUser?.must_change_password ? '/cambiar-contrasena' : originPage;
+            navigate(target);
         } catch (error) {
             setAuthError(error.message || 'Error al iniciar sesión');
             onMessage(true);
