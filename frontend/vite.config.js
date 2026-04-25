@@ -22,6 +22,20 @@ export default defineConfig(({ mode }) => {
             __APP_VERSION__: JSON.stringify(pkg.version)
         },
         plugins: [react(), tailwindcss()],
+        build: {
+            rollupOptions: {
+                output: {
+                    manualChunks: (id) => {
+                        if (id.includes('node_modules')) {
+                            if (id.includes('@react-pdf')) return 'vendor-pdf';
+                            if (id.includes('react-hook-form')) return 'vendor-form';
+                            if (id.includes('react-router')) return 'vendor-router';
+                            if (id.includes('react-dom') || id.includes('/react/') || id.includes('scheduler')) return 'vendor-react';
+                        }
+                    },
+                },
+            },
+        },
         server: {
             host: HOST_FRONTEND,
             port: PORT,
