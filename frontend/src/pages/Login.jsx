@@ -88,7 +88,10 @@ export default function Login() {
                 </div>
                 <div className="hidden md:flex flex-col items-center justify-center">
                     <ImageSIEEJ />
-                    <img src={logoIIEG} alt="IIEG"/>
+                    <div className="relative inline-block">
+                        <img src={logoIIEG} alt="IIEG"/>
+                        <EnvBadge />
+                    </div>
                 </div>
             </div>
         </CardPage>

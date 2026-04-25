@@ -9,6 +9,7 @@ import logoIIEG from '../assets/svg/logo_iieg_header.svg';
 import logoJal from '../assets/svg/logo_jal_header.svg';
 import Loading from '../components/Loading';
 import Button from '../components/Button';
+import EnvBadge from '../components/EnvBadge';
 import ClosePage from '../pages/ClosePage';
 
 const Header = () => {
@@ -50,7 +51,10 @@ const Header = () => {
         >
             <div className="flex items-center justify-center md:gap-4 lg:gap-18">
                 <img src={logoSIEEJ} alt="Logo SIEEJM header" className="h-11" />
-                <img src={logoIIEG} alt="Logo IIEG" className="h-11 hidden lg:block" />
+                <div className="relative h-11 hidden lg:block">
+                    <img src={logoIIEG} alt="Logo IIEG" className="h-11" />
+                    <EnvBadge />
+                </div>
                 <img src={logoJal} alt="Logo Jalisco" className="h-11 hidden lg:block" />
             </div>
             <div className="flex items-center gap-3">
