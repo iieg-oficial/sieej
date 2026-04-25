@@ -4,6 +4,34 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.2.0] - 2026-04-25
+
+Homologacion del sistema de analytics al patron mapalab: GA4 se inyecta exclusivamente via GTM en el `gateway-hub`. SIEEJ ya no inicializa `react-ga4` ni depende de `VITE_GOOGLE_ANALYTICS_ID`. Los eventos custom siguen disponibles a traves de `window.dataLayer.push(...)` cuando GTM esta presente.
+
+### Removed
+
+- Dependencia `react-ga4` del `package.json`.
+- `ReactGA.initialize(...)` en `src/main.jsx`.
+- `import ReactGA from 'react-ga4'` y `ReactGA.event(...)` en `AuthContext`, `GlobalContext`, `UserContext` y `HomeContext`.
+
+### Added
+
+- `src/helpers/analytics.js` con `pushAnalyticsEvent(category, action, label)`. Es no-op si `window.dataLayer` no existe (e.g. dev sin GTM, build sin gateway por encima). En dev sin GTM imprime un `console.debug` para ayudar a depurar.
+- Documentacion en `docs/analytics.md` describiendo el patron, el formato del evento (`event: 'sieej_event'`, `category`, `action`, `label`) y como configurar GTM/GA4 en el lado del gateway.
+
+### Changed
+
+- `package.json` bumped a 1.2.0 (minor por cambio de pipeline de analytics).
+- `VERSION` -> 1.2.0.
+
+### Notes
+
+- El gateway-hub inyecta el snippet de GTM en `</head>` y `</body>` via `nginx/includes/gtm.inc.template` con la variable `GTM_ID`. Cualquier producto servido detras del gateway hereda esa configuracion sin instalar SDK.
+- Para dev local sin gateway, `dataLayer` no existe; los eventos se pierden silenciosamente (es lo deseado para que el dev no tenga que tocar configuracion).
+- Si en algun momento se necesita un tracking distinto al de GTM (medicion privada, debugging), se puede inyectar `window.dataLayer = []` y un consumer manual antes de cargar el bundle.
+
+---
+
 ## [1.1.4] - 2026-04-24 (unreleased - refactor de infra)
 
 ### Changed

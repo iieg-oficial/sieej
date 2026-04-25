@@ -1,10 +1,10 @@
 import {
     useState, createContext, useContext, useEffect, useCallback
 } from 'react';
-import ReactGA from 'react-ga4';
 import { useGlobal } from './GlobalContext';
 import { useLocation, useNavigate } from 'react-router';
 import { postLogin, postLogout, getProfile } from '../services/authServices';
+import { pushAnalyticsEvent } from '../helpers/analytics';
 
 const AuthContext = createContext();
 
@@ -24,7 +24,7 @@ const AuthProvider = ({ children }) => {
     const originPage = location.state?.from?.pathname || '/';
 
     const authAnalyticsEvent = (action, label) => {
-        ReactGA.event({ category: 'Autenticación', action, label });
+        pushAnalyticsEvent('Autenticación', action, label);
     };
 
     const closeMessageError = () => setAuthError(null);

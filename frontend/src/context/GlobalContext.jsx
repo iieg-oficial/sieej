@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import ReactGA from 'react-ga4';
 import infoGen from '../assets/icons/ico_info_general.svg';
 import infoEnl from '../assets/icons/ico_info_enlaces.svg';
 import infoBd from '../assets/icons/ico_info_bd.svg';
+import { pushAnalyticsEvent } from '../helpers/analytics';
 
 const GlobalContext = createContext();
 
@@ -72,11 +72,7 @@ const GlobalProvider = ({ children }) => {
     const regexExt = /^\d{1,9}$/;
 
     const globalAnalyticsEvent = (action, label) => {
-        ReactGA.event({
-            category: 'Todo',
-            action,
-            label
-        });
+        pushAnalyticsEvent('Todo', action, label);
     };
 
     const updateScreenSize = () => {

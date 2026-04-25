@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState } from 'react';
-import ReactGA from 'react-ga4';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useGlobal } from './GlobalContext';
 import { useAuth } from './AuthContext';
@@ -8,6 +7,7 @@ import objectsToStrings from '../helpers/objectsToStrings';
 import cleanObject from '../helpers/cleanObject';
 import stringToBoolean from '../helpers/stringToBoolean';
 import booleanToString from '../helpers/booleanToString';
+import { pushAnalyticsEvent } from '../helpers/analytics';
 
 const NAME_TABLE_DB = 'informacion_basesdatos';
 
@@ -21,7 +21,7 @@ const HomeProvider = ({ children }) => {
     const { onFetch } = useAuth();
 
     const formAnalyticsEvent = (action, label) => {
-        ReactGA.event({ category: 'Formulario', action, label });
+        pushAnalyticsEvent('Formulario', action, label);
     };
 
     const methodsDatabase = useForm({

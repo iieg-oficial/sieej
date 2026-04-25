@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
-import ReactGA from 'react-ga4';
 import { useGlobal } from './GlobalContext';
 import { useAuth } from './AuthContext';
+import { pushAnalyticsEvent } from '../helpers/analytics';
 
 const UserContext = createContext();
 
@@ -13,7 +13,7 @@ const UserProvider = ({ children }) => {
     const [ userForms, setUserForms ] = useState(null);
 
     const userAnalyticsEvent = (action, label) => {
-        ReactGA.event({ category: 'Usuario', action, label });
+        pushAnalyticsEvent('Usuario', action, label);
     };
 
     const handleUser = async () => {
