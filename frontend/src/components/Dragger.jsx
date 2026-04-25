@@ -51,16 +51,16 @@ const Dragger = ({
     };
 
     useEffect(() => {
-        if (clean) { 
+        if (clean) {
             setValue(name, null);
             setFileList([]);
         }
-    }, [clean]);
-    
+    }, [clean, name, setValue]);
+
     useEffect(() => {
         const initialValue = getValues(name);
         if (initialValue) setFileList([initialValue]);
-    }, []);
+    }, [getValues, name]);
 
     return (
         <DynamicDiv colSpan={colSpan} wDiv={wDiv}>

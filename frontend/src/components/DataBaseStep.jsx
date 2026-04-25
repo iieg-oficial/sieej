@@ -31,7 +31,7 @@ const DatabaseInformation = () => {
     } = useCatalog();
     const { trigger, handleSubmit, reset, watch, getValues } = methods;
 
-    const getFieldName = useCallback((index, fieldName) => `${NAME_TABLE}.[${index}].${fieldName}`, []);
+    const getFieldName = useCallback((index, fieldName) => `${NAME_TABLE}.[${index}].${fieldName}`, [NAME_TABLE]);
 
     const isLimpiezaVisible = watch(getFieldName(activeTab, 'limpieza_validacion')) === 'true';
     const isPeriodicidadVisible = watch(getFieldName(activeTab, 'periodicidad')) === 'Otro';
@@ -132,7 +132,8 @@ const DatabaseInformation = () => {
             });
         }
         onMessage(false);
-    }, []);    
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     
     return (
         <React.Fragment>

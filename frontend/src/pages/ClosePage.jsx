@@ -10,7 +10,7 @@ const ClosePage = () => {
 
     useEffect(() => {
         onAnalytics('error 404', `Intentaron acceder a: ${location.pathname}`);
-    }, []);
+    }, [onAnalytics, location.pathname]);
 
     return (
         <div className="flex flex-col mx-2 gap-5 items-center justify-start bg-white">

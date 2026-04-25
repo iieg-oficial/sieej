@@ -59,9 +59,10 @@ const GeneralInformation = () => {
         onFetchGeneral().then((prevData) => {
             reset(prevData);
             onUpdateForm({ [NAME_TABLE]: prevData });
-        })
+        });
         onMessage(false);
-    }, [  ]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     if (homeLoading) return <Loading />;
 

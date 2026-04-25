@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ErrorsRequired from '../helpers/ErrorsRequired';
 import DynamicDiv from '../helpers/DynamicDiv';
 import Label from './Label';
@@ -12,7 +12,7 @@ const Radio = ({
     const [additionalInputType, setAdditionalInputType] = useState(null);
     const watchedRadioValue = watch(name);
 
-    const updateAdditionalInput = (selectedValue) => {
+    const updateAdditionalInput = useCallback((selectedValue) => {
         if (selectedValue === 'true' || selectedValue === true) {
             setAdditionalInputType('regular');
         } else if (selectedValue === 'Otro') {
@@ -20,20 +20,20 @@ const Radio = ({
         } else {
             setAdditionalInputType(null);
         }
-    
+
         if (selectedValue !== 'true' && selectedValue !== true) {
             setValue(`desc_${name}`, '');
             if (name === '') setValue(`archivo_${name}`, null);
-            if(name === '') {
+            if (name === '') {
                 setValue(`nombre_${name}`, '');
                 setValue(`url_${name}`, '');
             }
         }
-    
+
         if (selectedValue !== 'Otro') {
             setValue(`desc_${name}`, '');
         }
-    };
+    }, [name, setValue]);
 
     const handleRadioChange = (event) => {
         const selectedValue = event.target.value;
@@ -45,7 +45,7 @@ const Radio = ({
         if (watchedRadioValue !== undefined) {
             updateAdditionalInput(watchedRadioValue);
         }
-    }, [watchedRadioValue]);
+    }, [watchedRadioValue, updateAdditionalInput]);
 
     return (
         <DynamicDiv colSpan={additionalInputType ? 2: colSpan} wDiv={wDiv} className="mt-[15px]">

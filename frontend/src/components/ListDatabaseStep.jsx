@@ -92,6 +92,7 @@ const ListDatabase = () => {
         resetVisitedTabs();
         onActiveTab(0);
         onMessage(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     if (homeLoading) return <Loading />

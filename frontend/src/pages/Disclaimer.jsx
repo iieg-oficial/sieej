@@ -24,8 +24,8 @@ const Disclaimer = () => {
     useEffect(() => {
         const termsAccepted = sessionStorage.getItem('termsAccepted') === 'true';
         if (termsAccepted) navigate('/inicio-sesion');
-        onMessage(false)
-    }, []);
+        onMessage(false);
+    }, [navigate, onMessage]);
 
     const handleLinkClick = () => {
         onAnalytics('Aviso de privacidad', 'Se direcciona al aviso de privacidad');

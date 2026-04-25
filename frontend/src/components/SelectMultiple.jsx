@@ -49,7 +49,7 @@ const SelectMultiple = ({
     useEffect(() => {
         const fieldValue = getValues(name);
         if (fieldValue) setSelectedValues(fieldValue);
-    }, []);
+    }, [getValues, name]);
 
     return (
         <DynamicDiv colSpan={colSpan} wDiv={wDiv} className="mt-[15px]" ref={dropdownRef}>

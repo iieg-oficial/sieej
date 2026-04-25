@@ -157,6 +157,7 @@ const LinksInformation = () => {
             }
         })();
         onMessage(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 

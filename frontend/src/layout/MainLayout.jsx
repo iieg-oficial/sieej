@@ -38,7 +38,7 @@ const Header = () => {
 
     useEffect(() => {
         onUser();
-    }, []);
+    }, [onUser]);
 
     return (
         <header 

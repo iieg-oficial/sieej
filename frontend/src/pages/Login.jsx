@@ -31,12 +31,12 @@ export default function Login() {
 
     useEffect(() => {
         isAuthenticated && navigate(originPage);
-    }, [isAuthenticated])
+    }, [isAuthenticated, navigate, originPage]);
 
     useEffect(() => {
         const termsAccepted = sessionStorage.getItem('termsAccepted') === 'true';
         if (!termsAccepted) navigate('/exencion');
-    }, []);
+    }, [navigate]);
 
     return (
         <CardPage>

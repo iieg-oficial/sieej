@@ -13,7 +13,7 @@ const NoMatch = () => {
 
     useEffect(() => {
         onAnalytics('error 404', `Intentaron acceder a: ${location.pathname}`);
-    }, []);
+    }, [onAnalytics, location.pathname]);
 
     return (
         <main className="grid min-h-screen place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
