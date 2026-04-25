@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useGlobal } from '../context/GlobalContext';
+import useGlobal from '../context/useGlobal';
 import IcoQuestion from '../assets/icons/ico_tooltip.svg';
 import IcoX from '../assets/icons/ico_x_slow.svg';
 

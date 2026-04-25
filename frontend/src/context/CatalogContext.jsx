@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useAuth } from './AuthContext';
-import { useGlobal } from './GlobalContext';
+import React, { createContext, useEffect, useState } from 'react';
+import useAuth from './useAuth';
+import useGlobal from './useGlobal';
 
 const CatalogContext = createContext();
 
@@ -78,12 +78,4 @@ const CatalogProvider = ({ children }) => {
 
 CatalogContext.displayName = 'CatalogContext';
 
-const useCatalog = () => {
-    const context = useContext(CatalogContext);
-    if (!context) {
-        throw new Error('useCatalog debe usarse dentro de un CatalogContext');
-    }
-    return context;
-};
-
-export { CatalogProvider, useCatalog };
+export { CatalogContext, CatalogProvider };

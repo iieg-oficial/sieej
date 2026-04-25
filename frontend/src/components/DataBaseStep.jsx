@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
-import { useGlobal } from '../context/GlobalContext';
-import { useHome } from '../context/HomeContext';
-import { useCatalog } from '../context/CatalogContext';
+import useGlobal from '../context/useGlobal';
+import useHome from '../context/useHome';
+import useCatalog from '../context/useCatalog';
 import { FieldGrid } from '../helpers/FieldLayout';
 import { TextTooltipCategoryData } from '../helpers/textLarge';
 import NavigateStep from './NavigateStep';

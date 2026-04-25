@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGlobal } from '../context/GlobalContext';
+import useGlobal from '../context/useGlobal';
 import Typography from './Typography';
 import Tabs from './Tabs';
 

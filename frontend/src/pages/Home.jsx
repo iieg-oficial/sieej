@@ -1,5 +1,5 @@
 import React, {  } from 'react';
-import { useGlobal } from '../context/GlobalContext';
+import useGlobal from '../context/useGlobal';
 import GeneralInformation from '../components/GeneralStep';
 import LinksInformation from '../components/LinksStep';
 import DatabaseInformation from '../components/DataBaseStep';

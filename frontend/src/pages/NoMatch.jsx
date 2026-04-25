@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { useGlobal } from '../context/GlobalContext';
+import useGlobal from '../context/useGlobal';
 import logo404 from '../assets/png/404.png';
 import Typography from '../components/Typography';
 import Button from '../components/Button';

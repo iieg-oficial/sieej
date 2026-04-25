@@ -1,4 +1,4 @@
-import { useGlobal } from '../context/GlobalContext';
+import useGlobal from '../context/useGlobal';
 import logoJal from '../assets/svg/logo_jal.svg';
 import backgroundJal from '../assets/svg/img_back.svg';
 

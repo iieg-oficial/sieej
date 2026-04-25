@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { useGlobal } from './GlobalContext';
-import { useAuth } from './AuthContext';
+import useGlobal from './useGlobal';
+import useAuth from './useAuth';
 import defaultDatabase from '../helpers/initDatabase';
 import objectsToStrings from '../helpers/objectsToStrings';
 import cleanObject from '../helpers/cleanObject';
@@ -211,12 +211,4 @@ const HomeProvider = ({ children }) => {
 
 HomeContext.displayName = 'HomeContext';
 
-const useHome = () => {
-    const context = useContext(HomeContext);
-    if (!context) {
-        throw new Error('useHome debe usarse dentro de un HomeContext');
-    }
-    return context;
-};
-
-export { HomeProvider, useHome };
+export { HomeContext, HomeProvider };

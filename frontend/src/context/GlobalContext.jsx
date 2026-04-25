@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import infoGen from '../assets/icons/ico_info_general.svg';
 import infoEnl from '../assets/icons/ico_info_enlaces.svg';
 import infoBd from '../assets/icons/ico_info_bd.svg';
@@ -188,12 +188,4 @@ const GlobalProvider = ({ children }) => {
 
 GlobalContext.displayName = 'GlobalContext';
 
-const useGlobal = () => {
-    const context = useContext(GlobalContext);
-    if (!context) {
-        throw new Error('useGlobal debe usarse dentro de un GlobalContext');
-    }
-    return context;
-};
-
-export { GlobalProvider, useGlobal };
+export { GlobalContext, GlobalProvider };

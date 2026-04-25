@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Controller, useFormState } from 'react-hook-form';
-import { useHome } from '../context/HomeContext';
+import useHome from '../context/useHome';
 import icoDrag from '../assets/icons/ico_avance_guardado.svg';
 import DynamicDiv from '../helpers/DynamicDiv';
 import ErrorsRequired from '../helpers/ErrorsRequired';

@@ -1,7 +1,7 @@
 import {
-    useState, createContext, useContext, useEffect, useCallback
+    useState, createContext, useEffect, useCallback
 } from 'react';
-import { useGlobal } from './GlobalContext';
+import useGlobal from './useGlobal';
 import { useLocation, useNavigate } from 'react-router';
 import { postLogin, postLogout, getProfile } from '../services/authServices';
 import { pushAnalyticsEvent } from '../helpers/analytics';
@@ -143,12 +143,4 @@ const AuthProvider = ({ children }) => {
 
 AuthContext.displayName = 'AuthContext';
 
-const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth debe usarse dentro de un AuthContext');
-    }
-    return context;
-};
-
-export { AuthProvider, useAuth };
+export { AuthContext, AuthProvider };

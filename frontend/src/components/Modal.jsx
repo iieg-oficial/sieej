@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { useGlobal } from '../context/GlobalContext';
+import useGlobal from '../context/useGlobal';
 import errorIcon from '../assets/icons/ico_sección_error.svg';
 import infoIcon from '../assets/icons/ico_avance_guardado.svg';
 import warnIcon from '../assets/icons/ico_confirmación.svg';

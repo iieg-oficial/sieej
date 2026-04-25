@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
-import { useGlobal } from './GlobalContext';
-import { useAuth } from './AuthContext';
+import React, { createContext, useState } from 'react';
+import useGlobal from './useGlobal';
+import useAuth from './useAuth';
 import { pushAnalyticsEvent } from '../helpers/analytics';
 
 const UserContext = createContext();
@@ -74,12 +74,4 @@ const UserProvider = ({ children }) => {
 
 UserContext.displayName = 'UserContext';
 
-const useUser = () => {
-    const context = useContext(UserContext);
-    if (!context) {
-        throw new Error('useUser debe usarse dentro de un UserContext');
-    }
-    return context;
-};
-
-export { UserProvider, useUser };
+export { UserContext, UserProvider };

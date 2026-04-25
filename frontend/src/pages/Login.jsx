@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
-import { useGlobal } from '../context/GlobalContext';
-import { useAuth } from '../context/AuthContext';
+import useGlobal from '../context/useGlobal';
+import useAuth from '../context/useAuth';
 import logoIIEG from '../assets/svg/logo_iieg_login.svg';
 import logoSIEEJ from '../assets/svg/logo_sieej_login.svg';
 import Typography from '../components/Typography';

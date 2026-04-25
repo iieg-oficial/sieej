@@ -1,5 +1,5 @@
 import React from 'react';
-import { useGlobal } from '../context/GlobalContext';
+import useGlobal from '../context/useGlobal';
 import leftIcon from '../assets/icons/ico_left_arrow.svg';
 import rigthIcon from '../assets/icons/ico_rigth_arrow.svg';
 import saveIcon from '../assets/icons/ico_guardar_avance.svg';

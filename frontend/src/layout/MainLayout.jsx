@@ -1,8 +1,8 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { Outlet } from 'react-router';
-import { useGlobal } from '../context/GlobalContext';
-import { useAuth } from '../context/AuthContext';
-import { useUser } from '../context/UserContext';
+import useGlobal from '../context/useGlobal';
+import useAuth from '../context/useAuth';
+import useUser from '../context/useUser';
 import iconMenu from '../assets/icons/arrow_contorno.svg';
 import logoSIEEJ from '../assets/svg/logo_sieej_header.svg';
 import logoIIEG from '../assets/svg/logo_iieg_header.svg';

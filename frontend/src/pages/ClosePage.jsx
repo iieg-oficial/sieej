@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useGlobal } from '../context/GlobalContext';
+import useGlobal from '../context/useGlobal';
 import closeImage from '../assets/svg/closePage.svg';
 import Typography from '../components/Typography';
 import { useLocation } from 'react-router-dom';

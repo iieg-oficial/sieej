@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useGlobal } from '../context/GlobalContext';
+import useGlobal from '../context/useGlobal';
 import Tooltip from './Tooltip';
 import Spinner from './Spinner';
 import DynamicDiv from '../helpers/DynamicDiv';

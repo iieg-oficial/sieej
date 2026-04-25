@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { useGlobal } from '../context/GlobalContext';
-import { useHome } from '../context/HomeContext';
+import useGlobal from '../context/useGlobal';
+import useHome from '../context/useHome';
 import addMore from '../assets/icons/ico_agregar_nuevo.svg'
 import addHover from '../assets/icons/ico_agregar_hover.svg'
 import NavigateStep from './NavigateStep';

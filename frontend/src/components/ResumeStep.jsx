@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { useGlobal } from '../context/GlobalContext';
-import { useUser } from '../context/UserContext';
-import { useHome } from '../context/HomeContext';
+import useGlobal from '../context/useGlobal';
+import useUser from '../context/useUser';
+import useHome from '../context/useHome';
 import { FieldGrid } from '../helpers/FieldLayout';
-import { handleDownload } from './Pdf';
+import { handleDownload } from '../helpers/pdfActions';
 import extractFileName from '../helpers/extractFileName';
 import cleanObject from '../helpers/cleanObject';
 import NavigateStep from './NavigateStep';

@@ -1,7 +1,7 @@
 import React, {  } from 'react';
 import { Routes as RoutesRRD, Route, Navigate, useLocation } from 'react-router';
-import { useGlobal } from './context/GlobalContext';
-import { useAuth } from './context/AuthContext';
+import useGlobal from './context/useGlobal';
+import useAuth from './context/useAuth';
 import MainLayout from './layout/MainLayout';
 import Home from './pages/Home';
 import Register from './pages/Register';

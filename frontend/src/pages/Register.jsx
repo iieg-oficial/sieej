@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
-import { useGlobal } from '../context/GlobalContext';
-import { useAuth } from '../context/AuthContext';
+import useGlobal from '../context/useGlobal';
+import useAuth from '../context/useAuth';
 import Typography from '../components/Typography';
 import CardPage from '../components/CardPage';
 import Input from '../components/Input';

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { useGlobal } from '../context/GlobalContext';
-import { useHome } from '../context/HomeContext';
+import useGlobal from '../context/useGlobal';
+import useHome from '../context/useHome';
 import icoX from '../assets/icons/ico_delete_predeterminada.svg';
 import Button from './Button';
 import Loading from './Loading';

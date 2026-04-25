@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useGlobal } from '../context/GlobalContext';
-import { useCatalog } from '../context/CatalogContext';
-import { useHome } from '../context/HomeContext';
+import useGlobal from '../context/useGlobal';
+import useCatalog from '../context/useCatalog';
+import useHome from '../context/useHome';
 import NavigateStep from './NavigateStep';
 import Input from './Input';
 import Select from './Select';
