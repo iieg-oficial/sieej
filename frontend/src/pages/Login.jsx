@@ -10,6 +10,7 @@ import CardPage from '../components/CardPage';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import Message from '../components/Message';
+import EnvBadge from '../components/EnvBadge';
 
 export default function Login() {
     const { regexPass } = useGlobal();

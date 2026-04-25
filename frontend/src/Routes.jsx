@@ -11,6 +11,7 @@ const Register = lazy(() => import('./pages/Register'));
 const NoMatch = lazy(() => import('./pages/NoMatch'));
 const Disclaimer = lazy(() => import('./pages/Disclaimer'));
 const ChangePassword = lazy(() => import('./pages/ChangePassword'));
+const ErrorPage = lazy(() => import('./pages/ErrorPage'));
 
 const ProtectedRoute = () => {
     const { isAuthenticated } = useAuth();
@@ -31,6 +32,7 @@ const Routes = () => {
                     <Route path="/" element={<Home />} />
                     <Route path="cambiar-contrasena" element={<ChangePassword />} />
                 </Route>
+                <Route path="error" element={<ErrorPage />} />
                 <Route path="*" element={<NoMatch />} />
             </RoutesRRD>
         </Suspense>
