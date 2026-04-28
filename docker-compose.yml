@@ -50,7 +50,7 @@ services:
       HOST_GID: ${GID:-1000}
     volumes:
       - ./frontend/dist:/output
-    entrypoint: ["sh", "-c", "rm -rf /output/* /output/.[!.]* 2>/dev/null; cp -a /app/dist/. /output/ && chown -R ${HOST_UID}:${HOST_GID} /output"]
+    entrypoint: ["sh", "-c", "rm -rf /output/* /output/.[!.]* 2>/dev/null; cp -a /app/dist/. /output/ && chown -R $$HOST_UID:$$HOST_GID /output"]
 
 volumes:
   frontend-node-modules:
