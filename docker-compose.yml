@@ -45,10 +45,12 @@ services:
         VITE_DISABLED_EDITION: ${VITE_DISABLED_EDITION:-false}
         VITE_GOOGLE_RECAPTCHA_SITE_KEY: ${VITE_GOOGLE_RECAPTCHA_SITE_KEY:-}
     profiles: ["build"]
-    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      HOST_UID: ${UID:-1000}
+      HOST_GID: ${GID:-1000}
     volumes:
       - ./frontend/dist:/output
-    entrypoint: ["sh", "-c", "rm -rf /output/* && cp -r /app/dist/* /output/"]
+    entrypoint: ["sh", "-c", "rm -rf /output/* /output/.[!.]* 2>/dev/null; cp -a /app/dist/. /output/ && chown -R ${HOST_UID}:${HOST_GID} /output"]
 
 volumes:
   frontend-node-modules:
