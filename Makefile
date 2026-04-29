@@ -17,14 +17,14 @@ help:
 	@echo "  make down         - Detener servicios de desarrollo"
 	@echo ""
 	@echo "BUILD (produccion):"
-	@echo "  make build        - Construir frontend en frontend/dist (consumido por mariachi-nginx)"
+	@echo "  make build        - Construir frontend en frontend/dist (consumido por gateway-hub)"
 	@echo ""
 	@echo "GENERAL:"
 	@echo "  make status       - Ver estado de los servicios"
 	@echo "  make clean        - Detener servicios y limpiar todo"
 	@echo ""
 	@echo "Nota: el backend de SIEEJ vive en mariachi/api (modulo formularios)."
-	@echo "      En staging/produccion el dist/ es servido por mariachi-nginx en /sieej/."
+	@echo "      En staging/produccion el dist/ es servido por gateway-hub en /sieej/."
 
 dev:
 	@echo ""

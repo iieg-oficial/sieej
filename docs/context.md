@@ -36,11 +36,14 @@ viven en `mariachi`.
   mantenimiento y eventual migracion.
 - **Postgres y Redis externos a SIEEJ.** Provistos por mariachi. SIEEJ
   no levanta servicios de datos.
-- **Sin nginx propio.** El `dist/` se sirve via `mariachi-nginx` con
-  un location `^~ /sieej` (`try_files ... /sieej/index.html`).
-- **Sin upstream `sieej` en el gateway.** El gateway-hub enruta
-  `/sieej/` al upstream `portal` (= mariachi-nginx). El `SIEEJ_HOST`
-  agregado preliminarmente se removio.
+- **Sin nginx propio.** SIEEJ es 100% estatico. El `dist/` se sirve
+  directamente desde `gateway-hub` con un location `^~ /sieej/`
+  (`alias` + `try_files ... /sieej/index.html`). Mismo patron que
+  cualquier ingress nginx con un dist puro.
+- **Sin upstream `sieej` en el gateway.** No hace falta porque
+  gateway-hub sirve los archivos directamente sin proxy. Las llamadas
+  a `/api/administrador/formularios/...` siguen yendo al upstream
+  `portal` (= mariachi-api).
 - **Auth con cookie HttpOnly + CSRF.** Migrado de localStorage+Bearer a
   el patron oficial de mariachi (cookie + `X-CSRF-Token` header).
 - **Repo separado del backend.** El frontend se maneja en
@@ -80,11 +83,9 @@ Browser HTTPS
    v
 gateway-hub (Nginx :443, TLSv1.2/1.3, HSTS)
    |
-   |-- /sieej/      --> portal (= mariachi-nginx:80)
-   |                       |
-   |                       v
-   |                   /usr/share/nginx/html/sieej/index.html
-   |                   (montaje de SIEEJ/frontend/dist read-only)
+   |-- /sieej/      --> alias /usr/share/nginx/html/sieej/
+   |                    (bind mount de sieej/frontend/dist read-only,
+   |                     servido directamente por gateway-hub)
    |
    |-- /api/...     --> portal --> mariachi-api (FastAPI Gunicorn)
    |

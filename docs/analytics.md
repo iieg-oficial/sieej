@@ -13,8 +13,8 @@ gateway-hub (Nginx)
    |  sub_filter en </head> y </body> (gtm.inc.template):
    |  inyecta GTM con GTM_ID configurado en gateway-hub/.env
    |
-   v
-mariachi-nginx (sirve /sieej/, /mariachi/, etc.)
+   |  /sieej/ se sirve directamente con `alias` desde el dist montado en
+   |  /usr/share/nginx/html/sieej. El sub_filter aplica al index.html.
    |
    v
 SIEEJ frontend (dist/)  <-- recibe el HTML ya con el snippet GTM

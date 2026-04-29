@@ -11,9 +11,9 @@ entreguen información estructurada al IIEG.
 > sirve `mariachi/api` bajo `/api/administrador/formularios/*` (modulo
 > SIEEJ con schema dedicado `sieej` en `iieg_portal`).
 >
-> **Despliegue**: el `dist/` generado se sirve a traves de `mariachi-nginx`
-> en `/sieej/`. El `gateway-hub` enruta esa ruta al upstream `portal`
-> (= mariachi-nginx).
+> **Despliegue**: el `dist/` generado se sirve directamente desde
+> `gateway-hub` en `/sieej/` (bind mount al volumen del nginx, igual
+> patron que usa el resto del ecosistema con su `proxy_pass`).
 
 ## Requisitos
 
@@ -46,7 +46,7 @@ cp .env.example .env.production
 
 make build
 # Genera ./frontend/dist/ con base path /sieej/
-# mariachi-nginx lo sirve via volumen (ver mariachi/docker-compose.yml).
+# gateway-hub lo sirve via bind mount (ver gateway-hub/docker-compose.yml).
 ```
 
 ## Comandos disponibles
@@ -54,7 +54,7 @@ make build
 | Comando | Descripcion |
 |---------|-------------|
 | `make dev` | Modo desarrollo (Vite hot-reload) |
-| `make build` | Construir `dist/` consumido por mariachi-nginx |
+| `make build` | Construir `dist/` consumido por gateway-hub |
 | `make down` | Detener servicios de desarrollo |
 | `make logs` | Ver logs |
 | `make status` | Estado de los servicios |
@@ -68,7 +68,7 @@ Ver `.env.example`. Las clave:
 - `VITE_BACKEND_API_HOST` — `/api/administrador` (apunta a las rutas de mariachi).
 - `BACKEND_DEV_TARGET` — `http://host.docker.internal:8000` (mariachi-api en dev).
 - `VITE_DISABLED_EDITION` — bandera para mostrar `ClosePage` en lugar del wizard.
-- `VITE_GOOGLE_ANALYTICS_ID`, `VITE_GOOGLE_RECAPTCHA_SITE_KEY` — opcionales.
+- `VITE_GOOGLE_RECAPTCHA_SITE_KEY` — opcional. (GA4 se inyecta por `gateway-hub` via GTM, no requiere variable en el frontend.)
 
 ## Arquitectura
 
@@ -96,7 +96,7 @@ Browser HTTPS
    |
    v
 gateway-hub (:443)
-   `- /sieej/        --> portal (mariachi-nginx:80) --> /sieej/index.html (dist)
+   `- /sieej/        --> alias /usr/share/nginx/html/sieej (dist montado por gateway-hub)
    `- /api/admin/... --> portal --> mariachi-api FastAPI
 ```
 
@@ -107,7 +107,7 @@ gateway-hub (:443)
 - **Tailwind CSS 4** con tokens institucionales (`#5C2472`, `#FF8300`, `#2e4372`)
 - **react-hook-form** para formularios multi-paso
 - **@react-pdf/renderer** para resumen del cuestionario
-- **react-ga4** (Google Analytics 4)
+- **GTM** inyectado por `gateway-hub` (no SDK de GA en el bundle)
 
 ## Auth
 
@@ -123,7 +123,7 @@ gateway-hub (:443)
 | [Contexto del proyecto](docs/context.md) | Referencia completa: arquitectura, decisiones, integracion con mariachi |
 | [Arquitectura](docs/arquitectura.md) | Diagramas y flujos |
 | [Frontend](docs/frontend.md) | Detalles tecnicos del frontend |
-| [Gateway](docs/gateway.md) | Como se enruta `/sieej/` via gateway-hub + mariachi-nginx |
+| [Gateway](docs/gateway.md) | Como se enruta `/sieej/` via gateway-hub |
 | [CHANGELOG](docs/CHANGELOG.md) | Historial de cambios |
 | [Contribucion](docs/CONTRIBUTING.md) | Flujo de trabajo, convenciones |
 | [Codigo de conducta](docs/CODE_OF_CONDUCT.md) | Normas |

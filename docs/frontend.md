@@ -165,7 +165,7 @@ Reglas notables (`eslint.config.js`):
 ```bash
 make build
 # Genera frontend/dist/ con base path /sieej/.
-# mariachi-nginx lo monta como /usr/share/nginx/html/sieej.
+# gateway-hub lo monta como /usr/share/nginx/html/sieej via bind mount.
 ```
 
 El Dockerfile (multi-stage) recibe los `VITE_*` como ARGs y los hardcodea
