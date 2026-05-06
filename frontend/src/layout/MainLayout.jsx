@@ -64,11 +64,11 @@ const Header = () => {
                 <button
                     type="button"
                     onClick={() => navigate('/')}
-                    className="relative h-11 inline-block cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded"
+                    className="relative h-11 p-0 m-0 border-0 bg-transparent cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded"
                     aria-label="Ir al inicio"
                     title="Ir al inicio"
                 >
-                    <img src={logoSIEEJ} alt="Logo SIEEJM header" className="h-11" />
+                    <img src={logoSIEEJ} alt="Logo SIEEJM header" className="h-11 block" />
                     <EnvBadge />
                 </button>
                 <img src={logoIIEG} alt="Logo IIEG" className="h-11 hidden lg:block" />
@@ -87,7 +87,7 @@ const Header = () => {
                         <span className="text-emerald-700 text-2xl font-garetbold">
                             {userIsLoading ? <Loading /> : initial}
                         </span>
-                        <IncompleteBadge count={incompleteCount} />
+                        <IncompleteBadge count={incompleteCount} corner="bottom-right" />
                     </div>
                     <Button
                         variant="primary"
@@ -101,7 +101,7 @@ const Header = () => {
                         <div
                             className="
                                 absolute top-full right-0 mt-2 w-56 bg-white shadow-lg shadow-[#B6A6BC99] rounded-md
-                                text-sm z-10 overflow-hidden
+                                text-sm z-50 overflow-hidden
                             "
                         >
                             {!isOnList && (
@@ -152,7 +152,7 @@ const MainLayout = () => {
     return (
         <FormsProvider>
             <div className={`
-                flex flex-col h-screen overflow-hidden bg-white
+                flex flex-col h-screen overflow-x-hidden bg-white
                 ${isDisabledEdition ? 'bg-white' : 'md:bg-[#F4F4F4]'}
             `}>
                 <Header />

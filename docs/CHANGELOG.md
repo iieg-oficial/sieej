@@ -4,6 +4,41 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.8.2] - 2026-05-06
+
+Fixes del header introducidos por 1.8.0/1.8.1:
+
+### Fixed
+
+- **Menú dropdown del avatar no era visible**: el wrapper del
+  `MainLayout` tenia `overflow-hidden` lo cual recortaba el menu
+  `absolute` que cae fuera del header (h-[100px]). Cambiado a
+  `overflow-x-hidden` para que el menu pueda desplegar
+  verticalmente sin recorte. Ademas el `z-index` del menu se subio
+  de `z-10` a `z-50`.
+- **Logo SIEEJ se desplazaba hacia abajo**: al envolver el `<img>`
+  en `<button>` (1.8.0), los estilos default del navegador (padding,
+  border, line-height) empujaban la imagen. Agregado
+  `p-0 m-0 border-0 bg-transparent` al boton + `block` al `<img>`
+  para resetear esos estilos.
+
+### Changed
+
+- **`components/IncompleteBadge.jsx`**: nuevo prop `corner` con
+  valores `top-right` (default), `bottom-right`, `top-left`,
+  `bottom-left`. Se posiciona absolute sin afectar dimensiones del
+  contenedor padre.
+- **`layout/MainLayout.jsx`**: el badge en el avatar ahora se
+  posiciona en `corner="bottom-right"`.
+
+### Bump
+
+- **`VERSION`** -> 1.8.2.
+- **`frontend/package.json`** -> 1.8.2.
+- **`frontend/public/ontoy.json`** -> 1.8.2.
+
+---
+
 ## [1.8.1] - 2026-05-06
 
 Reubica el badge de incompletos al avatar y agrega item "Mis
