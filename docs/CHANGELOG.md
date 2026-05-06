@@ -4,6 +4,54 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.3.0] - 2026-05-06
+
+Plataforma de formularios dinamicos en SIEEJ — Fase 3 (frontend).
+Aterriza el renderer generico que consume definiciones JSON desde
+`mariachi/api`. El wizard SIEEJ existente sigue intacto en `/`; el
+sistema dinamico convive en `/formularios` y `/formularios/:slug`. La
+union/desmantelamiento del wizard sucede en Fase 5.
+
+### Added
+
+- **`src/services/formulariosServices.js`**: cliente del API respondent
+  (`/formularios/...`) usando `onFetch` del `AuthContext` para heredar
+  cookie + CSRF.
+- **`src/forms/renderer/`** (motor generico): `FormRenderer` con
+  react-hook-form, `StepRenderer` (despacha por step.type),
+  `FormStep`, `RepeaterStep` (con `useFieldArray` y soporte de tabs
+  internas), `SummaryStep`, `FieldRenderer` (mapea field.type a las
+  primitivas existentes — Input, Select, SelectMultiple, Radio,
+  Checkbox, DatePicket, Dragger, Typography). Helpers
+  `conditional.js` (showWhen) y `catalogResolver.js`.
+- **`src/forms/context/`**: `FormsContext` (lista de formularios
+  visibles + cache), `SubmissionContext` (envio activo: cargar,
+  guardar borrador, enviar, subir archivo), `WizardContext`
+  (currentStep + visited + navegacion). Hooks en archivos separados
+  (`useForms.js`, `useSubmission.js`, `useWizard.js`).
+- **`src/pages/FormList.jsx`** (ruta `/formularios`): tarjetas
+  clickeables con estado del envio (no_iniciado / en_proceso /
+  enviado / expirado).
+- **`src/pages/FormPage.jsx`** (ruta `/formularios/:slug`): monta
+  `SubmissionProvider + WizardProvider + FormRenderer`. Usa los
+  catalogos del `CatalogProvider` existente.
+- **`vite.config.js`**: alias `@forms` → `src/forms/`.
+
+### Changed
+
+- **`src/Routes.jsx`**: rutas nuevas `formularios` y
+  `formularios/:slug` dentro del `ProtectedRoute`. El wizard SIEEJ
+  sigue en `/` sin cambios. Cuando aterrice Fase 5, `/` redirige a
+  `/formularios` o sirve la lista directo.
+
+### Bump
+
+- **`VERSION`** -> 1.3.0.
+- **`frontend/package.json`** -> 1.3.0.
+- **`frontend/public/ontoy.json`** -> 1.3.0.
+
+---
+
 ## [1.2.3] - 2026-05-06
 
 Plan de plataforma de formularios: cierre de Fase 1 (backend respondent)

@@ -1,0 +1,32 @@
+import React, { createContext, useCallback, useState } from 'react';
+
+export const WizardContext = createContext(null);
+
+export const WizardProvider = ({ totalSteps, initialStep = 0, children }) => {
+    const [currentStep, setCurrentStep] = useState(initialStep);
+    const [visited, setVisited] = useState(() => new Set([initialStep]));
+
+    const goNext = useCallback(() => {
+        setCurrentStep((s) => {
+            const next = Math.min(s + 1, totalSteps - 1);
+            setVisited((v) => new Set(v).add(next));
+            return next;
+        });
+    }, [totalSteps]);
+
+    const goPrev = useCallback(() => {
+        setCurrentStep((s) => Math.max(s - 1, 0));
+    }, []);
+
+    const goTo = useCallback((idx) => {
+        if (idx < 0 || idx >= totalSteps) return;
+        setCurrentStep(idx);
+        setVisited((v) => new Set(v).add(idx));
+    }, [totalSteps]);
+
+    return (
+        <WizardContext.Provider value={{ currentStep, visited, totalSteps, goNext, goPrev, goTo }}>
+            {children}
+        </WizardContext.Provider>
+    );
+};

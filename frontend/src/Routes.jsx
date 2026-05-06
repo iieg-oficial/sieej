@@ -12,6 +12,8 @@ const NoMatch = lazy(() => import('./pages/NoMatch'));
 const Disclaimer = lazy(() => import('./pages/Disclaimer'));
 const ChangePassword = lazy(() => import('./pages/ChangePassword'));
 const ErrorPage = lazy(() => import('./pages/ErrorPage'));
+const FormList = lazy(() => import('./pages/FormList'));
+const FormPage = lazy(() => import('./pages/FormPage'));
 
 const ProtectedRoute = () => {
     const { isAuthenticated } = useAuth();
@@ -31,6 +33,8 @@ const Routes = () => {
                 <Route element={<ProtectedRoute />}>
                     <Route path="/" element={<Home />} />
                     <Route path="cambiar-contrasena" element={<ChangePassword />} />
+                    <Route path="formularios" element={<FormList />} />
+                    <Route path="formularios/:slug" element={<FormPage />} />
                 </Route>
                 <Route path="error" element={<ErrorPage />} />
                 <Route path="*" element={<NoMatch />} />

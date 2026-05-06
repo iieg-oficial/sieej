@@ -56,6 +56,7 @@ export default defineConfig(({ mode }) => {
                 '@context': resolve(__dirname, './src/context'),
                 '@helpers': resolve(__dirname, './src/helpers'),
                 '@services': resolve(__dirname, './src/services'),
+                '@forms': resolve(__dirname, './src/forms'),
                 '@assets': resolve(__dirname, './src/assets'),
                 '@icons': resolve(__dirname, './src/assets/icons'),
                 '@png': resolve(__dirname, './src/assets/png'),
