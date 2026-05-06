@@ -10,7 +10,13 @@ const StepRenderer = ({ step, methods, catalogos, datos, onUpload }) => {
     case 'repeater':
         return <RepeaterStep step={step} methods={methods} catalogos={catalogos} onUpload={onUpload} />;
     case 'summary':
-        return <SummaryStep definicion={{ steps: step.allSteps }} datos={datos} />;
+        return (
+            <SummaryStep
+                definicion={{ steps: step.allSteps }}
+                datos={datos}
+                catalogos={catalogos}
+            />
+        );
     default:
         return <p>Tipo de step no soportado: {step.type}</p>;
     }

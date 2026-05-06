@@ -1,48 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { SubmissionProvider } from '../forms/context/SubmissionContext';
 import useSubmission from '../forms/context/useSubmission';
 import { WizardProvider } from '../forms/context/WizardContext';
 import useWizard from '../forms/context/useWizard';
 import FormRenderer from '../forms/renderer/FormRenderer';
+import StepIndicator from '../forms/components/wizard/StepIndicator';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
 import Button from '@components/Button';
-import CardPage from '@components/CardPage';
+import Modal from '@components/Modal';
 import useGlobal from '@context/useGlobal';
 import useCatalog from '@context/useCatalog';
 
-const ESTADO_LABEL = {
-    en_proceso: 'En proceso',
-    enviado: 'Enviado',
-    expirado: 'Expirado',
-};
-
 const FormularioContent = () => {
     const { definicion, envio, loading, error, guardar, enviar, subirArchivo } = useSubmission();
-    const { currentStep, goNext, goPrev } = useWizard();
-    const { onMessage } = useGlobal();
+    const { currentStep, activeTab, visitedTabs, sizeTabs, onActiveTab } = useWizard();
+    const { onMessage, isMobile } = useGlobal();
     const { catalogos } = useCatalog();
     const navigate = useNavigate();
+    const [methods, setMethods] = useState(null);
 
     if (loading) return <div className="flex justify-center py-10"><Loading /></div>;
     if (error) {
         return (
-            <CardPage>
-                <Typography variant="heading">Error</Typography>
-                <Typography variant="body">{error}</Typography>
-                <Button type="button" onClick={() => navigate('/formularios')}>
-                    Volver a la lista
-                </Button>
-            </CardPage>
+            <div className="rounded-[20px] bg-white p-7 text-center space-y-4">
+                <Typography as="h2" titleName="Error" />
+                <Typography as="p" titleName={error} />
+                <Button label="Volver" variant="primary" onClick={() => navigate('/')} center />
+            </div>
         );
     }
     if (!definicion) return null;
 
-    const handleSave = async (values, paso) => {
+    const handleSave = async (values, paso, silent = false) => {
         try {
             await guardar(values, paso ?? currentStep);
-            onMessage?.(false, 'Borrador guardado');
+            if (!silent) onMessage?.(false, 'Borrador guardado');
         } catch (e) {
             onMessage?.(true, e.message);
         }
@@ -52,7 +46,7 @@ const FormularioContent = () => {
         try {
             await enviar(values);
             onMessage?.(false, 'Enviado');
-            navigate('/formularios');
+            navigate('/');
         } catch (e) {
             onMessage?.(true, e.message);
         }
@@ -67,43 +61,76 @@ const FormularioContent = () => {
         }
     };
 
+    const steps = definicion.steps ?? [];
+    const showSidePanel = steps.length > 1;
+    const currentStepData = steps[currentStep];
+    const repeaterItems = currentStepData?.type === 'repeater' && methods
+        ? (methods.watch(currentStepData.id) || []).map((item, idx) => ({
+            id: `${currentStepData.id}-${idx}`,
+            label: item?.nombre_bd || item?.nombres || item?.nombre || `Item ${idx + 1}`,
+            ...item,
+        }))
+        : [];
+
+    const handleTabRemove = (_item, idx) => {
+        if (!methods) return;
+        const list = methods.getValues(currentStepData.id) || [];
+        list.splice(idx, 1);
+        methods.setValue(currentStepData.id, list);
+        const newActive = Math.max(0, Math.min(activeTab, list.length - 1));
+        onActiveTab?.(newActive);
+    };
+
     return (
-        <CardPage>
-            <header className="flex items-start justify-between gap-4 pb-4 border-b border-neutral-200">
-                <div>
-                    <Typography variant="heading">{definicion.nombre || 'Formulario'}</Typography>
-                    {envio?.estado && (
-                        <Typography variant="caption">Estado: {ESTADO_LABEL[envio.estado]}</Typography>
-                    )}
+        <React.Fragment>
+            <div className="flex space-x-2 md:space-x-5">
+                {showSidePanel && (
+                    <div className="hidden xl:block w-[513px] rounded-[20px] bg-white p-7 sx:hidden lg:w-[670px] lg:p-10">
+                        <div className="flex flex-col space-y-4 items-start justify-start sticky top-10">
+                            <Typography
+                                as="h1"
+                                titleName={definicion.nombre || 'Formulario'}
+                            />
+                            {definicion.descripcion && (
+                                <Typography
+                                    as="h3"
+                                    className="text-[#191919] font-garetregular"
+                                    titleName={definicion.descripcion}
+                                />
+                            )}
+                            <StepIndicator
+                                steps={steps}
+                                currentStep={currentStep}
+                                repeaterItems={repeaterItems}
+                                activeTab={activeTab}
+                                visitedTabs={visitedTabs}
+                                sizeTabs={sizeTabs}
+                                onTabClick={onActiveTab}
+                                onTabRemove={handleTabRemove}
+                            />
+                        </div>
+                    </div>
+                )}
+                <div
+                    className="
+                        w-full flex flex-col items-start justify-start rounded-[20px]
+                        bg-white shadow-xl-[#03222708] px-2 pb-2 md:px-10 md:pb-10 text-black
+                    "
+                >
+                    <FormRenderer
+                        definicion={definicion}
+                        envio={envio}
+                        catalogos={catalogos}
+                        isMobile={isMobile}
+                        onSave={handleSave}
+                        onSubmit={handleSubmit}
+                        onUpload={handleUpload}
+                        onMethodsReady={setMethods}
+                    />
                 </div>
-                <Button type="button" variant="link" onClick={() => navigate('/formularios')}>
-                    Volver
-                </Button>
-            </header>
-
-            <div className="mt-6">
-                <FormRenderer
-                    definicion={definicion}
-                    envio={envio}
-                    catalogos={catalogos}
-                    currentStepIdx={currentStep}
-                    onSave={handleSave}
-                    onSubmit={handleSubmit}
-                    onUpload={handleUpload}
-                    onPrev={goPrev}
-                    onNext={goNext}
-                />
             </div>
-        </CardPage>
-    );
-};
-
-const FormPage = () => {
-    const { slug } = useParams();
-    return (
-        <SubmissionProvider slug={slug}>
-            <FormSizer />
-        </SubmissionProvider>
+            <Modal />
+        </React.Fragment>
     );
 };
 
@@ -114,6 +141,15 @@ const FormSizer = () => {
         <WizardProvider totalSteps={definicion.steps.length}>
             <FormularioContent />
         </WizardProvider>
+    );
+};
+
+const FormPage = () => {
+    const { slug } = useParams();
+    return (
+        <SubmissionProvider slug={slug}>
+            <FormSizer />
+        </SubmissionProvider>
     );
 };
 

@@ -5,6 +5,9 @@ export const WizardContext = createContext(null);
 export const WizardProvider = ({ totalSteps, initialStep = 0, children }) => {
     const [currentStep, setCurrentStep] = useState(initialStep);
     const [visited, setVisited] = useState(() => new Set([initialStep]));
+    const [activeTab, setActiveTab] = useState(0);
+    const [visitedTabs, setVisitedTabs] = useState(() => new Set([0]));
+    const [sizeTabs, setSizeTabs] = useState(0);
 
     const goNext = useCallback(() => {
         setCurrentStep((s) => {
@@ -24,8 +27,22 @@ export const WizardProvider = ({ totalSteps, initialStep = 0, children }) => {
         setVisited((v) => new Set(v).add(idx));
     }, [totalSteps]);
 
+    const onActiveTab = useCallback((idx) => {
+        setActiveTab(idx);
+        setVisitedTabs((v) => new Set(v).add(idx));
+    }, []);
+
+    const resetVisitedTabs = useCallback(() => {
+        setVisitedTabs(new Set([0]));
+        setActiveTab(0);
+    }, []);
+
     return (
-        <WizardContext.Provider value={{ currentStep, visited, totalSteps, goNext, goPrev, goTo }}>
+        <WizardContext.Provider value={{
+            currentStep, visited, totalSteps, goNext, goPrev, goTo,
+            activeTab, visitedTabs, sizeTabs,
+            onActiveTab, onSizeTab: setSizeTabs, resetVisitedTabs,
+        }}>
             {children}
         </WizardContext.Provider>
     );

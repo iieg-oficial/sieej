@@ -4,6 +4,74 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.6.0] - 2026-05-06
+
+Restaurado el look & feel del wizard SIEEJ original sobre el renderer
+dinamico. La home ahora es lista directa en `/`, formularios en
+`/:slug` (sin subruta `/formularios` redundante).
+
+### Added
+
+- **`forms/components/wizard/StepIndicator.jsx`**: progreso vertical
+  con bullets numerados, ✓ verde al completar, separadores entre
+  steps. Cuando el step actual es repeater con items, muestra los
+  items como tabs anidados (con borrar via icono X). Recibe
+  `steps`, `currentStep`, `repeaterItems`, `activeTab`, `visitedTabs`,
+  `sizeTabs`, `onTabClick`, `onTabRemove` por props (no acoplado a
+  ningun contexto).
+- **`forms/components/wizard/NavigateStep.jsx`**: header sticky con
+  titulo del step + 3 botones (Anterior / Siguiente o Confirmar y
+  enviar / Guardar avance icon-only). Recibe `step`, `isFirst`,
+  `isLast`, `isLastTab`, `isMobile`, `onPrev`, `onSubmit`, `onSave`
+  por props.
+- **`forms/components/wizard/Tabs.jsx`**: tabs verticales/horizontales
+  para items de repeaters. Soporta `vertical`, `items`, `activeTab`,
+  `visitedTabs`, `onTabClick`, `onTabRemove`.
+
+### Changed
+
+- **`pages/FormPage.jsx`**: layout 2 columnas como el wizard
+  original — panel izquierdo sticky (con titulo del formulario,
+  descripcion del formulario, StepIndicator) + panel derecho
+  rounded-[20px] con NavigateStep arriba + step actual abajo. El
+  panel izquierdo solo se muestra si `definicion.steps.length > 1`.
+  Header (titulo + descripcion) lee de `definicion.nombre` y
+  `definicion.descripcion`.
+- **`pages/FormList.jsx`**: rediseñada en panel rounded blanco con
+  Typography h1/h3 institucionales. Tarjetas con border morado al
+  hover, badges de estado con colores semanticos, redirige a
+  `/<slug>` directo (no `/formularios/<slug>`).
+- **`Routes.jsx`**: `/` muestra FormList directo (sin redirect).
+  `/:slug` muestra FormPage. Las rutas literales reservadas
+  (`inicio-sesion`, `exencion`, `cambiar-contrasena`, `error`) se
+  declaran antes para que ganen sobre el dynamic `:slug`.
+- **`forms/renderer/FormRenderer.jsx`**: ahora usa NavigateStep
+  para el header de step + nav. Los 3 botones tienen el
+  comportamiento del wizard (Guardar = silencioso si esta dentro de
+  Anterior, explicito si se da click directo). Read-only cuando
+  `envio.estado in ('enviado','expirado')`.
+- **`forms/renderer/RepeaterStep.jsx`**: muestra UN item a la vez
+  navegable por `activeTab` (no todos los items uno encima del otro).
+  Boton Agregar arriba a la derecha + Eliminar (si fields > minItems).
+  Sub-tabs internos cuando `step.tabs` esta definido.
+- **`forms/renderer/SummaryStep.jsx`**: itera la definicion + datos
+  para reproducir el resumen estilo wizard original. Usa `Text`,
+  `Typography`, `Divide`, `FieldGrid` existentes. Resuelve labels de
+  catalogos/options en lugar de mostrar values raw.
+- **`forms/context/WizardContext.jsx`**: extendido con `activeTab`,
+  `visitedTabs`, `sizeTabs`, `onActiveTab`, `onSizeTab`,
+  `resetVisitedTabs` para soportar tabs de repeaters (estado que
+  vivia en GlobalContext del wizard original; ahora vive scoped al
+  formulario activo).
+
+### Bump
+
+- **`VERSION`** -> 1.6.0.
+- **`frontend/package.json`** -> 1.6.0.
+- **`frontend/public/ontoy.json`** -> 1.6.0.
+
+---
+
 ## [1.5.0] - 2026-05-06
 
 Cleanup post-cutover. El wizard hardcodeado se elimina por completo.

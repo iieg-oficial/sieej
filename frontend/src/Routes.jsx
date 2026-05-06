@@ -30,10 +30,9 @@ const Routes = () => {
                 <Route path="exencion" element={<Disclaimer />} />
                 {isDevelopment && <Route path="regisño" element={<Register />} />}
                 <Route element={<ProtectedRoute />}>
-                    <Route path="/" element={<Navigate to="/formularios" replace />} />
+                    <Route path="/" element={<FormList />} />
                     <Route path="cambiar-contrasena" element={<ChangePassword />} />
-                    <Route path="formularios" element={<FormList />} />
-                    <Route path="formularios/:slug" element={<FormPage />} />
+                    <Route path=":slug" element={<FormPage />} />
                 </Route>
                 <Route path="error" element={<ErrorPage />} />
                 <Route path="*" element={<NoMatch />} />
