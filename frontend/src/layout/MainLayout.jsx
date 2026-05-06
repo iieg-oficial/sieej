@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
-import { Outlet, useNavigate } from 'react-router';
+import { Outlet, useLocation, useNavigate } from 'react-router';
 import useGlobal from '../context/useGlobal';
 import useAuth from '../context/useAuth';
 import useUser from '../context/useUser';
@@ -17,6 +17,7 @@ import useForms from '../forms/context/useForms';
 
 const Header = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { onLogout } = useAuth();
     const { userForms, onUser, userIsLoading } = useUser();
     const { formularios } = useForms();
@@ -26,6 +27,7 @@ const Header = () => {
     const incompleteCount = (formularios || []).filter(
         (f) => f.estado_envio === 'en_proceso'
     ).length;
+    const isOnList = location.pathname === '/';
 
     const initial = (userForms?.nombre?.charAt(0)?.toUpperCase() || 'A') + (userForms?.apellido?.charAt(0)?.toUpperCase() || 'A');
 
@@ -68,7 +70,6 @@ const Header = () => {
                 >
                     <img src={logoSIEEJ} alt="Logo SIEEJM header" className="h-11" />
                     <EnvBadge />
-                    <IncompleteBadge count={incompleteCount} className="-translate-y-2" />
                 </button>
                 <img src={logoIIEG} alt="Logo IIEG" className="h-11 hidden lg:block" />
                 <img src={logoJal} alt="Logo Jalisco" className="h-11 hidden lg:block" />
@@ -79,32 +80,49 @@ const Header = () => {
                     <span className="opacity-75 text-[10px]">{userForms?.email}</span>
                 </div>
                 <div className="relative flex items-center gap-2">
-                    <div 
+                    <div
                         onClick={handleMenuToggle}
-                        className="rounded-full bg-emerald-200 flex items-center justify-center cursor-pointer p-2"
+                        className="relative rounded-full bg-emerald-200 flex items-center justify-center cursor-pointer p-2"
                     >
                         <span className="text-emerald-700 text-2xl font-garetbold">
                             {userIsLoading ? <Loading /> : initial}
                         </span>
+                        <IncompleteBadge count={incompleteCount} />
                     </div>
-                    <Button 
-                        variant="primary" 
-                        onClick={handleMenuToggle} 
+                    <Button
+                        variant="primary"
+                        onClick={handleMenuToggle}
                         tooltip="Menú de usuario"
-                        iconButton={iconMenu} 
+                        iconButton={iconMenu}
                         className='hidden md:block'
                         center
                     />
                     {menuOpen && (
-                        <div 
+                        <div
                             className="
-                                absolute top-full right-0 mt-2 w-48 bg-white shadow-lg shadow-[#B6A6BC99] rounded-md
-                                text-sm z-10
+                                absolute top-full right-0 mt-2 w-56 bg-white shadow-lg shadow-[#B6A6BC99] rounded-md
+                                text-sm z-10 overflow-hidden
                             "
                         >
-                            <button 
-                                onClick={onLogout} 
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 hover:rounded-md text-black"
+                            {!isOnList && (
+                                <button
+                                    onClick={() => { setMenuOpen(false); navigate('/'); }}
+                                    className="
+                                        flex flex-col items-start w-full text-left
+                                        px-4 py-2 hover:bg-gray-100 text-black border-b border-gray-100
+                                    "
+                                >
+                                    <span>Mis formularios</span>
+                                    {incompleteCount > 0 && (
+                                        <span className="text-[11px] text-orange-500 font-garetbold mt-0.5">
+                                            {incompleteCount} por completar
+                                        </span>
+                                    )}
+                                </button>
+                            )}
+                            <button
+                                onClick={onLogout}
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-black"
                             >
                                 Cerrar sesión
                             </button>

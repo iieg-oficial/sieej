@@ -4,6 +4,32 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.8.1] - 2026-05-06
+
+Reubica el badge de incompletos al avatar y agrega item "Mis
+formularios" al dropdown del header.
+
+### Changed
+
+- **`layout/MainLayout.jsx`**: el `IncompleteBadge` se mueve del logo
+  SIEEJ al circulo del avatar (top-right). El logo conserva
+  `EnvBadge` y la nav a `/`.
+- **`layout/MainLayout.jsx`**: dropdown del avatar agrega item
+  "Mis formularios" arriba de "Cerrar sesión" con divider sutil.
+  Si `incompleteCount > 0` muestra debajo "{n} por completar" en
+  naranja menor (font-garetbold, 11px). Si estas en `/` ya, el item
+  se oculta para no ofrecer nav redundante (`location.pathname === '/'`).
+  Ancho del menu ajustado de `w-48` a `w-56` para acomodar dos
+  lineas comodamente.
+
+### Bump
+
+- **`VERSION`** -> 1.8.1.
+- **`frontend/package.json`** -> 1.8.1.
+- **`frontend/public/ontoy.json`** -> 1.8.1.
+
+---
+
 ## [1.8.0] - 2026-05-06
 
 UX del header y de la lista de formularios:
