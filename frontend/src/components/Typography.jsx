@@ -2,7 +2,7 @@ import React from 'react';
 import Tooltip from './Tooltip';
 
 const tagStyles = {
-    h1: 'text-[#191919] text-[21px]/[31px] font-garetbold mb-4',
+    h1: 'text-[#191919] text-[28px]/[36px] font-garetbold mb-4',
     h2: 'text-[#5C2472] text-[22px] font-garetbold',
     h3: 'text-[#5C2472] text-sm font-garetbold',
     h4: 'text-[#191919] text-xs font-garetmedium',

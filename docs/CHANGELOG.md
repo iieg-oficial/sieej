@@ -4,6 +4,32 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.8.4] - 2026-05-06
+
+Tipografia y centrado del header:
+
+### Changed
+
+- **`components/Typography.jsx`**: `h1` sube de `text-[21px]/[31px]`
+  a `text-[28px]/[36px]`. Antes h1 era mas chico que h2 (21 vs 22),
+  jerarquia invertida que se notaba en cada page con titulo h1
+  (FormList, Login, ChangePassword, etc.). Ahora h1 > h2 > h3 segun
+  lo esperado.
+- **`layout/MainLayout.jsx`**: el `<button>` que envuelve el logo
+  SIEEJ ahora es `inline-flex items-center justify-center align-middle`
+  para que el `<img>` quede centrado verticalmente respecto a los
+  otros logos (IIEG, Jal). El `EnvBadge` se restaura sobre el logo
+  (no era el causante del desplazamiento; el logo ahora queda
+  enderezado correctamente).
+
+### Bump
+
+- **`VERSION`** -> 1.8.4.
+- **`frontend/package.json`** -> 1.8.4.
+- **`frontend/public/ontoy.json`** -> 1.8.4.
+
+---
+
 ## [1.8.3] - 2026-05-06
 
 Iteracion del header y la lista:

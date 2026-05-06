@@ -64,11 +64,12 @@ const Header = () => {
                 <button
                     type="button"
                     onClick={() => navigate('/')}
-                    className="relative h-11 p-0 m-0 border-0 bg-transparent cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded"
+                    className="relative h-11 inline-flex items-center justify-center p-0 m-0 border-0 bg-transparent cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded align-middle"
                     aria-label="Ir al inicio"
                     title="Ir al inicio"
                 >
                     <img src={logoSIEEJ} alt="Logo SIEEJM header" className="h-11 block" />
+                    <EnvBadge />
                 </button>
                 <img src={logoIIEG} alt="Logo IIEG" className="h-11 hidden lg:block" />
                 <img src={logoJal} alt="Logo Jalisco" className="h-11 hidden lg:block" />
