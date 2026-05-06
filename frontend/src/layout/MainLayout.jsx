@@ -69,7 +69,6 @@ const Header = () => {
                     title="Ir al inicio"
                 >
                     <img src={logoSIEEJ} alt="Logo SIEEJM header" className="h-11 block" />
-                    <EnvBadge />
                 </button>
                 <img src={logoIIEG} alt="Logo IIEG" className="h-11 hidden lg:block" />
                 <img src={logoJal} alt="Logo Jalisco" className="h-11 hidden lg:block" />
@@ -104,22 +103,22 @@ const Header = () => {
                                 text-sm z-50 overflow-hidden
                             "
                         >
-                            {!isOnList && (
-                                <button
-                                    onClick={() => { setMenuOpen(false); navigate('/'); }}
-                                    className="
-                                        flex flex-col items-start w-full text-left
-                                        px-4 py-2 hover:bg-gray-100 text-black border-b border-gray-100
-                                    "
-                                >
-                                    <span>Mis formularios</span>
-                                    {incompleteCount > 0 && (
-                                        <span className="text-[11px] text-orange-500 font-garetbold mt-0.5">
-                                            {incompleteCount} por completar
-                                        </span>
-                                    )}
-                                </button>
-                            )}
+                            <button
+                                onClick={() => { setMenuOpen(false); navigate('/'); }}
+                                disabled={isOnList}
+                                className={`
+                                    flex flex-col items-start w-full text-left
+                                    px-4 py-2 text-black border-b border-gray-100
+                                    ${isOnList ? 'opacity-50 cursor-default' : 'hover:bg-gray-100 cursor-pointer'}
+                                `}
+                            >
+                                <span>Mis formularios</span>
+                                {incompleteCount > 0 && (
+                                    <span className="text-[11px] text-orange-500 font-garetbold mt-0.5">
+                                        {incompleteCount} por completar
+                                    </span>
+                                )}
+                            </button>
                             <button
                                 onClick={onLogout}
                                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-black"

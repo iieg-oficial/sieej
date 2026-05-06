@@ -4,6 +4,38 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.8.3] - 2026-05-06
+
+Iteracion del header y la lista:
+
+### Changed
+
+- **`layout/MainLayout.jsx`**: removido el `EnvBadge` del logo SIEEJ
+  para evitar empuje vertical del logo. El indicador de entorno solo
+  vivira en el avatar (badge naranja con corner=bottom-right) o en
+  ningun lado si no hay incompletos.
+- **`layout/MainLayout.jsx`**: el item "Mis formularios" del dropdown
+  se muestra siempre. Cuando estas en `/` queda `disabled` con
+  opacity-50 y cursor-default (en vez de ocultarse) — asi siempre
+  ves la opcion y el contador de incompletos.
+- **`pages/FormList.jsx`**: titulo "Sistema de Información..."
+  reemplazado por **"Mis formularios"**. Subtitulo h3 reemplazado por
+  parrafo descriptivo "Aquí encuentras los formularios asignados a tu
+  dependencia. Da click en uno para empezar o continuar tu captura."
+  con estilo `text-[#7C7C7C] font-garetregular`.
+- **`pages/FormList.jsx`**: `FormCard` ahora tiene
+  `shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition
+  duration-200` para feedback elevado en hover (consistente con
+  cards de admin AntD).
+
+### Bump
+
+- **`VERSION`** -> 1.8.3.
+- **`frontend/package.json`** -> 1.8.3.
+- **`frontend/public/ontoy.json`** -> 1.8.3.
+
+---
+
 ## [1.8.2] - 2026-05-06
 
 Fixes del header introducidos por 1.8.0/1.8.1:

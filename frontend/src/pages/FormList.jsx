@@ -73,7 +73,8 @@ const FormCard = ({ formulario, onClick, view }) => {
             onClick={onClick}
             className={`
                 w-full text-left rounded-[16px] border border-[#E2E2E2] p-5
-                bg-white hover:border-[#5C2473] hover:shadow-md transition
+                bg-white shadow-sm hover:shadow-lg hover:border-[#5C2473] hover:-translate-y-0.5
+                transition duration-200
                 ${isGrid ? 'h-full flex flex-col gap-3' : 'flex items-start justify-between gap-4'}
             `}
         >
@@ -143,12 +144,12 @@ const FormList = () => {
                 <div className="min-w-0 flex-1">
                     <Typography
                         as="h1"
-                        titleName="Sistema de Información Estratégica del Estado de Jalisco"
+                        titleName="Mis formularios"
                     />
                     <Typography
-                        as="h3"
-                        className="text-[#191919] font-garetregular"
-                        titleName="Selecciona uno de los formularios disponibles para tu dependencia."
+                        as="p"
+                        className="text-[#7C7C7C] font-garetregular mt-1"
+                        titleName="Aquí encuentras los formularios asignados a tu dependencia. Da click en uno para empezar o continuar tu captura."
                     />
                 </div>
                 {formularios.length > 0 && (
