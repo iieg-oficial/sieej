@@ -5,7 +5,6 @@ import useAuth from './context/useAuth';
 import Loading from './components/Loading';
 
 const MainLayout = lazy(() => import('./layout/MainLayout'));
-const Home = lazy(() => import('./pages/Home'));
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const NoMatch = lazy(() => import('./pages/NoMatch'));
@@ -35,7 +34,6 @@ const Routes = () => {
                     <Route path="cambiar-contrasena" element={<ChangePassword />} />
                     <Route path="formularios" element={<FormList />} />
                     <Route path="formularios/:slug" element={<FormPage />} />
-                    <Route path="legacy-wizard" element={<Home />} />
                 </Route>
                 <Route path="error" element={<ErrorPage />} />
                 <Route path="*" element={<NoMatch />} />

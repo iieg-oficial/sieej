@@ -6,7 +6,6 @@ import { AuthProvider } from './context/AuthContext.jsx';
 import { GlobalProvider } from './context/GlobalContext.jsx';
 import { CatalogProvider } from './context/CatalogContext.jsx';
 import { UserProvider } from './context/UserContext.jsx';
-import { HomeProvider } from './context/HomeContext.jsx';
 import Routes from './Routes.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 import './index.css';
@@ -41,9 +40,7 @@ root.render(
                     <AuthProvider>
                         <CatalogProvider>
                             <UserProvider>
-                                <HomeProvider>
-                                    <Routes />
-                                </HomeProvider>
+                                <Routes />
                             </UserProvider>
                         </CatalogProvider>
                     </AuthProvider>

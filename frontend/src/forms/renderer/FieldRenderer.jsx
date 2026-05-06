@@ -52,7 +52,11 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload }) => {
                 {...baseProps}
                 accept={field.accept?.join(',')}
                 maxSizeMB={field.maxSizeMB}
-                onFile={(file) => onUpload?.(name, file)}
+                onFile={async (files) => {
+                    const file = Array.isArray(files) ? files[0] : files;
+                    if (!file) return null;
+                    return onUpload?.(name, file);
+                }}
             />
         );
     default:

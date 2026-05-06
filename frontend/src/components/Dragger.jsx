@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Controller, useFormState } from 'react-hook-form';
-import useHome from '../context/useHome';
 import icoDrag from '../assets/icons/ico_avance_guardado.svg';
 import DynamicDiv from '../helpers/DynamicDiv';
 import ErrorsRequired from '../helpers/ErrorsRequired';
 import extractFileName from '../helpers/extractFileName';
 import Label from './Label';
 
-const Dragger = ({ 
-    idItem, name, label, multiple, accept = 'image/*', maxSizeMB = 2, 
-    required, tooltip, colSpan, wDiv, clean, methods, ...rest
+const Dragger = ({
+    idItem, name, label, multiple, accept = 'image/*', maxSizeMB = 2,
+    required, tooltip, colSpan, wDiv, clean, methods, onFile, ...rest
 }) => {
-    const { onFile } = useHome();
     const { control, setValue, getValues } = methods;
     const { errors } = useFormState({ control, name });
     const [ fileList, setFileList ] = useState([]);

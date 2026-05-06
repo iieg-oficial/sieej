@@ -4,6 +4,55 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.5.0] - 2026-05-06
+
+Cleanup post-cutover. El wizard hardcodeado se elimina por completo.
+SIEEJ ahora es 100% renderer dinamico que consume las definiciones
+de mariachi.
+
+### Removed
+
+- **`pages/Home.jsx`**: la home de wizard hardcodeado.
+- **`context/HomeContext.jsx`** y **`context/useHome.js`**: el state
+  del wizard se reemplazo por `WizardContext` por formulario activo.
+- **Helpers wizard**: `helpers/initDatabase.js` (default de la BD del
+  wizard), `helpers/pdfActions.jsx` (PDF hardcodeado), `helpers/textLarge.jsx`
+  (tooltips estaticos).
+- **Componentes wizard**: `components/Tabs.jsx` (reemplazado por la
+  implementacion local de `RepeaterStep`), `GeneralStep.jsx`,
+  `LinksStep.jsx`, `ListDatabaseStep.jsx`, `DataBaseStep.jsx`,
+  `ResumeStep.jsx` (los 5 steps especificos del wizard),
+  `NavigateStep.jsx` y `StepIndicator.jsx` (la navegacion vive ahora
+  en `forms/renderer/FormRenderer`).
+- **Ruta `/legacy-wizard`** y `HomeProvider` del provider tree en
+  `main.jsx`.
+
+### Changed
+
+- **`context/GlobalContext.jsx`**: limpiado del wizard. Removidos
+  `STEPS` array, state de navegacion (`currentStep`, `activeTab`,
+  `visitedTabs`, `sizeTabs`, `tabLoading`), handlers
+  (`handleNext`/`handlePrev`/`handleActiveTab`/`handleVisitedTabs`/
+  `handleTabChange`/`handleSizeTab`/`handleTabLoading`/
+  `updateStepStatus`/`resetVisitedTabs`) e iconos del wizard.
+  Lo que queda: `hostBackend`, `screenSize`, `regex*`,
+  `linkPrivacity`, `isDisabledEdition`, `isMessageOpen`/`onMessage`,
+  `isModalOpen`/`openModal`/`closeModal`, `onAnalytics`.
+- **`components/Dragger.jsx`**: ya no depende de `useHome()`. Recibe
+  `onFile` como prop. El renderer dinamico lo pasa via
+  `FieldRenderer` cuando `field.type === 'file'`.
+- **`forms/renderer/FieldRenderer.jsx`**: adapta la signatura de
+  `Dragger.onFile(filesArray, idItem)` para tomar el primer archivo
+  y pasarlo al `onUpload(fieldPath, file)` del SubmissionContext.
+
+### Bump
+
+- **`VERSION`** -> 1.5.0.
+- **`frontend/package.json`** -> 1.5.0.
+- **`frontend/public/ontoy.json`** -> 1.5.0.
+
+---
+
 ## [1.4.0] - 2026-05-06
 
 Plataforma de formularios SIEEJ — Fase 5 cutover frontend. La home (`/`)
