@@ -1,19 +1,13 @@
 # SIEEJ frontend — Contexto del proyecto
 
-**Version:** 1.1.5
+**Version:** 1.8.4
 **Fecha de este documento:** 2026-05-06
 **Repo:** https://github.com/iieg-oficial/sieej
 
-Referencia unica del estado actual de SIEEJ tras la migracion del backend
-a `mariachi/api` y la simplificacion de la infraestructura.
-
-> **Trabajo en curso**: hay un plan acordado para convertir SIEEJ en una
-> plataforma de formularios dinamicos (definidos por JSONB, construidos
-> desde mariachi/admin). Detalles en
-> `docs/planes/plataforma-formularios.md`. Este documento describe el
-> estado **actual** (wizard hardcodeado); cuando arranque la fase 3 del
-> plan habra que actualizar las secciones de auth flow, arquitectura y
-> pendientes.
+Referencia general del proyecto SIEEJ. Para detalles de arquitectura
+de la plataforma de formularios dinamicos (modelo de datos, endpoints,
+schema JSONB, renderer, constructor visual), ver
+**`docs/plataforma-formularios.md`**.
 
 ## Resumen
 

@@ -1,12 +1,9 @@
 # SIEEJ — Arquitectura
 
-> **Aviso (2026-05-06)**: este documento describe la arquitectura
-> **actual**, basada en el wizard hardcodeado. Hay un plan acordado
-> para reemplazarla por una plataforma de formularios dinamicos
-> (definidos en JSONB, construidos desde mariachi/admin). Cuando
-> arranque la Fase 3 del plan, varias secciones (auth flow, contratos
-> de endpoints, estructura del frontend) van a cambiar. Ver
-> `docs/planes/plataforma-formularios.md`.
+> **Nota:** este documento describe el flujo de request/response y la
+> infraestructura. Para el detalle del modelo de datos, endpoints,
+> schema JSONB de la `definicion`, frontend renderer y constructor
+> visual, ver **`docs/plataforma-formularios.md`**.
 
 ## Diagrama de componentes
 

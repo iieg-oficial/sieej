@@ -4,6 +4,41 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.8.5] - 2026-05-06
+
+Reorganizacion de la documentacion del proyecto:
+
+### Added
+
+- **`docs/plataforma-formularios.md`**: arquitectura final de la
+  plataforma (descriptivo del estado actual, no prescriptivo del
+  futuro). Modelo de datos, schema JSONB, endpoints respondent +
+  admin, frontend structure, PDF custom vs generico, decisiones
+  cerradas, referencias a migrations y commits.
+
+### Removed
+
+- **`docs/planes/plataforma-formularios.md`**: el plan completo (el
+  trabajo ya esta hecho; mantenerlo como "plan" sugeriria
+  pendientes que no existen). La carpeta `docs/planes/` queda vacia
+  y se elimina.
+
+### Changed
+
+- **`docs/context.md`**: bumped a v1.8.4. Quitado el aviso del plan;
+  ahora apunta a `plataforma-formularios.md` para detalles.
+- **`docs/arquitectura.md`** y **`docs/frontend.md`**: avisos
+  reemplazados por nota directa que apunta a
+  `plataforma-formularios.md`.
+
+### Bump
+
+- **`VERSION`** -> 1.8.5.
+- **`frontend/package.json`** -> 1.8.5.
+- **`frontend/public/ontoy.json`** -> 1.8.5.
+
+---
+
 ## [1.8.4] - 2026-05-06
 
 Tipografia y centrado del header:

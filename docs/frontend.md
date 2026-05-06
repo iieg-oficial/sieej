@@ -1,16 +1,12 @@
 # SIEEJ Frontend
 
-> **Aviso (2026-05-06)**: este documento describe el frontend
-> **actual** (wizard hardcodeado en React + react-hook-form). El plan
-> acordado en `docs/planes/plataforma-formularios.md` reemplaza el
-> wizard por un renderer generico de formularios cuyas definiciones
-> viven en BD. La estructura de carpetas, contextos
-> (`HomeContext`/`GlobalContext`) y rutas (`/`/`:slug`) cambiaran en
-> la Fase 3 del plan. Hasta que eso aterrice, lo descrito aqui sigue
-> aplicando.
+> **Nota:** este documento describe stack, requisitos y comandos de
+> dev. Para la arquitectura del renderer de formularios dinamicos,
+> contextos y estructura de `forms/`, ver
+> **`docs/plataforma-formularios.md`**.
 
-React 19 + Vite 6 + Tailwind CSS 4. SPA con un wizard multi-paso para
-captura de informacion institucional.
+React 19 + Vite 6 + Tailwind CSS 4. SPA con un renderer generico de
+formularios cuyas definiciones viven en `mariachi/api`.
 
 ## Requisitos
 
