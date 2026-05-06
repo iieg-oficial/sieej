@@ -4,6 +4,7 @@ import Typography from '@components/Typography';
 import Divide from '@components/Divide';
 import { FieldGrid } from '@helpers/FieldLayout';
 import { resolveOptions } from './catalogResolver';
+import SummaryPdfButton from './pdf/SummaryPdfButton';
 
 const formatValue = (field, value, catalogos) => {
     if (value === null || value === undefined || value === '') return '';
@@ -85,7 +86,7 @@ const renderRepeaterStep = (step, datos, catalogos) => {
     );
 };
 
-const SummaryStep = ({ definicion, datos, catalogos }) => {
+const SummaryStep = ({ definicion, datos, catalogos, summaryStep }) => {
     const realSteps = (definicion.steps || []).filter((s) => s.type !== 'summary');
     const isMobile = false;
 
@@ -103,6 +104,17 @@ const SummaryStep = ({ definicion, datos, catalogos }) => {
                         : renderFormStep(step, datos, catalogos)}
                 </React.Fragment>
             ))}
+
+            {summaryStep && (summaryStep.exportPdf || summaryStep.pdfTemplate) && (
+                <div className="w-full mt-8 flex justify-end">
+                    <SummaryPdfButton
+                        step={summaryStep}
+                        definicion={definicion}
+                        datos={datos}
+                        catalogos={catalogos}
+                    />
+                </div>
+            )}
         </React.Fragment>
     );
 };

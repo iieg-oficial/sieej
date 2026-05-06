@@ -4,6 +4,47 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.7.0] - 2026-05-06
+
+PDF de resumen — custom para sieej-levantamiento + generico para los
+demas. Cierre del item pendiente del cleanup.
+
+### Added
+
+- **`forms/renderer/pdf/sieejLevantamiento.jsx`**: descarga el PDF
+  custom usando el `PdfForm` existente (245 lineas, totalmente
+  custom SIEEJ con logos, fonts Garet, layout especifico). Adapter
+  `adaptDatosToFormData` mapea las claves del modelo dinamico
+  (general/enlaces/bases_datos) a las del wizard original
+  (informacion_general/_enlaces/_basesdatos) y convierte boolean
+  strings ("true"/"false") a boolean reales.
+- **`forms/renderer/pdf/genericPdf.jsx`**: PDF generico que itera
+  cualquier definicion + datos. Header con logos institucionales
+  (sieej, iieg, jal), titulo desde `definicion.nombre`, descripcion,
+  una seccion por step (resumen omitido), repeaters listados con
+  separadores. Resuelve labels de catalogos/options.
+- **`forms/renderer/pdf/SummaryPdfButton.jsx`**: el boton decide
+  cual PDF generar. Si `step.pdfTemplate === 'sieej-levantamiento'`
+  → custom. Si `step.exportPdf === true` (sin pdfTemplate) →
+  generico. Manejo de loading + error.
+
+### Changed
+
+- **`forms/renderer/SummaryStep.jsx`**: agrega el `SummaryPdfButton`
+  al pie del resumen cuando el step tiene `exportPdf` o
+  `pdfTemplate`.
+- **`forms/renderer/StepRenderer.jsx`** y **`FormRenderer.jsx`**:
+  pasan `formNombre`/`formDescripcion` al SummaryStep para que el
+  PDF generico tenga ambos en el header.
+
+### Bump
+
+- **`VERSION`** -> 1.7.0.
+- **`frontend/package.json`** -> 1.7.0.
+- **`frontend/public/ontoy.json`** -> 1.7.0.
+
+---
+
 ## [1.6.0] - 2026-05-06
 
 Restaurado el look & feel del wizard SIEEJ original sobre el renderer

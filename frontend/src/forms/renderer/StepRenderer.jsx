@@ -12,9 +12,10 @@ const StepRenderer = ({ step, methods, catalogos, datos, onUpload }) => {
     case 'summary':
         return (
             <SummaryStep
-                definicion={{ steps: step.allSteps }}
+                definicion={{ steps: step.allSteps, nombre: step.formNombre, descripcion: step.formDescripcion }}
                 datos={datos}
                 catalogos={catalogos}
+                summaryStep={step}
             />
         );
     default:

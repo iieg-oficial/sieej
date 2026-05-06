@@ -70,7 +70,12 @@ const FormRenderer = ({
 
             <div className="py-4">
                 <StepRenderer
-                    step={{ ...step, allSteps: steps }}
+                    step={{
+                        ...step,
+                        allSteps: steps,
+                        formNombre: definicion.nombre,
+                        formDescripcion: definicion.descripcion,
+                    }}
                     methods={methods}
                     catalogos={catalogos}
                     datos={methods.watch()}
