@@ -4,6 +4,37 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.4.0] - 2026-05-06
+
+Plataforma de formularios SIEEJ — Fase 5 cutover frontend. La home (`/`)
+ahora redirige al listado dinamico (`/formularios`); la version del
+wizard hardcodeado queda accesible temporalmente en `/legacy-wizard`
+hasta que el backfill se valide en prod con datos reales.
+
+### Changed
+
+- **`Routes.jsx`**: `/` ahora hace `<Navigate to="/formularios" replace />`.
+  El wizard original (Home.jsx) se mueve a `/legacy-wizard` como
+  fallback durante la transicion de Fase 5.
+- El frontend dinamico ahora consume el formulario seed
+  `sieej-levantamiento` que mariachi 0.37.0 inyectó en la BD.
+
+### Bump
+
+- **`VERSION`** -> 1.4.0.
+- **`frontend/package.json`** -> 1.4.0.
+- **`frontend/public/ontoy.json`** -> 1.4.0.
+
+### Pendiente (cleanup post-validacion)
+
+- Eliminar `pages/Home.jsx`, ruta `/legacy-wizard`, contextos
+  `HomeContext` + helpers `initDatabase`/`pdfActions`/`textLarge`
+  + componentes `GeneralStep` / `LinksStep` / `ListDatabaseStep` /
+  `DataBaseStep` / `ResumeStep` cuando el backfill confirme datos
+  migrados correctamente.
+
+---
+
 ## [1.3.0] - 2026-05-06
 
 Plataforma de formularios dinamicos en SIEEJ — Fase 3 (frontend).

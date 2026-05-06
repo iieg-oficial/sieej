@@ -31,10 +31,11 @@ const Routes = () => {
                 <Route path="exencion" element={<Disclaimer />} />
                 {isDevelopment && <Route path="regisño" element={<Register />} />}
                 <Route element={<ProtectedRoute />}>
-                    <Route path="/" element={<Home />} />
+                    <Route path="/" element={<Navigate to="/formularios" replace />} />
                     <Route path="cambiar-contrasena" element={<ChangePassword />} />
                     <Route path="formularios" element={<FormList />} />
                     <Route path="formularios/:slug" element={<FormPage />} />
+                    <Route path="legacy-wizard" element={<Home />} />
                 </Route>
                 <Route path="error" element={<ErrorPage />} />
                 <Route path="*" element={<NoMatch />} />
