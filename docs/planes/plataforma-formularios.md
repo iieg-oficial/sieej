@@ -17,37 +17,37 @@ Lectura recomendada antes de implementar:
 
 ## Estado de implementacion (2026-05-06)
 
-Resumen del audit hecho contra el codigo real en los repos vecinos
-(`mariachi/`, `gateway-hub/`, `acervo/`):
-
-- **Backend (mariachi/api):** Fase 1 y 2 sin iniciar. Las 7 tablas
-  nuevas (`formulario`, `grupo`, `usuario_grupo`, `formulario_grupo`,
-  `formulario_usuario`, `envio_formulario`, `envio_archivo`) **no
-  existen**. Los endpoints `/formularios/*` actuales siguen siendo el
-  CRUD viejo del wizard (`general`, `enlaces`, `bases-datos`).
-- **Admin (mariachi/admin):** Esqueleto inicial creado en
-  `src/features/sieej-formularios/` con un solo archivo funcional
-  (`pages/FormulariosPage.jsx`). Es un CRUD generico de formularios
-  con AntD (slug + nombre + descripcion + is_active). **Tiene un
-  Alert visible que dice "El backend aun no expone estos
-  endpoints"**. Conflicto de namespace: llama `api.get('/formularios')`
-  contra mariachi-api, lo que choca con el subrouter respondent
-  existente. Cuando se implemente el admin, debe migrarse a
-  `/admin/sieej/formularios` (ver seccion 5.2).
-- **Frontend SIEEJ:** Refactor sin iniciar. Sigue todo el wizard
+- **Fase 1 (backend respondent):** ✅ Completa.
+  - Migration `a4b5c6d7e8f9_add_sieej_formularios_dinamicos.py`
+    aplicada sobre Postgres prod local. 8 tablas + 3 enums creados.
+  - Modelos, schemas, services, validators, endpoints respondent
+    bajo `/formularios/...` (coexiste con el wizard viejo).
+  - 47 tests OK; mariachi-api corriendo en prod local.
+- **Fase 2 (backend admin):** ✅ Completa.
+  - `app/api/routes/sieej_admin/` convertido a paquete con
+    subrouters: `stats` (existente) + `formularios` + `grupos`.
+  - Services: `formularios_admin_service.py` (CRUD, publicar,
+    cerrar, asignaciones, listar envios, bump version cuando hay
+    envios) + `grupos_service.py` (CRUD + miembros).
+  - 17 endpoints nuevos bajo `/sieej/...`. 19 tests admin OK.
+  - **Nota de namespace**: el plan original decia `/admin/sieej/...`
+    pero el prefix real es `/sieej/...` (heredado del
+    `sieej_admin.router` existente). Plan actualizado en seccion 5.2.
+- **Fase 3 (frontend SIEEJ):** Sin iniciar. Sigue todo el wizard
   hardcodeado. `GlobalContext` aun contiene el array `STEPS`,
   `HomeContext` sigue siendo el unico submission state, no existe
   `forms/`, ni `WizardContext`, ni `SubmissionContext`, ni
   `FormsContext`, ni `formulariosServices.js`, ni rutas `/`/`:slug`.
-- **Gateway-hub:** Sin cambios necesarios. El location `^~ /sieej/`
-  ya sirve `dist/` y `/api/...` enruta a `portal` (mariachi-api).
+- **Fase 4 (constructor mariachi/admin):** Esqueleto en
+  `mariachi/admin/src/features/sieej-formularios/` con
+  `FormulariosPage.jsx` apuntando a `/sieej/formularios` (alineado
+  ya con el backend admin de Fase 2). Falta toda la UI del editor
+  (StepsList, FieldEditor, AsignacionesEditor, EnviosTable, etc.).
+- **Fase 5 (migracion del wizard):** Sin iniciar.
+- **Gateway-hub:** Sin cambios necesarios.
 - **Documentacion vecina:** `docs/context.md`, `docs/arquitectura.md`
-  y `docs/frontend.md` describen correctamente el estado **actual**
-  (post-migracion del backend a mariachi). No mencionan este plan;
-  habra que actualizarlas a partir de la fase 3.
-
-**Implicacion**: el plan sigue siendo valido tal cual; el unico ajuste
-material es la referencia de Alembic head (ver seccion 2.1).
+  y `docs/frontend.md` siguen describiendo el estado actual
+  (wizard). Habra que actualizarlas a partir de la Fase 3.
 
 ## Decisiones cerradas en este audit (2026-05-06)
 
@@ -570,25 +570,31 @@ Subrouter `/formularios`, gateado por
 
 ### 5.2 Admin (consumido por mariachi/admin)
 
-Subrouter `/admin/sieej`, gateado por `require_role(['tetlamamakani','editora'])` (grupos puede requerir solo `tetlamamakani`).
+Subrouter `/sieej` (no `/admin/sieej` como decia el draft original — se
+alinea con el `sieej_admin.router` ya existente que expone `/sieej/stats`).
+Permisos: heredados via `staff_dep` registrado a nivel de app
+(`tetlamamakani` + `editora`).
 
 | Verbo | Path | Descripcion |
 |---|---|---|
-| GET | `/admin/sieej/formularios` | Lista todos (con filtros: estado, slug). |
-| POST | `/admin/sieej/formularios` | Crea (estado `borrador`). Valida `definicion`. |
-| GET | `/admin/sieej/formularios/:id` | Detalle. |
-| PUT | `/admin/sieej/formularios/:id` | Actualiza. Si tiene envios, hace `version++` y actualiza `definicion`. Los envios existentes mantienen su `definicion_snapshot`. |
-| POST | `/admin/sieej/formularios/:id/publicar` | `estado = 'activo'`. |
-| POST | `/admin/sieej/formularios/:id/cerrar` | `estado = 'cerrado'`. |
-| DELETE | `/admin/sieej/formularios/:id` | Solo si no tiene envios; si tiene, fuerza cerrar en su lugar. |
-| PUT | `/admin/sieej/formularios/:id/asignaciones` | Body: `{ grupos: [id...], usuarios: [id...] }`. Reemplaza ambas tablas. |
-| GET | `/admin/sieej/formularios/:id/envios` | Lista envios (paginado). Filtros: estado, fecha. |
-| GET | `/admin/sieej/formularios/:id/envios/:envio_id` | Detalle del envio + archivos. |
-| GET | `/admin/sieej/grupos` | Lista. |
-| POST | `/admin/sieej/grupos` | Crea. |
-| PUT | `/admin/sieej/grupos/:id` | Actualiza. |
-| DELETE | `/admin/sieej/grupos/:id` | Borra (solo si no tiene formularios asignados; si los tiene, error 400). |
-| PUT | `/admin/sieej/grupos/:id/usuarios` | Body: `{ usuarios: [id...] }`. Reemplaza miembros. |
+| GET | `/sieej/formularios` | Lista todos (con filtros: estado, slug). |
+| POST | `/sieej/formularios` | Crea (estado `borrador`). Valida `definicion`. |
+| GET | `/sieej/formularios/:id` | Detalle. |
+| PUT | `/sieej/formularios/:id` | Actualiza. Si tiene envios y la `definicion` cambia, hace `version++`. Los envios existentes mantienen su `definicion_snapshot`. |
+| POST | `/sieej/formularios/:id/publicar` | `estado = 'activo'`. |
+| POST | `/sieej/formularios/:id/cerrar` | `estado = 'cerrado'`. |
+| DELETE | `/sieej/formularios/:id` | Si no tiene envios, borra. Si tiene, lo cierra en su lugar (preserva historico). |
+| PUT | `/sieej/formularios/:id/asignaciones` | Body: `{ grupos: [id...], usuarios: [id...] }`. Reemplaza en bloque. |
+| GET | `/sieej/formularios/:id/envios` | Lista envios paginado. Filtros: estado. Devuelve `{total, items}`. |
+| GET | `/sieej/formularios/:id/envios/:envio_id` | Detalle del envio + archivos. |
+| GET | `/sieej/grupos` | Lista. |
+| POST | `/sieej/grupos` | Crea. |
+| GET | `/sieej/grupos/:id` | Detalle. |
+| PUT | `/sieej/grupos/:id` | Actualiza. |
+| DELETE | `/sieej/grupos/:id` | Borra (solo si no tiene formularios asignados; si los tiene, error 400). |
+| PUT | `/sieej/grupos/:id/usuarios` | Body: `{ usuarios: [id...] }`. Reemplaza miembros. |
+| GET | `/sieej/grupos/:id/usuarios` | Lista miembros del grupo. |
+| GET | `/sieej/stats` | Existente. Stats del wizard SIEEJ original. |
 
 ### 5.3 Convenciones a respetar (de mariachi)
 

@@ -4,6 +4,34 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.2.3] - 2026-05-06
+
+Plan de plataforma de formularios: cierre de Fase 1 (backend respondent)
+y Fase 2 (backend admin) en `mariachi/api`. Ajuste de namespace en el
+plan tras descubrir el `sieej_admin.router` existente. Sin cambios
+funcionales en el frontend.
+
+### Changed
+
+- **`docs/planes/plataforma-formularios.md`**: seccion 5.2 corregida —
+  el prefix de admin es `/sieej` (no `/admin/sieej`), alineado con el
+  router existente que ya expone `/sieej/stats`. Listado de endpoints
+  admin actualizado para reflejar lo implementado en mariachi 0.35.0
+  (CRUD formularios + publicar/cerrar + asignaciones + listar envios +
+  CRUD grupos + miembros + GET miembros).
+- **`docs/planes/plataforma-formularios.md`**: seccion "Estado de
+  implementacion" actualizada — Fase 1 y Fase 2 marcadas como
+  completas, con referencias a la migration `a4b5c6d7e8f9` y al
+  conteo de tests (47 + 19 = 66 nuevos en mariachi).
+
+### Bump
+
+- **`VERSION`** -> 1.2.3.
+- **`frontend/package.json`** -> 1.2.3.
+- **`frontend/public/ontoy.json`** -> 1.2.3.
+
+---
+
 ## [1.2.2] - 2026-05-06
 
 Audit del plan de plataforma de formularios contra el estado real de los repos vecinos. Cierre de decisiones que la version original del plan dejo abiertas y reflejo del avance de implementacion. Sin cambios funcionales en el frontend.
