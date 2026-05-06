@@ -1,7 +1,8 @@
 # Plan: Plataforma de formularios dinamicos (SIEEJ + mariachi)
 
-**Estado:** Diseno acordado, pendiente de implementacion.
+**Estado:** Diseno acordado, en fase 0 (pre-implementacion).
 **Fecha del plan:** 2026-04-25
+**Ultima revision:** 2026-05-06 (audit contra estado real de los repos).
 **Autor del diseno:** sesion de discusion con Edgar.
 
 Este documento describe el rediseno completo para convertir SIEEJ de un
@@ -13,6 +14,74 @@ ejecucion por fases.
 
 Lectura recomendada antes de implementar:
 `docs/context.md`, `docs/arquitectura.md`, `docs/frontend.md`.
+
+## Estado de implementacion (2026-05-06)
+
+Resumen del audit hecho contra el codigo real en los repos vecinos
+(`mariachi/`, `gateway-hub/`, `acervo/`):
+
+- **Backend (mariachi/api):** Fase 1 y 2 sin iniciar. Las 7 tablas
+  nuevas (`formulario`, `grupo`, `usuario_grupo`, `formulario_grupo`,
+  `formulario_usuario`, `envio_formulario`, `envio_archivo`) **no
+  existen**. Los endpoints `/formularios/*` actuales siguen siendo el
+  CRUD viejo del wizard (`general`, `enlaces`, `bases-datos`).
+- **Admin (mariachi/admin):** Esqueleto inicial creado en
+  `src/features/sieej-formularios/` con un solo archivo funcional
+  (`pages/FormulariosPage.jsx`). Es un CRUD generico de formularios
+  con AntD (slug + nombre + descripcion + is_active). **Tiene un
+  Alert visible que dice "El backend aun no expone estos
+  endpoints"**. Conflicto de namespace: llama `api.get('/formularios')`
+  contra mariachi-api, lo que choca con el subrouter respondent
+  existente. Cuando se implemente el admin, debe migrarse a
+  `/admin/sieej/formularios` (ver seccion 5.2).
+- **Frontend SIEEJ:** Refactor sin iniciar. Sigue todo el wizard
+  hardcodeado. `GlobalContext` aun contiene el array `STEPS`,
+  `HomeContext` sigue siendo el unico submission state, no existe
+  `forms/`, ni `WizardContext`, ni `SubmissionContext`, ni
+  `FormsContext`, ni `formulariosServices.js`, ni rutas `/`/`:slug`.
+- **Gateway-hub:** Sin cambios necesarios. El location `^~ /sieej/`
+  ya sirve `dist/` y `/api/...` enruta a `portal` (mariachi-api).
+- **Documentacion vecina:** `docs/context.md`, `docs/arquitectura.md`
+  y `docs/frontend.md` describen correctamente el estado **actual**
+  (post-migracion del backend a mariachi). No mencionan este plan;
+  habra que actualizarlas a partir de la fase 3.
+
+**Implicacion**: el plan sigue siendo valido tal cual; el unico ajuste
+material es la referencia de Alembic head (ver seccion 2.1).
+
+## Decisiones cerradas en este audit (2026-05-06)
+
+Items que la version original del plan dejo abiertos y que aqui se
+cierran (detalles en cada seccion correspondiente):
+
+- **Auditoria de envios**: SI se incluye tabla `envio_evento`. Costo
+  marginal en la migration inicial; backfill posterior es caro.
+  Detalles en seccion 3.1.
+- **Estado de envio "abandonado"**: el enum se amplia a
+  `en_proceso | enviado | expirado`. Un envio pasa a `expirado`
+  cuando el formulario asociado tiene `vigencia_fin < now()` y el
+  envio sigue en `en_proceso`. Detalles en seccion 3.1.
+- **PDF del summary**: opcion (a) — generar PDF en el frontend
+  desde `definicion_snapshot` + `datos`, sin html2canvas y sin
+  backend. Reutiliza la libreria que ya existe (`@react-pdf/renderer`
+  esta en `package.json` del frontend SIEEJ). Detalles en seccion 15.
+- **Validacion compartida frontend/backend**: opcion (b) — el
+  backend expone `GET /formularios/:slug/schema` con un set de reglas
+  declarativas planas (no JSON Schema), derivadas del mismo
+  `definicion_validator` que valida en backend. El frontend solo lo
+  usa para mensajes UX; la verdad sigue en el backend. Detalles en
+  seccion 16.
+- **Preview en el constructor (mariachi/admin)**: opcion (c) — un
+  componente preview *aparte* del FieldRenderer de SIEEJ, escrito en
+  AntD, que cubre los mismos campos y usa el mismo motor de
+  `showWhen`/validacion. No se intenta paridad pixel-perfect.
+  Detalles en seccion 17.
+- **Politica de archivos en Acervo**: limites por campo
+  (`maxSizeMB` por field, default 10 MB), bucket por campo via
+  `field.bucket`, creacion de buckets manual via `MediaBucket` (no
+  on-the-fly). Detalles en seccion 18.
+- **Estrategia de tests**: minimo aceptable definido en seccion 14
+  (renombrada a "Estrategia de tests" — ver mas abajo).
 
 ---
 
@@ -98,8 +167,12 @@ crece para hospedar todos los formularios del instituto.
 
 **Alembic:**
 - Migrations en `api/alembic/versions/mariachi/`.
-- Ultima revision (al momento de este plan):
-  `f1a2b3c4d5e6_add_role_externo.py`.
+- Al 2026-05-06 la cadena en la rama mariachi es **lineal** y el
+  head es `d3e4f5a6b7c8_scope_media_folders_to_bucket.py`. Esa debe
+  ser la `down_revision` de la migration de la fase 1. (El plan
+  original citaba `f1a2b3c4d5e6_add_role_externo.py`, que esta a la
+  mitad de la cadena.) Verificar igual con `alembic heads` antes de
+  generar la migration por si llegan revisiones nuevas.
 - Patron: `revision`, `down_revision`, `upgrade()`, `downgrade()`.
 - Importante: cualquier cambio a DataEngine va en rama
   `prod-migracion`, NO mezclar con migrations de mariachi.
@@ -133,8 +206,14 @@ crece para hospedar todos los formularios del instituto.
   steps del constructor).
 - `features/portal-pages/components/JsonEditorModal.jsx`: editor JSON
   (referencia para edicion avanzada de definicion).
-- Existe ya un esqueleto `features/sieej-formularios/`
-  (en construccion). Verificar antes de crear.
+- Existe ya un esqueleto `features/sieej-formularios/` (verificado
+  2026-05-06): `index.js` + `pages/FormulariosPage.jsx`. Es un CRUD
+  AntD basico (slug, nombre, descripcion, is_active) que llama
+  `api.get('/formularios')`. **Atencion**: ese path choca con el
+  subrouter respondent. Al implementar la fase 4 hay que migrar
+  todas las llamadas a `/admin/sieej/formularios` (ver 5.2) y dejar
+  esa pagina como `FormulariosListPage.jsx` segun la estructura
+  propuesta en 7.1.
 
 **Permisos en admin:**
 - Constructor de formularios: `tetlamamakani` + `editora`.
@@ -142,7 +221,8 @@ crece para hospedar todos los formularios del instituto.
 
 ### 2.3 Frontend SIEEJ (`SIEEJ/frontend`)
 
-**Stack:** React 19 + Vite 6 + Tailwind 4 + react-hook-form 7 + react-router 7. Sin Ant Design.
+**Stack:** React 19 + Vite 6.2 + Tailwind 4 + react-hook-form 7.54 +
+react-router 7.2. Sin Ant Design.
 
 **Componentes UI primitivos** (en `src/components/`):
 
@@ -235,11 +315,12 @@ sieej.envio_formulario
   formulario_version       INT NOT NULL                   -- snapshot al iniciar
   definicion_snapshot      JSONB NOT NULL                 -- copia de la definicion al iniciar (idempotente)
   usuario_id               FK -> public.usuario.id        -- nullable en v2 (publicos)
-  estado                   ENUM('en_proceso','enviado') NOT NULL DEFAULT 'en_proceso'
+  estado                   ENUM('en_proceso','enviado','expirado') NOT NULL DEFAULT 'en_proceso'
   datos                    JSONB NOT NULL DEFAULT '{}'
   paso_actual              INT NOT NULL DEFAULT 0
   iniciado_en              TIMESTAMPTZ NOT NULL
   enviado_en               TIMESTAMPTZ NULL
+  expirado_en              TIMESTAMPTZ NULL                -- set por job cuando vigencia_fin < now()
   actualizado_en           TIMESTAMPTZ NOT NULL
   UNIQUE (formulario_id, usuario_id)                       -- 1 envio por user/formulario v1
 
@@ -255,6 +336,15 @@ sieej.envio_archivo
   size_bytes           BIGINT NOT NULL
   subido_en            TIMESTAMPTZ NOT NULL
   INDEX (envio_id, field_path)
+
+sieej.envio_evento                  -- auditoria liviana del ciclo de vida
+  id                   PK
+  envio_id             FK -> sieej.envio_formulario.id
+  tipo                 ENUM('iniciado','guardado','enviado','expirado','reabierto') NOT NULL
+  payload              JSONB                              -- snapshot de datos diff o metadata libre
+  actor_usuario_id     FK -> public.usuario.id            -- quien dispara el evento (puede ser != envio.usuario_id)
+  ocurrido_en          TIMESTAMPTZ NOT NULL DEFAULT now()
+  INDEX (envio_id, ocurrido_en DESC)
 ```
 
 **Notas:**
@@ -266,6 +356,15 @@ sieej.envio_archivo
   repetibles), se cambia a un `envio_secuencia INT` con UNIQUE compuesto.
 - `envio_archivo.field_path` usa notacion de path (similar a JSONPath
   ligero) para ubicar el archivo dentro de `datos`.
+- `envio_formulario.estado='expirado'` lo escribe un job que corre
+  diariamente: `UPDATE envio_formulario SET estado='expirado',
+  expirado_en=now() WHERE estado='en_proceso' AND formulario_id IN
+  (SELECT id FROM formulario WHERE vigencia_fin < now())`. Tambien
+  emite un `envio_evento` por cada update.
+- `envio_evento` es append-only. No se actualiza ni se borra.
+  Sirve para reportes ("cuantos envios hubo el martes"), debugging
+  ("cuando guardo este usuario por ultima vez") y future v2
+  (workflow borrador-aprobacion).
 
 ### 3.2 Tablas a deprecar (fase 4)
 
@@ -361,9 +460,9 @@ renderer de SIEEJ consume. Es **el contrato central** del sistema.
     { "value": "false", "label": "No" }
   ],
   "catalog": "unidades_admin",               // alternativa a options: referencia catalogo de CatalogContext
-  "bucket": "sieej-diccionarios",            // solo para type=file
-  "accept": [".csv", ".xlsx"],               // solo para type=file
-  "maxSizeMB": 10,                           // solo para type=file
+  "bucket": "sieej-diccionarios",            // solo para type=file. El bucket debe existir como MediaBucket en mariachi (no se crea on-the-fly)
+  "accept": [".csv", ".xlsx"],               // solo para type=file. Whitelist; backend valida MIME tambien
+  "maxSizeMB": 10,                           // solo para type=file. Limite hard a 100 MB (por client_max_body_size del gateway)
   "layout": { "colSpan": 2 }                 // opcional, hint de layout
 }
 ```
@@ -849,7 +948,203 @@ SIEEJ frontend:
 
 ---
 
-## 14. Apertura de la siguiente sesion
+## 14. Estrategia de tests
+
+Minimo aceptable para que la plataforma se pueda iterar sin miedo:
+
+### Backend (pytest, en `mariachi/api/tests/sieej/`)
+- `test_definicion_validator.py`: matriz de definiciones validas e
+  invalidas — un caso por tipo de campo (text, number, email, tel,
+  date, select, select_multiple, radio, checkbox, file, info), uno
+  por tipo de step (form, repeater con/sin tabs, summary), uno por
+  combinacion `field.catalog` vs `field.options`, uno por
+  `showWhen` valido/invalido, uno por `validation` (pattern, min,
+  max, minLength, maxLength).
+- `test_datos_validator.py`: matriz de envios validos e invalidos
+  para una definicion fija — required cumplido / faltante,
+  `showWhen` que omite required, repeater con `minItems` /
+  `maxItems`, file con extension fuera de `accept`, file mas grande
+  que `maxSizeMB`.
+- `test_endpoints_respondent.py`: GET lista filtrado por
+  visibilidad (admin global ve todos, user ve solo asignados),
+  GET definicion devuelve snapshot del envio existente, PUT envio
+  guarda parcial, PUT envio con `enviar:true` valida obligatorios,
+  POST upload escribe `envio_archivo` y devuelve URL.
+- `test_endpoints_admin.py`: CRUD formularios; publicar/cerrar;
+  asignaciones reemplazan en bloque; delete falla si hay envios.
+- `test_seed_backfill.py` (fase 5): construye un dataset sintetico
+  de `general` + `enlaces` + `bases_datos`, corre el backfill,
+  verifica que cada `envio_formulario.datos` reconstruye los
+  registros originales y que `envio_archivo` apunta a las mismas
+  keys de Acervo.
+
+### Frontend SIEEJ (vitest — agregar a `package.json`, no esta hoy)
+- `forms/renderer/conditional.test.js`: evaluacion de `showWhen`.
+- `forms/renderer/validation.test.js`: matriz por tipo de campo.
+- `forms/renderer/FormRenderer.test.jsx`: render de una definicion
+  completa con react-hook-form, simular cambios, verificar que
+  `onSave` recibe los datos esperados.
+- `forms/renderer/RepeaterStep.test.jsx`: agregar/quitar items,
+  respetar `minItems`/`maxItems`, tabs internas.
+
+### CI
+- Antes de Fase 3: agregar dependencias `vitest` + `@testing-library/react`
+  al `frontend/` y un step en `.github/workflows/test-frontend.yml`.
+- En `mariachi/api`: los tests existentes corren con pytest; los
+  nuevos van bajo `tests/sieej/`. No requiere cambio de workflow.
+
+---
+
+## 15. Generacion del PDF del summary
+
+Decision: **opcion (a) — frontend, con `@react-pdf/renderer`**.
+
+- Ya esta instalado en `frontend/package.json` (`@react-pdf/renderer`
+  ^4.3.0). Hoy se usa en `components/Pdf.jsx` y `components/PdfForm.jsx`
+  para el wizard. Hay que generalizarlo: crear
+  `forms/renderer/SummaryPdf.jsx` que recibe
+  `{ definicion, datos, catalogos }` y emite el PDF iterando los
+  steps en orden.
+- Un campo se pinta segun su `field.type`. Para `select`/`radio`/
+  `checkbox`/`select_multiple`, se resuelve el label via
+  `catalogos[field.catalog]` o `field.options`. Para `file`, se
+  pinta el `filename_original` + URL si `field.showInPdf` (default
+  true). Para `info`, se omite.
+- En `summary.exportPdf=true`, el `SummaryStep` renderiza un boton
+  "Descargar PDF" que abre `<PDFDownloadLink>`.
+- El PDF actual del wizard SIEEJ se elimina en la fase 5 cleanup;
+  el nuevo lo reemplaza directamente leyendo del `definicion_snapshot`
+  del envio (asi mantiene la fidelidad de "lo que el usuario envio
+  en su momento").
+
+Razon de descartar otras opciones:
+- (b) html2canvas+jspdf: pesa mas, depende de fonts del navegador,
+  PDFs salen como imagenes (no buscables).
+- (c) WeasyPrint en backend: requiere endpoint nuevo, dependencia
+  Python nueva (~30 MB), latencia extra. No justificado.
+
+---
+
+## 16. Validacion compartida frontend/backend
+
+Decision: **el backend es la fuente de verdad. El frontend solo replica
+para UX (mensajes inline antes de hacer PUT).**
+
+### Endpoint
+`GET /formularios/:slug/schema` (gateado por
+`require_project_access('sieej')`).
+
+Respuesta: la `definicion` del envio activo (o del formulario si no hay
+envio) **mas** una clave `validation_rules` con un array plano
+derivado del `definicion_validator`:
+
+```jsonc
+{
+  "definicion": { /* misma forma de seccion 4 */ },
+  "validation_rules": [
+    { "field_path": "razon_social", "rule": "required", "message": "Requerido" },
+    { "field_path": "razon_social", "rule": "maxLength", "value": 255, "message": "Maximo 255" },
+    { "field_path": "responsable_nombre", "rule": "required_when",
+      "field": "hay_responsable", "equals": "true", "message": "Requerido" }
+  ]
+}
+```
+
+### Implementacion
+- `services/sieej/definicion_validator.py` exporta
+  `definicion_to_validation_rules(definicion) -> List[Rule]`. El
+  endpoint usa esta funcion. El validador interno (que valida `datos`
+  en PUT) tambien la consume para no duplicar logica.
+- En el frontend, `forms/renderer/validation.js` recibe
+  `validation_rules` y construye el `register(name, options)` de
+  react-hook-form aplicando cada regla. Si una regla no se entiende
+  (rule type futuro), se ignora silenciosamente (forward-compatible).
+
+Razon de no usar JSON Schema: requiere libreria extra en frontend
+(~70 KB), mensajes default en ingles, mas trabajo mantener equivalencia
+con `definicion`.
+
+---
+
+## 17. Preview en el constructor (mariachi/admin)
+
+Decision: **componente preview separado, en AntD, no compartido con
+SIEEJ.**
+
+### Estructura
+```
+admin/src/features/sieej-formularios/components/preview/
+|-- DefinicionPreview.jsx              # entrypoint, recibe definicion
+|-- StepPreview.jsx                    # form/repeater/summary
+|-- FieldPreview.jsx                   # despacha por field.type
+|-- previewRegistry.js                 # mapeo type -> componente AntD
+|-- conditional.js                     # COPIA de la logica showWhen de SIEEJ
+`-- validation.js                      # COPIA de la logica de SIEEJ
+```
+
+### Por que no compartir con el FieldRenderer de SIEEJ
+- SIEEJ usa Tailwind puro y componentes custom; admin usa AntD.
+- Compartirlo requiere monorepo o paquete npm interno; el costo de
+  setup (workspaces, build, version) supera al de duplicar.
+- El preview es para que el constructor *vea como queda*, no para
+  responder el formulario. La fidelidad pixel-perfect no aporta.
+
+### Sincronizacion de logica
+- `conditional.js` y `validation.js` son los unicos archivos
+  duplicados. Mantenerlos identicos via lint rule sencillo (script en
+  `scripts/check-preview-sync.js` que diffea ambos archivos y falla
+  si divergen). Correrlo en CI de los dos repos.
+
+### Trade-off
+Si el constructor crece (mas tipos de campo, validaciones complejas),
+la duplicacion empieza a doler. En ese caso, mover a paquete npm
+compartido en v2.
+
+---
+
+## 18. Politica de archivos en Acervo
+
+### Limites
+- Default por campo: `maxSizeMB: 10`.
+- Hard cap absoluto: 100 MB (alineado con
+  `client_max_body_size 100M` en `gateway-hub/nginx/templates/gateway.conf.template`).
+- Si un campo declara `maxSizeMB > 100`, el validator de definicion
+  rechaza la creacion del formulario.
+
+### Buckets
+- `field.bucket` debe existir como row en `media_buckets` (mariachi).
+  Validacion al crear/editar formulario.
+- No se crean buckets on-the-fly desde el constructor. Se gestionan
+  manualmente en `/admin/buckets` (admin existente de mariachi).
+- Bucket default sugerido para SIEEJ: `sieej-uploads` (general).
+  Si un formulario tiene archivos sensibles, crear bucket especifico.
+
+### Validacion de tipo
+- `accept` es whitelist por extension.
+- Ademas, el backend valida `magic mime` con `python-magic` (ya
+  instalado para Acervo). Si MIME no coincide con la extension,
+  rechaza con 415.
+
+### Limpieza de huerfanos
+- `envio_archivo` cascada delete con `envio_formulario`.
+- Job nocturno: `scripts/cleanup_acervo_orphans.py` lista objetos en
+  los buckets de SIEEJ, los cruza contra `envio_archivo.object_key`,
+  borra los que no tienen row mas viejos de 7 dias.
+- El job vive en mariachi/api `scripts/`, se programa via
+  `docker-compose` (cron container) o k8s CronJob a futuro.
+
+### Acceso a archivos
+- `envio_archivo.url_publica` es URL relativa de Acervo
+  (`/acervo/<bucket>/<key>`).
+- Frontend la usa tal cual; el gateway-hub ya enruta `/acervo/` al
+  upstream MinIO.
+- Para archivos privados (futuro), agregar `envio_archivo.privado:bool`
+  + endpoint `GET /formularios/:slug/envio/archivo/:id` con
+  presigned URL. Pospuesto v2.
+
+---
+
+## 19. Apertura de la siguiente sesion
 
 Cuando se retome esto en sesion nueva, basta abrir este doc + leer los
 ~15 archivos de la seccion 13. La siguiente accion recomendada es
@@ -861,7 +1156,6 @@ modelos + schemas Pydantic + endpoints respondent. Confirmar antes:
 2. Si el grupo tambien debe poder ver "todos los grupos" (admin) o solo
    los suyos (respondent) en alguna parte de SIEEJ. Hoy se asume que
    los grupos son invisibles para el respondent.
-3. Si hace falta una tabla `formulario_envio_evento` para auditoria
-   (cuando un user inicia, guarda, envia un formulario). v1 puede vivir
-   con `iniciado_en/enviado_en/actualizado_en` y los eventos ya
-   existentes en mariachi (Sentry + analytics).
+3. Que la cadena Alembic en mariachi siga lineal (head es
+   `d3e4f5a6b7c8`). Si llegan revisiones nuevas, el head puede
+   haber avanzado — usar `alembic heads`.

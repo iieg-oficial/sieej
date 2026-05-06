@@ -1,11 +1,19 @@
 # SIEEJ frontend — Contexto del proyecto
 
-**Version:** 1.1.4
-**Fecha de este documento:** 2026-04-24
+**Version:** 1.1.5
+**Fecha de este documento:** 2026-05-06
 **Repo:** https://github.com/iieg-oficial/sieej
 
 Referencia unica del estado actual de SIEEJ tras la migracion del backend
 a `mariachi/api` y la simplificacion de la infraestructura.
+
+> **Trabajo en curso**: hay un plan acordado para convertir SIEEJ en una
+> plataforma de formularios dinamicos (definidos por JSONB, construidos
+> desde mariachi/admin). Detalles en
+> `docs/planes/plataforma-formularios.md`. Este documento describe el
+> estado **actual** (wizard hardcodeado); cuando arranque la fase 3 del
+> plan habra que actualizar las secciones de auth flow, arquitectura y
+> pendientes.
 
 ## Resumen
 
@@ -143,9 +151,11 @@ Prerrequisitos:
 
 ## Pendientes / observaciones
 
-- **Mover `frontend/` al repo `iieg-oficial/sieej`.** Hoy el codigo vive
-  en `/home/egar/IIEG/SIEEJ/frontend/`. Cuando se mueva, agregar a ese
-  repo: `ci.yml` (lint+build), `test-frontend.yml`, etc.
+- **Plataforma de formularios dinamicos.** Diseno completo en
+  `docs/planes/plataforma-formularios.md`. Reemplaza al wizard
+  hardcodeado por formularios definidos en JSONB y construidos desde
+  mariachi/admin. Estado al 2026-05-06: fase 0; en mariachi/admin existe
+  un esqueleto `features/sieej-formularios/` aun sin endpoints reales.
 - **Login portado a mariachi admin.** El mockup oficial es el de SIEEJ
   (2 columnas + logos + copy "Hola"). Se replica en
   `mariachi/admin/src/features/auth/pages/LoginPage.jsx`.
