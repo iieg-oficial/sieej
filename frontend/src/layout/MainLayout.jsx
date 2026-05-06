@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState, useRef } from 'react';
-import { Outlet } from 'react-router';
+import { Outlet, useNavigate } from 'react-router';
 import useGlobal from '../context/useGlobal';
 import useAuth from '../context/useAuth';
 import useUser from '../context/useUser';
@@ -10,13 +10,22 @@ import logoJal from '../assets/svg/logo_jal_header.svg';
 import Loading from '../components/Loading';
 import Button from '../components/Button';
 import EnvBadge from '../components/EnvBadge';
+import IncompleteBadge from '../components/IncompleteBadge';
 import ClosePage from '../pages/ClosePage';
+import { FormsProvider } from '../forms/context/FormsContext';
+import useForms from '../forms/context/useForms';
 
 const Header = () => {
+    const navigate = useNavigate();
     const { onLogout } = useAuth();
     const { userForms, onUser, userIsLoading } = useUser();
+    const { formularios } = useForms();
     const [ menuOpen, setMenuOpen ] = useState(false);
     const dropdownRef = useRef(null);
+
+    const incompleteCount = (formularios || []).filter(
+        (f) => f.estado_envio === 'en_proceso'
+    ).length;
 
     const initial = (userForms?.nombre?.charAt(0)?.toUpperCase() || 'A') + (userForms?.apellido?.charAt(0)?.toUpperCase() || 'A');
 
@@ -50,10 +59,17 @@ const Header = () => {
             "
         >
             <div className="flex items-center justify-center md:gap-4 lg:gap-18">
-                <div className="relative h-11 inline-block">
+                <button
+                    type="button"
+                    onClick={() => navigate('/')}
+                    className="relative h-11 inline-block cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded"
+                    aria-label="Ir al inicio"
+                    title="Ir al inicio"
+                >
                     <img src={logoSIEEJ} alt="Logo SIEEJM header" className="h-11" />
                     <EnvBadge />
-                </div>
+                    <IncompleteBadge count={incompleteCount} className="-translate-y-2" />
+                </button>
                 <img src={logoIIEG} alt="Logo IIEG" className="h-11 hidden lg:block" />
                 <img src={logoJal} alt="Logo Jalisco" className="h-11 hidden lg:block" />
             </div>
@@ -114,15 +130,17 @@ const Body = () => {
 
 const MainLayout = () => {
     const { isDisabledEdition } = useGlobal();
-    
+
     return (
-        <div className={`
-            flex flex-col h-screen overflow-hidden bg-white 
-            ${isDisabledEdition ? 'bg-white' : 'md:bg-[#F4F4F4]'}
-        `}>
-            <Header />
-            <Body />
-        </div>
+        <FormsProvider>
+            <div className={`
+                flex flex-col h-screen overflow-hidden bg-white
+                ${isDisabledEdition ? 'bg-white' : 'md:bg-[#F4F4F4]'}
+            `}>
+                <Header />
+                <Body />
+            </div>
+        </FormsProvider>
     );
 };
 

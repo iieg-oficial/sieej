@@ -4,6 +4,45 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.8.0] - 2026-05-06
+
+UX del header y de la lista de formularios:
+- Logo SIEEJ del header ahora es boton que navega a `/` (lista).
+- Badge de "formularios incompletos" sobre el logo (count de envios
+  en estado `en_proceso`).
+- FormList con toggle grid/lista; default grid; preferencia
+  persistida en localStorage.
+
+### Added
+
+- **`components/IncompleteBadge.jsx`**: badge naranja absoluto al
+  estilo de `EnvBadge`. Muestra count si > 0, "9+" si > 9. Recibe
+  `count` y `className` por props.
+- **`pages/FormList.jsx`**: toggle visual con dos botones
+  (`GridIcon` y `ListIcon` SVG inline) + `FormCard` que se adapta
+  al modo. Grid: `grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4`.
+  Lista: `space-y-4`. Preferencia guardada en
+  `localStorage.sieej_form_list_view`.
+
+### Changed
+
+- **`layout/MainLayout.jsx`**: el contenedor del logo SIEEJ se
+  convierte en `<button>` con `onClick={() => navigate('/')}`,
+  `aria-label="Ir al inicio"`, focus visible. Mantiene `EnvBadge` y
+  agrega `IncompleteBadge` con el count desde
+  `useForms().formularios.filter(f => f.estado_envio === 'en_proceso').length`.
+- **`layout/MainLayout.jsx`**: `<FormsProvider>` envuelve todo el
+  layout para que el header pueda leer la lista. `FormList` ya no
+  monta su propio provider (lo eliminamos del page).
+
+### Bump
+
+- **`VERSION`** -> 1.8.0.
+- **`frontend/package.json`** -> 1.8.0.
+- **`frontend/public/ontoy.json`** -> 1.8.0.
+
+---
+
 ## [1.7.0] - 2026-05-06
 
 PDF de resumen — custom para sieej-levantamiento + generico para los
