@@ -4,6 +4,80 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.10.0] - 2026-05-07
+
+UX de cambio de contraseña + MVP de "Mis envíos" + bug fixes visuales.
+
+### Added
+
+- **`pages/ChangePassword.jsx`** reescrito en flujo de dos pasos
+  (`WelcomeStep` + `FormStep`). Cuando `user.must_change_password=true`
+  arranca con una pantalla de bienvenida (icono escudo, saludo
+  personalizado, lista de requisitos) antes del formulario; cuando es
+  cambio voluntario va directo al form. El formulario incluye barra de
+  fuerza de 4 segmentos y checklist en vivo de los 4 requisitos
+  (longitud, mayús+minús, número, carácter especial). Botón "Actualizar"
+  deshabilitado hasta `score >= 3`.
+- **`helpers/passwordStrength.js`** + tests
+  (`computePasswordStrength`, `isStrongEnough`).
+- **`pages/FormList.jsx`** ahora muestra **3 tabs**
+  (Pendientes / Enviados / Expirados) con count por tab persistido en
+  `localStorage.sieej_form_list_tab`, **búsqueda local** sobre nombre y
+  descripción, contador `X de Y` y empty states distintos por tab.
+  Card de "Enviado" muestra `Enviado el <fecha>` en lugar de
+  `Vigencia hasta`. Accesibilidad: `role="tablist"/"tab"` con
+  `aria-selected` y `tabIndex` roving.
+- **`helpers/filterForms.js`** + tests (`filterByTab`, `filterBySearch`,
+  `countByTab`, `TAB_KEYS`, `TAB_LABELS`).
+
+### Fixed
+
+- **`Routes.jsx` `ProtectedRoute`**: si `user.must_change_password=true`
+  y el path no es `/cambiar-contrasena`, redirige forzadamente. Antes
+  solo `handleLogin` respetaba el flag — recargas, sesiones recuperadas
+  y navegación directa a `/<slug>` se saltaban el reset.
+- **`pages/Login.jsx` `useEffect`**: respeta `must_change_password`
+  antes de redirigir a `originPage`.
+- **`layout/MainLayout.jsx`**:
+  - Quitado `w-screen` de `<header>` y `<main>`. Eran `100vw + m-5` =
+    desbordaban el viewport siempre. El bug pasaba desapercibido en
+    1.8.x porque el typo `w-sceen` (clase inválida) era ignorado por
+    Tailwind; en 1.9.0 al corregir el typo se hizo visible. Se notaba
+    más con el `IncompleteBadge` porque el badge se proyecta hacia la
+    derecha del avatar al borde derecho del header desbordado.
+    `<main>` además recibe `min-w-0` (permite shrinking en flex),
+    `<header>` recibe `shrink-0`.
+  - Avatar fijo `w-12 h-12 + aspect-square + shrink-0` para que sea
+    siempre circular (antes el ancho dependía de las iniciales y se
+    ovalaba con "MM" o similares).
+- **`h-screen` → `h-dvh`** (dynamic viewport height) en MainLayout,
+  CardPage, ErrorPage, NoMatch, Routes fallback y Tooltip full-screen.
+  En mobile se ajusta correctamente al área visible cuando aparece o
+  desaparece la barra de URL.
+
+### Bump
+
+- **`VERSION`** -> 1.10.0.
+- **`frontend/package.json`** -> 1.10.0.
+- **`frontend/public/ontoy.json`** -> 1.10.0.
+
+### Pendiente (v1 — requiere mariachi/api)
+
+- Detalle dedicado de envío histórico con timeline de eventos y descarga
+  de adjuntos. Necesita 2 endpoints respondent nuevos en `mariachi/api`:
+  - `GET /formularios/mis-envios?estado=&q=&page=&sort=` — listado
+    paginado del usuario (filtrado por `usuario_id` desde la sesión).
+  - `GET /formularios/mis-envios/:id` — detalle con `definicion_snapshot`,
+    `datos`, `archivos[]` y `eventos[]`.
+  - Gateados por `Depends(require_project_access('sieej'))` (no por
+    `require_staff` — el respondent debe consumirlos desde SIEEJ; el rol
+    externo nunca toca `mariachi/admin` por T#208).
+- Frontend SIEEJ: ruta `/mis-envios/:id` con `EnvioDetalle` que reusa
+  `FormRenderer` en modo histórico apuntando a `definicion_snapshot`,
+  más `EventTimeline` y `EnvioAdjuntos`.
+
+---
+
 ## [1.9.0] - 2026-05-07
 
 Auditoria profunda del frontend (arquitectura + seguridad + performance +
