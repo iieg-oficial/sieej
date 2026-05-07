@@ -22,6 +22,12 @@ export default defineConfig(({ mode }) => {
             __APP_VERSION__: JSON.stringify(pkg.version)
         },
         plugins: [react(), tailwindcss()],
+        test: {
+            environment: 'jsdom',
+            globals: true,
+            setupFiles: ['./test/setup.js'],
+            css: false,
+        },
         build: {
             rollupOptions: {
                 output: {
