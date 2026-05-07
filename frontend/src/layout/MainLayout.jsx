@@ -58,7 +58,8 @@ const Header = () => {
         <header
             className="
                 bg-[#5C2472] justify-between items-center md:rounded-[10px]
-                flex p-4 lg:pl-13 lg:py-4 w-screen h-[100px] md:m-5
+                flex p-4 lg:pl-13 lg:py-4 h-[100px] md:m-5
+                shrink-0
             "
         >
             <div className="flex items-center justify-center md:gap-4 lg:gap-18">
@@ -146,7 +147,7 @@ const Body = () => {
     const { isDisabledEdition } = useGlobal();
 
     return (
-        <main className="overflow-y-scroll w-screen grow md:mx-5">
+        <main className="overflow-y-auto grow md:mx-5 min-w-0">
             <div className="mx-auto">
                 {isDisabledEdition ? <ClosePage/> : <Outlet/>}
             </div>
