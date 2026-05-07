@@ -89,7 +89,7 @@ const Header = () => {
                         aria-haspopup="menu"
                         aria-expanded={menuOpen}
                         aria-label="Menú de usuario"
-                        className="relative rounded-full bg-emerald-200 flex items-center justify-center cursor-pointer p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                        className="relative rounded-full bg-emerald-200 flex items-center justify-center cursor-pointer w-12 h-12 shrink-0 aspect-square focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
                     >
                         <span className="text-emerald-700 text-2xl font-garetbold">{initial}</span>
                         <IncompleteBadge count={incompleteCount} corner="bottom-right" />
