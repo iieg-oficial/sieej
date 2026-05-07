@@ -20,7 +20,7 @@ const ProtectedRoute = () => {
 };
 
 const Routes = () => (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loading /></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center min-h-dvh"><Loading /></div>}>
         <RoutesRRD>
             <Route path="inicio-sesion" element={<Login />} />
             <Route path="exencion" element={<Disclaimer />} />

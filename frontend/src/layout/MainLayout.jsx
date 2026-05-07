@@ -162,7 +162,7 @@ const MainLayout = () => {
         <CatalogosProvider>
             <FormsProvider>
                 <div className={`
-                    flex flex-col h-screen overflow-x-hidden bg-white
+                    flex flex-col h-dvh overflow-x-hidden bg-white
                     ${isDisabledEdition ? 'bg-white' : 'md:bg-[#F4F4F4]'}
                 `}>
                     <Header />

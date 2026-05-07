@@ -76,7 +76,7 @@ const Tooltip = ({ text, showIcon = true, size = 'normal', children }) => {
                             className="
                                 max-w-lg w-full shadow-[0px_3px_12px_#4615524D] bg-[#F8F8F8] rounded-[10px] 
                                 p-4 md:py-4 md:px-7 text-start font-garetmedium text-xs/[21px] text-[#191919]
-                                max-h-screen overflow-y-auto grid grid-flow-col
+                                max-h-dvh overflow-y-auto grid grid-flow-col
                             "
                             onClick={(e) => e.stopPropagation()}
                         >

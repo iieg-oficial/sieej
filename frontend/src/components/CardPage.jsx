@@ -11,7 +11,7 @@ const CardPage = ({ needTerms = true, needLogo = true , className, children }) =
 
     return (
         <div 
-            className="h-screen w-screen flex flex-col items-center justify-center bg-cover bg-center" 
+            className="h-dvh w-screen flex flex-col items-center justify-center bg-cover bg-center"
             style={{ backgroundImage: `url(${backgroundJal})` }}
         >
             <div className={`${className} w-full max-w-[1088px] p-10 bg-white rounded-2xl shadow-lg`}>

@@ -22,7 +22,7 @@ const ErrorPage = ({ title: titleProp, description, error: errorProp, resetError
 
     return (
         <div
-            className="flex flex-col items-center justify-center min-h-screen text-center px-4"
+            className="flex flex-col items-center justify-center min-h-dvh text-center px-4"
             style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #F7F0FA 100%)' }}
         >
             <img src={errorImg} alt="Error" className="w-64 md:w-80 mb-8" />
