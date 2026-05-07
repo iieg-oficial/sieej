@@ -4,8 +4,6 @@
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
-
-    color: rgba(255, 255, 255, 0.87);
     background-color: #e9e8e8;
 
     font-synthesis: none;
@@ -24,19 +22,37 @@ button {
     transition: border-color 0.25s;
 }
 
-@theme {  
-    --font-garetbold: "GaretBold", "sans-serif"; 
-    --font-garetbold--font-feature-settings: "cv02", "cv03", "cv04", "cv11";   
-    --font-garetbold--font-variation-settings: "opsz" 32; 
-    --font-garetmedium: "GaretMedium", "sans-serif"; 
-    --font-garetmedium--font-feature-settings: "cv02", "cv03", "cv04", "cv11";   
-    --font-garetmedium--font-variation-settings: "opsz" 32; 
-    --font-garetregular: "GaretRegular", "sans-serif"; 
-    --font-garetregular--font-feature-settings: "cv02", "cv03", "cv04", "cv11";   
-    --font-garetregular--font-variation-settings: "opsz" 32; 
-    --font-garetbook: "GaretBook", "sans-serif"; 
-    --font-garetbook--font-feature-settings: "cv02", "cv03", "cv04", "cv11";   
-    --font-garetbook--font-variation-settings: "opsz" 32; 
+@theme {
+    --color-sieej-primary: #5C2472;
+    --color-sieej-primary-hover: #703288;
+    --color-sieej-primary-soft: #FAF5FC;
+    --color-sieej-primary-light: #F0E2F5;
+    --color-sieej-accent: #C39AD3;
+    --color-sieej-text: #191919;
+    --color-sieej-text-muted: #7C7C7C;
+    --color-sieej-text-dim: #465055;
+    --color-sieej-bg: #F8F8F8;
+    --color-sieej-bg-soft: #F4F4F4;
+    --color-sieej-border: #E2E2E2;
+    --color-sieej-error: #EA4336;
+    --color-sieej-error-bg: #FCDBDA;
+    --color-sieej-success: #34A853;
+    --color-sieej-success-bg: #EAF6ED;
+    --color-sieej-warn: #FF8300;
+    --color-sieej-warn-bg: #FEDAB2;
+
+    --font-garetbold: "GaretBold", "sans-serif";
+    --font-garetbold--font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    --font-garetbold--font-variation-settings: "opsz" 32;
+    --font-garetmedium: "GaretMedium", "sans-serif";
+    --font-garetmedium--font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    --font-garetmedium--font-variation-settings: "opsz" 32;
+    --font-garetregular: "GaretRegular", "sans-serif";
+    --font-garetregular--font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    --font-garetregular--font-variation-settings: "opsz" 32;
+    --font-garetbook: "GaretBook", "sans-serif";
+    --font-garetbook--font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    --font-garetbook--font-variation-settings: "opsz" 32;
 }
 
 @-moz-document url-prefix() {
