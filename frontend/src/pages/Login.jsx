@@ -13,7 +13,7 @@ import EnvBadge from '@components/EnvBadge';
 
 export default function Login() {
     const {
-        onLogin, isAuthenticated, originPage, authError,
+        onLogin, isAuthenticated, user, originPage, authError,
         isAuthLoading
     } = useAuth();
     const methods = useForm();
@@ -29,8 +29,10 @@ export default function Login() {
     const ImageSIEEJ = ({ className }) => <img src={logoSIEEJ} alt="SIEEJ" className={`${className}`}/>
 
     useEffect(() => {
-        isAuthenticated && navigate(originPage);
-    }, [isAuthenticated, navigate, originPage]);
+        if (!isAuthenticated) return;
+        const target = user?.must_change_password ? '/cambiar-contrasena' : originPage;
+        navigate(target);
+    }, [isAuthenticated, user, navigate, originPage]);
 
     useEffect(() => {
         const termsAccepted = sessionStorage.getItem('termsAccepted') === 'true';

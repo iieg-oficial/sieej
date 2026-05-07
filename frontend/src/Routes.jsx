@@ -13,10 +13,16 @@ const FormList = lazy(() => import('./pages/FormList'));
 const FormPage = lazy(() => import('./pages/FormPage'));
 
 const ProtectedRoute = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const location = useLocation();
 
-    return isAuthenticated ? <MainLayout/> : <Navigate to="/inicio-sesion" replace state={{ from: location }} />;
+    if (!isAuthenticated) {
+        return <Navigate to="/inicio-sesion" replace state={{ from: location }} />;
+    }
+    if (user?.must_change_password && location.pathname !== '/cambiar-contrasena') {
+        return <Navigate to="/cambiar-contrasena" replace />;
+    }
+    return <MainLayout/>;
 };
 
 const Routes = () => (
