@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import ErrorsRequired from '../helpers/ErrorsRequired';
-import DynamicDiv from '../helpers/DynamicDiv';
+import ErrorsRequired from '@helpers/ErrorsRequired';
+import DynamicDiv from '@helpers/DynamicDiv';
 import Label from './Label';
 import Typography from './Typography';
 
@@ -68,14 +68,14 @@ const Radio = ({
                             {...rest}
                             {...register(name, { required: required ? 'Este campo es obligatorio' : false })}
                             className={`
-                                h-[20px] w-[20px] border-[#5C2472] border coursor-pointer rounded-full appearance-none 
+                                h-[20px] w-[20px] border-[#5C2472] border cursor-pointer rounded-full appearance-none 
                                 checked:bg-[#5C2472] checked:border-[#5C2472] checked:before:flex checked:before:items-center
                                 checked:before:justify-center checked:before:h-full hover:bg-[#5C2472]
                                  ${errors[name] ? 'border border-[#EA4336] placeholder-[#EA4336] bg-white' : ''}
                             `}
                             onChange={handleRadioChange}
                         />
-                        <label htmlFor={`${name}-${option.value}`} className="ml-[12px] text-xs text-[#191919] font-garetmedium coursor-pointer">
+                        <label htmlFor={`${name}-${option.value}`} className="ml-[12px] text-xs text-[#191919] font-garetmedium cursor-pointer">
                             {option.label}
                         </label>
                     </div>

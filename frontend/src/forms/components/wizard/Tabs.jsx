@@ -10,13 +10,21 @@ const Tabs = ({
     if (!show) return null;
 
     return (
-        <div className={`flex felx-wrap bg-white ${className ?? ''} ${vertical ? 'flex-col items-start' : 'w-full items-center'}`}>
+        <div
+            role="tablist"
+            aria-orientation={vertical ? 'vertical' : 'horizontal'}
+            className={`flex flex-wrap bg-white ${className ?? ''} ${vertical ? 'flex-col items-start' : 'w-full items-center'}`}
+        >
             {items.map((item, index) => {
                 const isActive = activeTab === index;
                 const allowRemove = vertical && isActive && typeof onTabRemove === 'function';
+                const tabId = item.id ?? item._id ?? `tab-${index}`;
                 return (
                     <Button
-                        key={item.id ?? item._id ?? index}
+                        key={tabId}
+                        role="tab"
+                        aria-selected={isActive}
+                        tabIndex={isActive ? 0 : -1}
                         variant="label"
                         label={isMobile ? index + 1 : `${index + 1}.  ${item.label || item.nombre_bd || item.nombre || `Item ${index + 1}`}`}
                         sufIcon={allowRemove ? icoX : null}

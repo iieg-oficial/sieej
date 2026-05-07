@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useFormState } from 'react-hook-form';
-import ErrorsRequired from '../helpers/ErrorsRequired';
-import DynamicDiv from '../helpers/DynamicDiv';
+import ErrorsRequired from '@helpers/ErrorsRequired';
+import DynamicDiv from '@helpers/DynamicDiv';
 import Typography from './Typography';
 
 const Select = ({
@@ -55,11 +55,23 @@ const Select = ({
             />
             <div
                 id={name}
-                name={name}
+                role="combobox"
+                tabIndex={0}
+                aria-expanded={showDropdown}
+                aria-haspopup="listbox"
+                aria-controls={`${name}-listbox`}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setShowDropdown((prev) => !prev);
+                    } else if (e.key === 'Escape') {
+                        setShowDropdown(false);
+                    }
+                }}
                 className={`
                     mt-[12px] block w-full min-h-[40px] px-3 py-2 rounded-[10px] text-[#5C2472] overflow-hidden
-                    ${showDropdown 
-            ? 'rounded-t-lg shadow-[0px_4px_20px_#A8A8A899]' 
+                    ${showDropdown
+            ? 'rounded-t-lg shadow-[0px_4px_20px_#A8A8A899]'
             : 'rounded-lg hover:shadow-[0px_4px_20px_#A8A8A899] hover:bg-[#FFFFFF] hover:border-[#4A148C] hover:border'
         }
                     font-garetmedium text-[14px] bg-[#F8F8F8] cursor-pointer
@@ -69,7 +81,7 @@ const Select = ({
                 `}
                 onClick={() => setShowDropdown((prev) => !prev)}
                 {...rest}
-                {...register(name, { 
+                {...register(name, {
                     required: required ? 'Este campo es obligatorio' : false,
                     pattern: pattern ? { value: pattern, message: 'Formato inválido' } : false,
                 })}
@@ -89,6 +101,8 @@ const Select = ({
                 )}
                 {showDropdown && (
                     <div
+                        id={`${name}-listbox`}
+                        role="listbox"
                         className="
                             absolute left-0 top-17 z-2 bg-white shadow-lg shadow-[#B6A6BC99]
                             rounded-b-lg w-full max-h-120 overflow-auto
@@ -114,6 +128,15 @@ const Select = ({
                         {filteredOptions.map(({ value, label }) => (
                             <div
                                 key={value}
+                                role="option"
+                                aria-selected={selectedValue === value}
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        handleSelect(value);
+                                    }
+                                }}
                                 className="flex items-center w-full px-3 py-2 hover:bg-[#F8F8F8] cursor-pointer"
                                 onClick={() => handleSelect(value)}
                             >

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useFormState } from 'react-hook-form';
-import arrowDown from '../assets/icons/ico_down_arrow.svg';
-import ErrorsRequired from '../helpers/ErrorsRequired';
-import DynamicDiv from '../helpers/DynamicDiv';
+import arrowDown from '@assets/icons/ico_down_arrow.svg';
+import ErrorsRequired from '@helpers/ErrorsRequired';
+import DynamicDiv from '@helpers/DynamicDiv';
 import Typography from './Typography';
 
 const SelectMultiple = ({
