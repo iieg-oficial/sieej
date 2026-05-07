@@ -4,8 +4,6 @@ import { BrowserRouter } from 'react-router';
 import * as Sentry from '@sentry/react';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { GlobalProvider } from './context/GlobalContext.jsx';
-import { CatalogProvider } from './context/CatalogContext.jsx';
-import { UserProvider } from './context/UserContext.jsx';
 import Routes from './Routes.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 import './index.css';
@@ -38,11 +36,7 @@ root.render(
             <StrictMode>
                 <GlobalProvider>
                     <AuthProvider>
-                        <CatalogProvider>
-                            <UserProvider>
-                                <Routes />
-                            </UserProvider>
-                        </CatalogProvider>
+                        <Routes />
                     </AuthProvider>
                 </GlobalProvider>
             </StrictMode>

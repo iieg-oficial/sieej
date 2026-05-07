@@ -1,10 +1,11 @@
 import {
-    useState, createContext, useEffect, useCallback
+    useState, createContext, useEffect, useCallback, useRef
 } from 'react';
 import useGlobal from './useGlobal';
 import { useLocation, useNavigate } from 'react-router';
-import { postLogin, postLogout, getProfile } from '../services/authServices';
-import { pushAnalyticsEvent } from '../helpers/analytics';
+import { postLogin, postLogout, getProfile } from '@services/authServices';
+import { pushAnalyticsEvent } from '@helpers/analytics';
+import { normalizeUser } from '@helpers/normalizeUser';
 
 const AuthContext = createContext();
 
@@ -30,10 +31,11 @@ const AuthProvider = ({ children }) => {
     const closeMessageError = () => setAuthError(null);
 
     const handleFetchWithAuth = useCallback(async (url, options = {}) => {
-        const method = (options.method || 'GET').toUpperCase();
+        const { body: rawBody, headers: rawHeaders, ...rest } = options;
+        const method = (rest.method || 'GET').toUpperCase();
         const headers = {
             'Accept': 'application/json',
-            ...(options.headers || {}),
+            ...(rawHeaders || {}),
         };
 
         if (MUTATION_METHODS.has(method)) {
@@ -41,20 +43,23 @@ const AuthProvider = ({ children }) => {
             if (csrf) headers['X-CSRF-Token'] = csrf;
         }
 
+        let body = rawBody;
         if (
-            options.body
-            && !(options.body instanceof FormData)
-            && !(options.body instanceof URLSearchParams)
-            && typeof options.body !== 'string'
+            body
+            && !(body instanceof FormData)
+            && !(body instanceof URLSearchParams)
+            && !(body instanceof Blob)
+            && typeof body !== 'string'
         ) {
-            options.body = JSON.stringify(options.body);
+            body = JSON.stringify(body);
             headers['Content-Type'] = 'application/json';
         }
 
         const response = await fetch(url, {
-            ...options,
+            ...rest,
             method,
             headers,
+            body,
             credentials: 'include',
         });
 
@@ -70,42 +75,46 @@ const AuthProvider = ({ children }) => {
         return response;
     }, [location.pathname, navigate]);
 
+    const mountedRef = useRef(true);
+    useEffect(() => () => { mountedRef.current = false; }, []);
+    const safeSet = (setter) => (value) => { if (mountedRef.current) setter(value); };
+
     const handleCheckAuth = useCallback(async () => {
-        setAuthLoading(true);
+        safeSet(setAuthLoading)(true);
         try {
             const profile = await getProfile();
-            setUser(profile);
-            setIsAuthenticated(true);
+            safeSet(setUser)(normalizeUser(profile));
+            safeSet(setIsAuthenticated)(true);
         } catch {
-            setUser(null);
-            setIsAuthenticated(false);
+            safeSet(setUser)(null);
+            safeSet(setIsAuthenticated)(false);
         } finally {
-            setAuthLoading(false);
+            safeSet(setAuthLoading)(false);
         }
     }, []);
 
     const handleLogin = async ({ username, password }) => {
-        setAuthLoading(true);
-        setAuthError(null);
+        safeSet(setAuthLoading)(true);
+        safeSet(setAuthError)(null);
 
         try {
             const { csrf_token, user: loginUser } = await postLogin({ username, password });
             sessionStorage.setItem(CSRF_KEY, csrf_token);
 
             const profile = await getProfile();
-            const finalUser = profile || loginUser;
-            setUser(finalUser);
-            setIsAuthenticated(true);
+            const finalUser = normalizeUser(profile || loginUser);
+            safeSet(setUser)(finalUser);
+            safeSet(setIsAuthenticated)(true);
             authAnalyticsEvent('Iniciar sesión', 'Inicio de sesión exitoso');
 
             const target = finalUser?.must_change_password ? '/cambiar-contrasena' : originPage;
             navigate(target);
         } catch (error) {
-            setAuthError(error.message || 'Error al iniciar sesión');
+            safeSet(setAuthError)(error.message || 'Error al iniciar sesión');
             onMessage(true);
             throw error;
         } finally {
-            setAuthLoading(false);
+            safeSet(setAuthLoading)(false);
         }
     };
 
@@ -116,9 +125,9 @@ const AuthProvider = ({ children }) => {
             /* ignorar fallo de logout server-side */
         }
         sessionStorage.removeItem(CSRF_KEY);
-        setUser(null);
-        setIsAuthenticated(false);
-        setAuthError(null);
+        safeSet(setUser)(null);
+        safeSet(setIsAuthenticated)(false);
+        safeSet(setAuthError)(null);
         authAnalyticsEvent('Cerrar sesión', 'Sesión cerrada manualmente');
         navigate('/inicio-sesion');
     };

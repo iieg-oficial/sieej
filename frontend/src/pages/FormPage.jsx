@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { SubmissionProvider } from '../forms/context/SubmissionContext';
-import useSubmission from '../forms/context/useSubmission';
-import { WizardProvider } from '../forms/context/WizardContext';
-import useWizard from '../forms/context/useWizard';
-import FormRenderer from '../forms/renderer/FormRenderer';
-import StepIndicator from '../forms/components/wizard/StepIndicator';
+import { SubmissionProvider } from '@forms/context/SubmissionContext';
+import useSubmission from '@forms/context/useSubmission';
+import { WizardProvider } from '@forms/context/WizardContext';
+import useWizard from '@forms/context/useWizard';
+import FormRenderer from '@forms/renderer/FormRenderer';
+import StepIndicator from '@forms/components/wizard/StepIndicator';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
 import Button from '@components/Button';
 import Modal from '@components/Modal';
 import useGlobal from '@context/useGlobal';
-import useCatalog from '@context/useCatalog';
+import useCatalogos from '@forms/context/useCatalogos';
 
 const FormularioContent = () => {
     const { definicion, envio, loading, error, guardar, enviar, subirArchivo } = useSubmission();
     const { currentStep, activeTab, visitedTabs, sizeTabs, onActiveTab } = useWizard();
     const { onMessage, isMobile } = useGlobal();
-    const { catalogos } = useCatalog();
+    const { catalogos } = useCatalogos();
     const navigate = useNavigate();
     const [methods, setMethods] = useState(null);
 
