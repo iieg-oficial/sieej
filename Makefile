@@ -1,4 +1,4 @@
-.PHONY: help dev build down logs status clean
+.PHONY: help dev build down logs status clean ensure-env
 
 # UID/GID del host para que volumes escritos por contenedores (frontend-build → dist/) tengan ownership correcto
 export UID := $(shell id -u)
@@ -17,6 +17,7 @@ help:
 	@echo "  make down         - Detener servicios de desarrollo"
 	@echo ""
 	@echo "BUILD (produccion):"
+	@echo "  make ensure-env   - Crea .env.development desde .env.example si falta"
 	@echo "  make build        - Construir frontend en frontend/dist (consumido por gateway-hub)"
 	@echo ""
 	@echo "GENERAL:"
@@ -26,7 +27,14 @@ help:
 	@echo "Nota: el backend de SIEEJ vive en mariachi/api (modulo formularios)."
 	@echo "      En staging/produccion el dist/ es servido por gateway-hub en /sieej/."
 
-dev:
+ensure-env:
+	@if [ ! -f .env.development ]; then \
+		echo ".env.development no existe; copiando desde .env.example..."; \
+		cp .env.example .env.development; \
+		echo "Edita .env.development para tu entorno local antes de continuar."; \
+	fi
+
+dev: ensure-env
 	@echo ""
 	@echo "Levantando frontend de desarrollo..."
 	@$(COMPOSE_DEV) --profile dev up -d --build
@@ -42,7 +50,7 @@ build:
 	@$(COMPOSE_BUILD) --profile build run --rm --build frontend-build
 	@echo ""
 	@echo "Build listo en ./frontend/dist/"
-	@echo "Para servir: el mariachi-nginx debe montar este dist en /sieej/"
+	@echo "Para servir: gateway-hub monta este dist en /sieej/"
 
 down:
 	@$(COMPOSE_DEV) --profile dev down 2>/dev/null || true

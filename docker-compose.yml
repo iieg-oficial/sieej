@@ -13,7 +13,7 @@ services:
       VITE_SITE_URL: ${VITE_SITE_URL:-}
       VITE_BASE_PATH: ${VITE_BASE_PATH:-/}
       VITE_DISABLED_EDITION: ${VITE_DISABLED_EDITION:-false}
-      VITE_GOOGLE_RECAPTCHA_SITE_KEY: ${VITE_GOOGLE_RECAPTCHA_SITE_KEY:-}
+      VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
       BACKEND_DEV_TARGET: ${BACKEND_DEV_TARGET:-}
     volumes:
       - ./frontend/src:/app/src:ro
@@ -43,7 +43,7 @@ services:
         VITE_NODE_ENV: ${VITE_NODE_ENV:-production}
         VITE_APP_ENV: ${VITE_APP_ENV:-beta}
         VITE_DISABLED_EDITION: ${VITE_DISABLED_EDITION:-false}
-        VITE_GOOGLE_RECAPTCHA_SITE_KEY: ${VITE_GOOGLE_RECAPTCHA_SITE_KEY:-}
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
     profiles: ["build"]
     environment:
       HOST_UID: ${UID:-1000}
