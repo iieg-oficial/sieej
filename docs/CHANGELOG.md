@@ -4,6 +4,207 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.9.0] - 2026-05-07
+
+Auditoria profunda del frontend (arquitectura + seguridad + performance +
+accesibilidad + estandares + tests). Se aplicaron 37 de 40 hallazgos. Los
+3 restantes (CSP estricta en gateway-hub, migracion a TypeScript,
+Storybook/i18n) requieren sprints o tocar otros repos y se dejaron como
+seguimiento.
+
+### Fixed (P0 — bugs reales)
+
+- **`forms/context/CatalogosContext.jsx`** (nuevo, reemplaza al viejo
+  `context/CatalogContext.jsx`): expone `catalogos` como objeto plano
+  con las **mismas keys que devuelve el backend** (`unidades_admin`,
+  `categoria_datos`, `ejes_estrategicos`, `periodicidad`,
+  `herramientas_gestion`, `calidad_datos`, `usuarios_datos`,
+  `objetivo_uso`). El context anterior remapeaba a aliases en ingles
+  (`unidadesAdministrativas`, ...) que ningun consumidor del renderer
+  dinamico usaba; resultado: los `field.catalog` del JSONB caian en
+  `if (field.catalog && catalogos)` con `catalogos === undefined` y
+  los selects/radios dinamicos quedaban sin opciones. Ahora
+  `catalogResolver(field, catalogos[field.catalog])` resuelve.
+- **`components/Checkbox.jsx`** y **`components/DatePicker.jsx`**
+  (renombrado desde `DatePicket.jsx`): reescritos para recibir
+  `methods` por props como Input/Select/Radio. Antes usaban
+  `useFormContext()` pero `FieldRenderer` no monta `<FormProvider>` —
+  hubieran tirado TypeError al desestructurar `register/errors` la
+  primera vez que un schema dinamico declarara un `type:checkbox` o
+  `type:date`.
+- **`pages/Register.jsx`**: eliminado. El componente invocaba
+  `useAuth().onRegister` que no existe en `AuthContext`. La ruta
+  condicional `regisño` (solo dev) tambien se elimino de
+  `Routes.jsx`.
+
+### Security / UX
+
+- **`context/GlobalContext.jsx`**: removido `regexPass` (rechazaba
+  palabras como `SELECT`, `DROP`, `--` con la pretension de bloquear
+  SQLi en el frontend — falso sentido de seguridad y bloqueaba
+  contrasenas legitimas que contuvieran esas palabras). Backend
+  parametriza queries; la validacion de complejidad real vive ahi.
+- **`components/Input.jsx`**: `normalize` default cambia de
+  `'capitalize'` a `'normal'` (capitalize destruia datos como
+  `iPhone`, RFCs, URLs, correos no marcados como `type:email`); cap
+  implicito `maxLength=100` removido (rompia textareas largas — los
+  schemas que necesiten un cap lo declaran via `validation.maxLength`).
+  Toggle de password convertido en `<button>` accesible con
+  `aria-label`/`aria-pressed`.
+- **`components/Dragger.jsx`**: reemplazado `alert()` bloqueante por
+  `openModal('error', ...)` para los archivos que exceden tamano.
+- **`context/AuthContext.jsx`**: `onFetch` ya no muta `options.body`
+  recibido; soporta `Blob` ademas de `FormData`/`URLSearchParams`/
+  `string`; cleanup con `mountedRef` para evitar setState en
+  componente desmontado.
+- **`services/{auth,formularios}Services.js`**: `parseJson` resiliente
+  a respuestas no JSON (502 con HTML ya no lanza desde dentro del
+  parser); el `Error` lleva `status` y `data` adjuntos para que el
+  caller decida.
+
+### Performance
+
+- **`forms/renderer/SummaryStep.jsx`**: usa `useWatch` sobre el
+  `control` en lugar de recibir `datos={methods.watch()}` calculado
+  desde `FormRenderer`. Antes cualquier keystroke en cualquier campo
+  re-renderizaba la jerarquia entera (FormRenderer → StepRenderer →
+  cada FieldRenderer); ahora solo el SummaryStep re-renderiza, y solo
+  cuando esta montado.
+- **`forms/renderer/pdf/SummaryPdfButton.jsx`**: pasa de imports
+  estaticos a `await import(...)` dentro del handler para
+  `genericPdf` y `templates/sieej-levantamiento`. **Reduccion del
+  initial bundle ~1.4 MB** (`vendor-pdf` ahora es chunk on-demand).
+- **`context/GlobalContext.jsx`**: el listener de `resize` se envuelve
+  en `requestAnimationFrame` para no propagar re-render de
+  `screenSize` en cada pixel; corregido `screenSize.sm` para empezar
+  desde 0 (antes `>= 100` dejaba viewports muy angostos sin
+  breakpoint).
+- **`components/Tooltip.jsx`**: `hoverTimeout` migrado a `useRef` +
+  cleanup al desmontar; antes se reinicializaba en cada render y
+  podia dejar timers huerfanos.
+
+### Architecture
+
+- **Provider tree aplanado** de 4 niveles globales a 2:
+  ```
+  <BrowserRouter>
+    <GlobalProvider>
+      <AuthProvider>
+        <Routes>
+          <ProtectedRoute>
+            <MainLayout>
+              <CatalogosProvider>
+                <FormsProvider>
+                  ...
+  ```
+  El antiguo `CatalogProvider`/`UserProvider` colgaba del root incluso
+  para usuarios no autenticados. Ahora `CatalogosProvider` y
+  `FormsProvider` solo se montan dentro de `MainLayout` (que solo
+  renderiza tras `ProtectedRoute`), y `UserContext` desaparece — el
+  layout consume `useAuth().user` directo, con un helper
+  `helpers/normalizeUser.js` que deriva `nombre`/`apellido` desde
+  `user.name` cuando el backend solo lo manda como string.
+- **`forms/renderer/pdf/templates/sieej-levantamiento/`**: PDF custom
+  (`PdfForm.jsx` 245 LOC + `index.jsx` con el adapter de datos) movido
+  desde `components/` y `forms/renderer/pdf/` a su carpeta de plantilla
+  para dejar claro que es la unica excepcion documentada al
+  `genericPdf`.
+
+### Removed (dead code)
+
+- `components/Pdf.jsx` (PDFViewer/PDFDownload sin imports).
+- `components/Upload.jsx` (reemplazado por `Dragger.jsx`, sin imports).
+- `components/PdfForm.jsx` (movido a templates).
+- `pages/Register.jsx` (ver P0).
+- `context/UserContext.jsx`, `context/useUser.js`,
+  `context/CatalogContext.jsx`, `context/useCatalog.js` (ver
+  Architecture).
+
+### Standards / Tooling
+
+- **Imports**: pasada masiva de imports relativos `../components/...`
+  → alias `@components/...` (idem `@helpers`, `@context`, `@services`,
+  `@pages`, `@forms`, `@layout`, `@assets`, `@svg`, `@png`, `@icons`,
+  `@fonts`) en todo `src/`.
+- **`react-router` unico**: reemplazo `react-router-dom` por
+  `react-router` (RR v7) en todos los imports y removida la dep de
+  `package.json`. Regla ESLint `no-restricted-imports` bloquea el
+  regreso.
+- **ESLint**: cargado `eslint-plugin-react` con `jsx-no-target-blank` y
+  `display-name`. Removidos overrides muertos (`DataBaseStep`,
+  `ResumeStep`). Solo quedan overrides para `SummaryStep` y
+  `PdfForm` legacy (max-lines 500).
+- **`index.css`**: paleta SIEEJ centralizada en `@theme` (Tailwind v4
+  custom properties: `--color-sieej-primary`, `--color-sieej-bg`,
+  `--color-sieej-error`, etc.); removido `color: rgba(255,255,255,0.87)`
+  del `:root` que dejaba texto casi-blanco sobre fondo gris claro.
+- **Typos**: `DatePicket` → `DatePicker`; `w-sceen` → `w-screen` en
+  `MainLayout`; `coursor-pointer` → `cursor-pointer` en `Radio`;
+  `felx-wrap` → `flex-wrap` en `Tabs`.
+
+### Accessibility
+
+- **`Modal`**: `role="dialog"` + `aria-modal` + `aria-labelledby`/
+  `describedby`, focus trap con `Tab`/`Shift+Tab`, cierre con `Esc` y
+  click en backdrop, restaura el foco al disparador al cerrar.
+- **`Select`**: `role="combobox"` + `aria-expanded`/`haspopup`/
+  `controls`, `<listbox>` y `<option>` con roles + `aria-selected`,
+  soporte teclado (Enter/Espacio/Esc).
+- **`Tabs` (wizard)**: `role="tablist"`/`tab` + `aria-selected` +
+  `tabIndex` roving para navegacion por teclado.
+- **Avatar (`MainLayout`)**: span clickable convertido en `<button>`
+  con `aria-haspopup="menu"`/`aria-expanded`; dropdown con
+  `role="menu"`/`menuitem` y cierre por `Escape`.
+- **Password toggle (`Input`)**: `<span>` con prop invalido convertido
+  en `<button>` con `aria-label`/`aria-pressed`.
+
+### Testing
+
+- **`vitest`** + **`@testing-library/react`** + `jest-dom` + `jsdom`.
+  Configuracion en `vite.config.js` (`test: { environment: 'jsdom' }`).
+- Suite inicial sobre logica pura (los contratos JSONB que mas duelen
+  si rompen):
+  - `test/conditional.test.js` — `evaluarShowWhen` (bool/string,
+    campos faltantes, sin condicion).
+  - `test/catalogResolver.test.js` — `resolveOptions` (options
+    inline, catalog string array, catalog object array, prioridad
+    options sobre catalog).
+  - `test/normalizeUser.test.js` — derivacion de `nombre`/`apellido`
+    desde `user.name`.
+- **14 tests verdes**. Scripts: `npm run test` (run-once para CI),
+  `npm run test:watch`.
+
+### Build / Env
+
+- **`Dockerfile`**: `VITE_BACKEND_API_HOST` default `'/api/administrador'`
+  (antes `'/sieej/api'` — un build sin args producia un dist que
+  apuntaba a un endpoint inexistente). Removido
+  `VITE_GOOGLE_RECAPTCHA_SITE_KEY` (declarado pero sin uso en codigo).
+  Agregado `VITE_SENTRY_DSN` al pipeline.
+- **`Makefile`**: target `ensure-env` que copia `.env.development`
+  desde `.env.example` si falta. `make dev` y `make build` dependen de
+  el — antes el primer `make dev` fallaba con
+  `--env-file .env.development` no encontrado.
+- **`docker-compose.yml`** y **`.env.example`** alineados.
+
+### Bump
+
+- **`VERSION`** -> 1.9.0.
+- **`frontend/package.json`** -> 1.9.0.
+- **`frontend/public/ontoy.json`** -> 1.9.0.
+
+### Pendiente (sprints fuera de esta entrega)
+
+- **CSP estricta en gateway-hub** (#8 de la auditoria): requiere
+  inventario de origenes externos en prod (Sentry DSN, GTM/GA, etc.)
+  y editar `gateway.conf.template` en otro repo.
+- **Migracion a TypeScript** (#28): sprint dedicado; afecta 50+
+  archivos. Recomendacion: encarar despues con generacion de tipos
+  desde el OpenAPI de `mariachi/api`.
+- **Storybook + i18n**: proyectos enteros, no incluidos.
+
+---
+
 ## [1.8.5] - 2026-05-06
 
 Reorganizacion de la documentacion del proyecto:

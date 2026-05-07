@@ -73,14 +73,27 @@ graph TD
 
 - `main.jsx` instancia `BrowserRouter` con `basename={VITE_BASE_PATH}` y monta:
   ```
-  GlobalProvider > AuthProvider > CatalogProvider > UserProvider > HomeProvider > <Routes/>
+  GlobalProvider > AuthProvider > <Routes/>
+  ```
+  Dentro de `MainLayout` (montado solo cuando hay sesion via
+  `ProtectedRoute`):
+  ```
+  CatalogosProvider > FormsProvider > <Outlet/>
   ```
 - `AuthContext`: cookie HttpOnly + CSRF, `onFetch` con `credentials:'include'`,
   inyeccion automatica de `X-CSRF-Token` en mutaciones, auto-logout en 401.
-- `CatalogContext`: cuando `isAuthenticated`, hace `GET /formularios/catalogos`
-  y mapea las 8 colecciones del backend a las variables que consumen los
-  componentes del wizard.
-- `HomeContext`: orquesta los CRUD de los 5 pasos del wizard.
+  `setUser` siempre pasa por `helpers/normalizeUser.js` que deriva
+  `nombre`/`apellido` desde `user.name` cuando solo viene como string.
+- `CatalogosContext` (`forms/context/CatalogosContext.jsx`): cuando
+  `isAuthenticated`, hace `GET /formularios/catalogos` y expone
+  `catalogos: { unidades_admin, categoria_datos, ... }` con las
+  **mismas keys** que el JSONB de la `definicion` declara en
+  `field.catalog`. Cleanup con `AbortController`.
+- `FormsContext` (`forms/context/FormsContext.jsx`): lista de
+  formularios visibles para el usuario. El header del layout lee de
+  aqui para el badge de incompletos.
+- `SubmissionContext` + `WizardContext`: scoped al `FormPage`
+  (un envio activo + estado de navegacion del wizard).
 
 ### Backend (mariachi/api modulo formularios)
 

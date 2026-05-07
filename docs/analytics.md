@@ -52,7 +52,7 @@ El helper es no-op si `window.dataLayer` no existe (dev local sin gateway). En m
 | Campo | Tipo | Descripcion |
 |---|---|---|
 | `event` | `'sieej_event'` constante | Trigger principal en GTM. |
-| `category` | string | Agrupacion semantica del evento. Hoy se usan: `Autenticación`, `Usuario`, `Formulario`, `Todo`. |
+| `category` | string | Agrupacion semantica del evento. Hoy se usan: `Autenticación`, `Aviso de privacidad`, `error 404`, `Todo`. |
 | `action` | string | Verbo en infinitivo o gerundio (Iniciar sesión, Cerrar sesión, Subir base de datos, Eliminar base de datos). |
 | `label` | string \| null | Detalle libre (mensaje de exito, identificador, etc.). |
 
@@ -62,10 +62,15 @@ El helper es no-op si `window.dataLayer` no existe (dev local sin gateway). En m
 |---|---|---|---|
 | `AuthContext.handleLogin` | Autenticación | Iniciar sesión | Inicio de sesión exitoso |
 | `AuthContext.handleLogout` | Autenticación | Cerrar sesión | Sesión cerrada manualmente |
-| `UserContext.handleUser` | Usuario | Obtener usuario | Se obtuvo el usuario {username} |
-| `HomeContext.handlePostFile` | Formulario | Subir base de datos | Se subió base de datos como archivo. |
-| `HomeContext.handleDeleteDatabase` | Formulario | Eliminar base de datos | Eliminar base de datos con id: {id} |
+| `Disclaimer.handleLinkClick` | Aviso de privacidad | Se direcciona al aviso de privacidad | — |
+| `NoMatch` / `ClosePage` | error 404 | (variable) | `Intentaron acceder a: {pathname}` |
 | `GlobalContext.globalAnalyticsEvent` | Todo | (variable) | (variable) |
+
+> Desde 1.9.0 se eliminaron los contextos `UserContext` y `HomeContext`
+> (junto con los eventos de wizard hardcodeado que emitian). El renderer
+> dinamico actual no emite eventos por step; si se requiere, se pueden
+> agregar en `forms/context/SubmissionContext.jsx` (e.g. al guardar o
+> enviar).
 
 ## Configuracion en gateway-hub
 

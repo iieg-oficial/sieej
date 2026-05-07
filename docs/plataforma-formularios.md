@@ -1,8 +1,8 @@
 # Plataforma de formularios dinamicos SIEEJ
 
 **Estado:** implementada y en operacion.
-**Ultima version SIEEJ:** 1.8.4. **Ultima version mariachi:** 0.40.2.
-**Fecha:** 2026-05-06.
+**Ultima version SIEEJ:** 1.9.0. **Ultima version mariachi:** 0.40.2.
+**Fecha:** 2026-05-07.
 
 Este documento describe la **arquitectura final** de la plataforma de
 formularios dinamicos. Reemplaza al wizard hardcodeado original. La
@@ -152,41 +152,55 @@ src/
 ├── pages/{FormList,FormPage,Login,...}.jsx
 ├── forms/
 │   ├── components/wizard/{StepIndicator,NavigateStep,Tabs}.jsx
-│   ├── context/{FormsContext,SubmissionContext,WizardContext}.jsx + hooks
+│   ├── context/
+│   │   ├── {FormsContext,SubmissionContext,WizardContext}.jsx + hooks
+│   │   └── CatalogosContext.jsx + useCatalogos.js   (movido en 1.9.0)
 │   ├── renderer/
 │   │   ├── {FormRenderer,StepRenderer,FormStep,RepeaterStep,SummaryStep,FieldRenderer}.jsx
 │   │   ├── {conditional,catalogResolver}.js
-│   │   └── pdf/{SummaryPdfButton,sieejLevantamiento,genericPdf}.jsx
+│   │   └── pdf/
+│   │       ├── SummaryPdfButton.jsx              (dynamic-import del template)
+│   │       ├── genericPdf.jsx                    (cualquier formulario)
+│   │       └── templates/sieej-levantamiento/    (excepcion documentada)
+│   │           ├── index.jsx                     (downloadSieejLevantamientoPdf)
+│   │           └── PdfForm.jsx                   (245 LOC custom)
 │   └── ...
 ├── services/{authServices,formulariosServices}.js
-├── components/{Input,Select,Radio,...,IncompleteBadge}.jsx (primitivas)
-└── context/{Auth,Global,Catalog,User}Context.jsx + hooks
+├── components/{Input,Select,Radio,DatePicker,Checkbox,Dragger,...,IncompleteBadge}.jsx
+├── helpers/{normalizeUser,DynamicDiv,FieldLayout,ErrorsRequired,...}.{js,jsx}
+└── context/{Auth,Global}Context.jsx + hooks       (provider tree raiz)
 ```
 
-### Provider tree
+### Provider tree (1.9.0)
 ```
 <BrowserRouter basename={VITE_BASE_PATH}>
   <GlobalProvider>
-    <AuthProvider>
-      <CatalogProvider>
-        <UserProvider>
-          <Routes>
-            <ProtectedRoute>           // valida cookie
-              <MainLayout>             // header + body
-                <FormsProvider>        // lista global de formularios
-                  ...rutas
-                  <FormPage>
-                    <SubmissionProvider slug={slug}>
-                      <WizardProvider totalSteps={steps.length}>
-                        <FormRenderer />
-                      </WizardProvider>
-                    </SubmissionProvider>
-                  </FormPage>
-                </FormsProvider>
-              </MainLayout>
-            </ProtectedRoute>
-          </Routes>
+    <AuthProvider>                      // cookie+CSRF, normalizeUser
+      <Routes>
+        <ProtectedRoute>                // valida cookie
+          <MainLayout>                  // header + body
+            <CatalogosProvider>         // GET /formularios/catalogos
+              <FormsProvider>           // lista global de formularios
+                ...rutas
+                <FormPage>
+                  <SubmissionProvider slug={slug}>
+                    <WizardProvider totalSteps={steps.length}>
+                      <FormRenderer />
+                    </WizardProvider>
+                  </SubmissionProvider>
+                </FormPage>
+              </FormsProvider>
+            </CatalogosProvider>
+          </MainLayout>
+        </ProtectedRoute>
+      </Routes>
 ```
+
+`CatalogosProvider` y `FormsProvider` se montan **dentro** de
+`MainLayout` (es decir, solo cuando `ProtectedRoute` resuelve sesion)
+para evitar fetches y providers innecesarios en `/inicio-sesion` o
+`/exencion`. El antiguo `UserContext` se elimino: el header consume
+`useAuth().user.{nombre,apellido,email}` directo.
 
 ### Auth
 Cookie HttpOnly + `X-CSRF-Token` en mutaciones. `onFetch` del
@@ -203,11 +217,17 @@ Cookie HttpOnly + `X-CSRF-Token` en mutaciones. `onFetch` del
 ### PDF de resumen
 Si el step `summary` tiene:
 - `pdfTemplate: 'sieej-levantamiento'` → PDF custom
-  (`forms/renderer/pdf/sieejLevantamiento.jsx`) que reusa el `PdfForm`
-  original con un adapter que mapea `general/enlaces/bases_datos`
-  ↔ `informacion_general/_enlaces/_basesdatos`.
+  (`forms/renderer/pdf/templates/sieej-levantamiento/index.jsx`) que
+  reusa `PdfForm.jsx` (245 LOC, custom para el formulario seed) con un
+  adapter que mapea `general/enlaces/bases_datos` ↔
+  `informacion_general/_enlaces/_basesdatos`.
 - `exportPdf: true` (sin `pdfTemplate`) → PDF generico
   (`forms/renderer/pdf/genericPdf.jsx`) que itera la definicion.
+
+Desde 1.9.0 ambos modulos se cargan por **dynamic import** dentro de
+`SummaryPdfButton.handleClick`. El chunk `vendor-pdf` (~1.4 MB
+gzip 491 KB) **no esta en el initial bundle del FormPage**; solo se
+descarga cuando el usuario hace click en "Descargar PDF".
 
 ## Constructor visual (mariachi/admin)
 

@@ -1,7 +1,7 @@
 # SIEEJ frontend — Contexto del proyecto
 
-**Version:** 1.8.4
-**Fecha de este documento:** 2026-05-06
+**Version:** 1.9.0
+**Fecha de este documento:** 2026-05-07
 **Repo:** https://github.com/iieg-oficial/sieej
 
 Referencia general del proyecto SIEEJ. Para detalles de arquitectura
@@ -48,6 +48,18 @@ viven en `mariachi`.
   `portal` (= mariachi-api).
 - **Auth con cookie HttpOnly + CSRF.** Migrado de localStorage+Bearer a
   el patron oficial de mariachi (cookie + `X-CSRF-Token` header).
+- **Catalogos expuestos por keys del backend.** Desde 1.9.0 el
+  `CatalogosContext` (movido a `forms/context/`) expone
+  `catalogos: { unidades_admin, categoria_datos, ... }` con los nombres
+  que el JSONB de la `definicion` usa en `field.catalog`. El antiguo
+  remap a aliases en ingles dejaba los selects dinamicos sin opciones.
+- **Sin UserContext.** El `useAuth().user` ya viene normalizado con
+  `nombre`/`apellido` (helper `helpers/normalizeUser.js`) — antes habia
+  un `UserContext` que duplicaba el shape llamando a `getProfile` por
+  segunda vez.
+- **PDF on-demand.** El bundle `vendor-pdf` (~1.4 MB) solo se carga al
+  hacer click en "Descargar PDF" gracias a dynamic imports en
+  `forms/renderer/pdf/SummaryPdfButton.jsx`.
 - **Repo separado del backend.** El frontend se maneja en
   `iieg-oficial/sieej` (privado, branch default `develop`, `production`
   protegida con require PR + 1 approval + commit-lint).
@@ -117,8 +129,12 @@ gateway-hub (Nginx :443, TLSv1.2/1.3, HSTS)
    cookie HttpOnly + `csrf_token` en JSON.
 4. Frontend guarda `csrf_token` en `sessionStorage['sieej_csrf_token']`.
 5. `onFetch(url, options)` siempre `credentials:'include'` y agrega
-   `X-CSRF-Token` solo en POST/PUT/DELETE/PATCH.
+   `X-CSRF-Token` solo en POST/PUT/DELETE/PATCH. No muta el `body`
+   recibido; soporta `FormData`/`URLSearchParams`/`Blob`/string;
+   serializa el resto a JSON.
 6. 401 → limpiar CSRF + redirect.
+7. `setUser` siempre pasa por `normalizeUser(...)` para garantizar
+   `nombre`/`apellido`.
 
 ## Variables de entorno
 
@@ -128,16 +144,21 @@ gateway-hub (Nginx :443, TLSv1.2/1.3, HSTS)
 | `VITE_BACKEND_API_HOST` | Prefijo del API. Siempre `/api/administrador`. |
 | `VITE_PORT`, `FRONTEND_PORT` | Puerto Vite (default 5174). |
 | `VITE_DISABLED_EDITION` | Si truthy, MainLayout muestra ClosePage. |
-| `VITE_GOOGLE_ANALYTICS_ID` | Opcional. |
+| `VITE_APP_ENV` | `dev`/`beta`/`prod`. Usado por `EnvBadge`. |
+| `VITE_SENTRY_DSN` | Opcional. Si vacio, Sentry no se inicializa. |
 | `BACKEND_DEV_TARGET` | Target del proxy Vite (`http://host.docker.internal:8000`). |
 | `NETWORK_NAME` | Red Docker (default `sieej-network`). |
-| `SIEEJ_DIST_PATH` | (en mariachi/.env) ruta al dist montado en mariachi-nginx (default `../SIEEJ/frontend/dist`). |
 
 ## Operacion
 
+- `make ensure-env` — copia `.env.development` desde `.env.example` si
+  falta (lo invocan `dev` y `build` automaticamente).
 - `make dev` — Vite + hot-reload + proxy a mariachi-api.
 - `make build` — genera `frontend/dist` con base path `/sieej/`.
 - `make down`, `make clean`, `make logs`, `make status` — utilitarios.
+- `npm run test` (en `frontend/`) — vitest (14 tests sobre logica pura
+  del renderer). `npm run test:watch` para iterar.
+- `npm run lint` (en `frontend/`) — eslint flat config con plugin react.
 
 Prerrequisitos:
 - mariachi corriendo localmente (`make up` en `mariachi/`).
@@ -145,14 +166,17 @@ Prerrequisitos:
 
 ## Pendientes / observaciones
 
-- **Plataforma de formularios dinamicos.** Diseno completo en
-  `docs/planes/plataforma-formularios.md`. Reemplaza al wizard
-  hardcodeado por formularios definidos en JSONB y construidos desde
-  mariachi/admin. Estado al 2026-05-06: fase 0; en mariachi/admin existe
-  un esqueleto `features/sieej-formularios/` aun sin endpoints reales.
 - **Login portado a mariachi admin.** El mockup oficial es el de SIEEJ
   (2 columnas + logos + copy "Hola"). Se replica en
   `mariachi/admin/src/features/auth/pages/LoginPage.jsx`.
+- **CSP estricta en gateway-hub.** Hallazgo #8 de la auditoria 1.9.0;
+  requiere inventario de origenes externos (Sentry DSN, GTM/GA) y
+  editar `gateway.conf.template`. No se aplico en 1.9.0.
+- **Migracion a TypeScript.** Hallazgo #28 de la auditoria 1.9.0;
+  sprint dedicado, afecta 50+ archivos. Recomendado despues con
+  generacion de tipos desde el OpenAPI de `mariachi/api`.
+- **Storybook + i18n.** Sembrados como propuesta (auditoria 1.9.0);
+  proyectos enteros, fuera del alcance.
 
 ## Referencias
 

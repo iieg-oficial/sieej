@@ -4,7 +4,7 @@ Frontend del **Sistema de Información Estadística del Estado de Jalisco** —
 plataforma de captura para que dependencias e instituciones de gobierno
 entreguen información estructurada al IIEG.
 
-**Version:** 1.1.4
+**Version:** 1.9.0
 **Repo:** [iieg-oficial/sieej](https://github.com/iieg-oficial/sieej)
 
 > **Backend**: este repositorio **solo** contiene el frontend. La API la
@@ -28,15 +28,23 @@ entreguen información estructurada al IIEG.
 ### Desarrollo
 
 ```bash
-cp .env.example .env.development
-# Editar VITE_*, BACKEND_DEV_TARGET si tu mariachi-api no es localhost:8000.
-
 make dev
 # Frontend (Vite):     http://localhost:5174
 # Backend (mariachi):  http://localhost:8000/api/administrador
 ```
 
-El proxy de Vite reenvía las llamadas `/api/*` al `BACKEND_DEV_TARGET`.
+`make dev` invoca `make ensure-env` que copia `.env.development` desde
+`.env.example` la primera vez. El proxy de Vite reenvía las llamadas
+`/api/*` al `BACKEND_DEV_TARGET`.
+
+### Tests y lint
+
+```bash
+cd frontend
+npm run lint         # ESLint flat config (plugin react + hooks)
+npm run test         # vitest (suite logica pura)
+npm run test:watch
+```
 
 ### Build para staging/produccion
 
@@ -55,6 +63,7 @@ make build
 |---------|-------------|
 | `make dev` | Modo desarrollo (Vite hot-reload) |
 | `make build` | Construir `dist/` consumido por gateway-hub |
+| `make ensure-env` | Crea `.env.development` desde `.env.example` si falta |
 | `make down` | Detener servicios de desarrollo |
 | `make logs` | Ver logs |
 | `make status` | Estado de los servicios |
@@ -67,8 +76,12 @@ Ver `.env.example`. Las clave:
 - `VITE_BASE_PATH` — `/` en dev, `/sieej/` en staging/prod.
 - `VITE_BACKEND_API_HOST` — `/api/administrador` (apunta a las rutas de mariachi).
 - `BACKEND_DEV_TARGET` — `http://host.docker.internal:8000` (mariachi-api en dev).
-- `VITE_DISABLED_EDITION` — bandera para mostrar `ClosePage` en lugar del wizard.
-- `VITE_GOOGLE_RECAPTCHA_SITE_KEY` — opcional. (GA4 se inyecta por `gateway-hub` via GTM, no requiere variable en el frontend.)
+- `VITE_DISABLED_EDITION` — bandera para mostrar `ClosePage` en lugar del listado.
+- `VITE_APP_ENV` — `dev`/`beta`/`prod` (controla el `EnvBadge`).
+- `VITE_SENTRY_DSN` — opcional; si vacio, Sentry no se inicializa.
+
+GA4 se inyecta por `gateway-hub` via GTM; no requiere variable en el
+frontend.
 
 ## Arquitectura
 
@@ -102,11 +115,14 @@ gateway-hub (:443)
 
 ## Stack
 
-- **React 19** + **React Router 7**
+- **React 19** + **React Router 7** (sin `react-router-dom`)
 - **Vite 6** + `@vitejs/plugin-react` + `@tailwindcss/vite`
-- **Tailwind CSS 4** con tokens institucionales (`#5C2472`, `#FF8300`, `#2e4372`)
+- **Tailwind CSS 4** con paleta institucional centralizada en `@theme`
+  (`--color-sieej-primary`, `--color-sieej-bg`, etc.)
 - **react-hook-form** para formularios multi-paso
-- **@react-pdf/renderer** para resumen del cuestionario
+- **@react-pdf/renderer** (chunk on-demand, no en initial bundle)
+- **@sentry/react** para error tracking (opcional)
+- **vitest** + **@testing-library/react** para tests
 - **GTM** inyectado por `gateway-hub` (no SDK de GA en el bundle)
 
 ## Auth
