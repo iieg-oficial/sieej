@@ -4,7 +4,7 @@ import Select from '@components/Select';
 import SelectMultiple from '@components/SelectMultiple';
 import Radio from '@components/Radio';
 import Checkbox from '@components/Checkbox';
-import DatePicket from '@components/DatePicket';
+import DatePicker from '@components/DatePicker';
 import Typography from '@components/Typography';
 import Dragger from '@components/Dragger';
 import { resolveOptions } from './catalogResolver';
@@ -37,7 +37,7 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload }) => {
     case 'tel':
         return <Input {...baseProps} type="tel" />;
     case 'date':
-        return <DatePicket {...baseProps} />;
+        return <DatePicker {...baseProps} />;
     case 'select':
         return <Select {...baseProps} options={resolveOptions(field, catalogos)} />;
     case 'select_multiple':

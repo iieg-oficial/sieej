@@ -1,11 +1,11 @@
 import { Document, Page, Text, View, StyleSheet, Font, Image } from '@react-pdf/renderer';
-import sieej from '../assets/png/sieej.png';
-import iieg from '../assets/png/iieg.png';
-import jal from '../assets/png/jal.png';
-import extractFileName from '../helpers/extractFileName';
-import bold from '../assets/fonts/Garet-Bold.otf';
-import medium from '../assets/fonts/Garet-Medium.otf';
-import regular from '../assets/fonts/Garet-Regular.otf';
+import sieej from '@png/sieej.png';
+import iieg from '@png/iieg.png';
+import jal from '@png/jal.png';
+import extractFileName from '@helpers/extractFileName';
+import bold from '@fonts/Garet-Bold.otf';
+import medium from '@fonts/Garet-Medium.otf';
+import regular from '@fonts/Garet-Regular.otf';
 
 Font.register({ family: 'GaretBold', src: bold, fontStyle: 'normal' });
 Font.register({ family: 'GaretMedium', src: medium, fontStyle: 'normal' });

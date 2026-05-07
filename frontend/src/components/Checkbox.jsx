@@ -1,59 +1,46 @@
-import React, { useState } from 'react';
-import { useFormContext } from 'react-hook-form';
-import Input from './Input';
-import Tooltip from './Tooltip';
+import React from 'react';
+import { useFormState } from 'react-hook-form';
+import ErrorsRequired from '@helpers/ErrorsRequired';
+import DynamicDiv from '@helpers/DynamicDiv';
+import Typography from './Typography';
 
-const CheckboxGroup = ({ name, question, options, description, required, tooltip }) => {
-    const { register, formState: { errors }, setValue } = useFormContext();
-    const [ showOtherInput, setShowOtherInput ] = useState(false);
-
-    if (!options) {
-        return [];
-    }
-
-    const handleOtherChange = (e) => {
-        if (e.target.checked) {
-            setShowOtherInput(true);
-        } else {
-            setShowOtherInput(false);
-            setValue(name, (prevValue) => prevValue.filter(val => val !== 'otro'));
-        }
-    };
+const Checkbox = ({
+    name, label, required, tooltip,
+    colSpan, wDiv, methods, ...rest
+}) => {
+    const { register, control } = methods;
+    const { errors } = useFormState({ control, name });
 
     return (
-        <div className="mb-4">
-            <Tooltip text={tooltip}>
-                <p className="font-medium text-gray-700 mb-2">{question}</p>
-            </Tooltip>
-            {description && <p className="text-sm text-gray-500 mb-2">{description}</p>}
-            <div className="space-y-2">
-                {options?.map((option, index) => (
-                    <div key={index} className="flex items-center">
-                        <input
-                            type="checkbox"
-                            id={`${name}-${index}`}
-                            value={option.value}
-                            {...register(name, { required: required ? 'Este campo es obligatorio' : false })}
-                            onChange={option.label === 'Otro' ? handleOtherChange : undefined}
-                            className="mr-2 w-4 h-4 text-blue-500 border-gray-300 rounded"
-                        />
-                        <label htmlFor={`${name}-${index}`} className="text-sm text-gray-600">
-                            {option.label}
-                        </label>
-                    </div>
-                ))}
-                {showOtherInput && (
-                    <Input 
-                        name={`${name}_other`}
-                        placeholder="Especificar otro"
-                        required
-                    />
-                )}
+        <DynamicDiv colSpan={colSpan} wDiv={wDiv} className="mt-4">
+            <div className="flex items-center gap-3">
+                <input
+                    type="checkbox"
+                    id={name}
+                    {...rest}
+                    {...register(name, {
+                        required: required ? 'Este campo es obligatorio' : false,
+                    })}
+                    className="
+                        w-5 h-5 border border-[#CCD3E2] rounded-sm appearance-none cursor-pointer
+                        hover:shadow-lg hover:shadow-[#2859C440] hover:border-[#5C2472]
+                        checked:bg-[#5C2472] checked:border-[#5C2472]
+                        checked:before:flex checked:before:items-center checked:before:justify-center
+                        checked:before:h-full checked:before:text-white checked:before:content-['✔']
+                        checked:before:text-[14px]
+                    "
+                />
+                <Typography
+                    as="label"
+                    titleName={label}
+                    tooltip={tooltip}
+                    name={name}
+                    required={required}
+                />
             </div>
-            {errors[name] && <span className="text-red-500 text-sm">{errors[name]?.message}</span>}
-            {errors[`${name}_other`] && <span className="text-red-500 text-sm">{errors[`${name}_other`]?.message}</span>}
-        </div>
+            <ErrorsRequired name={name} errors={errors} />
+        </DynamicDiv>
     );
 };
 
-export default CheckboxGroup;
+export default Checkbox;

@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import Button from '@components/Button';
-import { downloadSieejLevantamientoPdf } from './sieejLevantamiento';
-import { downloadGenericPdf } from './genericPdf';
 
 const SummaryPdfButton = ({ step, definicion, datos, catalogos, onError }) => {
     const [loading, setLoading] = useState(false);
@@ -10,8 +8,10 @@ const SummaryPdfButton = ({ step, definicion, datos, catalogos, onError }) => {
         setLoading(true);
         try {
             if (step?.pdfTemplate === 'sieej-levantamiento') {
+                const { downloadSieejLevantamientoPdf } = await import('./templates/sieej-levantamiento');
                 await downloadSieejLevantamientoPdf(datos);
             } else {
+                const { downloadGenericPdf } = await import('./genericPdf');
                 await downloadGenericPdf(definicion, datos, catalogos);
             }
         } catch (e) {
