@@ -1,5 +1,5 @@
 import React from 'react';
-import icoError from '../assets/icons/ico_error.svg';
+import icoError from '@assets/icons/ico_error.svg';
 
 const parseNameToFields = (name) => {
     const regex = /([^[.\]]+)|\[(\d+)\]/g;

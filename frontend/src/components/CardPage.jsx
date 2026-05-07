@@ -1,6 +1,6 @@
-import useGlobal from '../context/useGlobal';
-import logoJal from '../assets/svg/logo_jal.svg';
-import backgroundJal from '../assets/svg/img_back.svg';
+import useGlobal from '@context/useGlobal';
+import logoJal from '@assets/svg/logo_jal.svg';
+import backgroundJal from '@assets/svg/img_back.svg';
 
 const CardPage = ({ needTerms = true, needLogo = true , className, children }) => {
     const { linkPrivacity, onAnalytics } = useGlobal();

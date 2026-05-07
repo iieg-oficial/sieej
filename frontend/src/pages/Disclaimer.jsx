@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import useGlobal from '../context/useGlobal';
-import sieej from '../assets/svg/logo_sieej_login.svg';
-import iieg from '../assets/svg/logo_iieg.svg';
-import CardPage from '../components/CardPage';
-import Typography from '../components/Typography';
-import Message from '../components/Message';
-import Button from '../components/Button';
+import { useNavigate } from 'react-router';
+import useGlobal from '@context/useGlobal';
+import sieej from '@assets/svg/logo_sieej_login.svg';
+import iieg from '@assets/svg/logo_iieg.svg';
+import CardPage from '@components/CardPage';
+import Typography from '@components/Typography';
+import Message from '@components/Message';
+import Button from '@components/Button';
 
 const Disclaimer = () => {
     const { linkPrivacity, onMessage, onAnalytics } = useGlobal();

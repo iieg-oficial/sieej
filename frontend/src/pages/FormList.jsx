@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
-import useForms from '../forms/context/useForms';
+import useForms from '@forms/context/useForms';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
 

@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router';
-import useGlobal from '../context/useGlobal';
-import logo404 from '../assets/png/404.png';
-import Typography from '../components/Typography';
-import Button from '../components/Button';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
+import useGlobal from '@context/useGlobal';
+import logo404 from '@assets/png/404.png';
+import Typography from '@components/Typography';
+import Button from '@components/Button';
 
 const NoMatch = () => {
     const { onAnalytics } = useGlobal();

@@ -1,9 +1,9 @@
 import React from 'react';
 
-const DynamicDiv = React.forwardRef((
-    { colSpan = 1, wDiv, colSpanCondicional, center, className, children }, 
+const DynamicDiv = React.forwardRef(function DynamicDiv(
+    { colSpan = 1, wDiv, colSpanCondicional, center, className, children },
     ref
-) => {
+) {
     const colSpanClasses = {
         1: 'col-span-1',
         2: 'col-span-2',

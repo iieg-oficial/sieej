@@ -1,7 +1,7 @@
 import React from 'react';
-import formatText from '../helpers/formatText';
+import formatText from '@helpers/formatText';
 import Typography from './Typography';
-import DynamicDiv from '../helpers/DynamicDiv';
+import DynamicDiv from '@helpers/DynamicDiv';
 
 const Text = ({ label, text, tooltip, colSpan, wDiv, clean, ...rest }) => {
     const cleanText = formatText(text, label, clean);

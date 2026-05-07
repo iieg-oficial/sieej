@@ -1,6 +1,6 @@
 import React from 'react';
 import Spinner from './Spinner';
-import DynamicDiv from '../helpers/DynamicDiv';
+import DynamicDiv from '@helpers/DynamicDiv';
 
 const Loading = () => {
     return (

@@ -1,7 +1,7 @@
 import React, {  } from 'react';
-import warning from '../assets/icons/ico_importante.svg';
+import warning from '@assets/icons/ico_importante.svg';
 import Typography from './Typography';
-import useGlobal from '../context/useGlobal';
+import useGlobal from '@context/useGlobal';
 
 const messageStyles = {
     error: {

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import useGlobal from '../context/useGlobal';
+import useGlobal from '@context/useGlobal';
 import Tooltip from './Tooltip';
 import Spinner from './Spinner';
-import DynamicDiv from '../helpers/DynamicDiv';
+import DynamicDiv from '@helpers/DynamicDiv';
 
 const Button = ({
     type = 'button',        // button | submit | reset | custom

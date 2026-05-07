@@ -3,9 +3,9 @@ import { Document, Page, Text, View, StyleSheet, Font, pdf } from '@react-pdf/re
 import sieej from '@png/sieej.png';
 import iieg from '@png/iieg.png';
 import jal from '@png/jal.png';
-import bold from '../../../assets/fonts/Garet-Bold.otf';
-import medium from '../../../assets/fonts/Garet-Medium.otf';
-import regular from '../../../assets/fonts/Garet-Regular.otf';
+import bold from '@fonts/Garet-Bold.otf';
+import medium from '@fonts/Garet-Medium.otf';
+import regular from '@fonts/Garet-Regular.otf';
 import { Image } from '@react-pdf/renderer';
 import { resolveOptions } from '../catalogResolver';
 
