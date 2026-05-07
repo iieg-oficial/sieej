@@ -274,12 +274,30 @@ api('PATCH', '/epics/<ID>', {'description': '# Nueva descripción', 'version': e
 
 ### Vincular historia de usuario a una épica
 
-No usar `POST /epics/{id}/related_userstories` (devuelve 400). Usar PATCH sobre la historia:
+**Verificado en sesión 1.9.0 (2026-05-07).** El método correcto es
+`POST /epics/{epic_id}/related_userstories`. El `PATCH` sobre la historia
+con `{'epic': <ID>}` o `{'epics_order': {...}}` **no falla pero tampoco
+vincula** (queda `epics: None` al hacer GET posterior).
 
 ```python
-us = api('GET', '/userstories/<US_ID>')
-api('PATCH', '/userstories/<US_ID>', {'epic': <EPIC_ID>, 'version': us['version']})
+api('POST', f'/epics/{EPIC_ID}/related_userstories', {
+    'user_story': US_ID,
+    'epic': EPIC_ID,
+})
 ```
+
+Verificación posterior:
+
+```python
+us = api('GET', f'/userstories/{US_ID}')
+assert us['epics'] and us['epics'][0]['id'] == EPIC_ID
+```
+
+> Nota histórica: una versión anterior de este documento decía lo
+> contrario (que `POST /epics/{id}/related_userstories` devolvía 400 y
+> que había que usar PATCH). Eso aplicaba a una versión más antigua de
+> Taiga; en la instancia actual del IIEG (verificada con 4 vinculaciones
+> exitosas en sesión 1.9.0) es al revés.
 
 ---
 
@@ -312,7 +330,7 @@ us = api('POST', '/userstories', {
     'subject': 'Migrar AuthContext a cookies + CSRF',
     'assigned_to': TAIGA_USER_ID
 })
-us = api('PATCH', f'/userstories/{us["id"]}', {'epic': epic_id, 'version': us['version']})
+api('POST', f'/epics/{epic_id}/related_userstories', {'user_story': us['id'], 'epic': epic_id})
 
 # 3. Crear tarea vinculada a la historia
 api('POST', '/tasks', {
@@ -421,6 +439,143 @@ curl -sk "$TAIGA_URL/api/v1/resolver?project=siiej&task=<REF>" \
   -H "Authorization: Bearer $TOKEN"
 # Devuelve: {"project": 3, "task": <ID_INTERNO>}
 ```
+
+### Listados paginados no traen `description` completa
+
+`GET /userstories?project=N` y `GET /tasks?project=N` traen la descripción **truncada o vacía** (lazy load). Esto puede dar la falsa impresión de que un PATCH de descripción no funcionó.
+
+**Para verificar que una descripción quedó escrita, hacer GET individual al recurso:**
+
+```python
+us = api('GET', f'/userstories/{US_ID}')
+assert len(us.get('description') or '') > 0
+```
+
+### `PATCH {epic: <ID>}` sobre historia no vincula
+
+Confirmado en sesión 1.9.0: el PATCH responde 200 OK pero el campo `epics` queda `None` al hacer GET posterior. Usar siempre `POST /epics/{epic_id}/related_userstories` (ver sección "Vincular historia de usuario a una épica").
+
+---
+
+## Reglas operativas para hidratar/modificar el proyecto
+
+Reglas verificadas en la auditoría 1.9.0 (US#222), pensadas para evitar tocar trabajo ajeno y mantener auditabilidad.
+
+### 1. Solo modificar lo asignado al usuario que ejecuta el script
+
+Antes de cualquier `PATCH`, hacer `GET` y comprobar `assigned_to == TAIGA_USER_ID`. Si no coincide, **skip silencioso** y registrarlo en un log:
+
+```python
+def patch_us(us_id, fields, label):
+    us = api('GET', f'/userstories/{us_id}')
+    if us.get('assigned_to') != USER_ID:
+        skipped.append(f"US#{us['ref']}: assigned_to={us.get('assigned_to')} != {USER_ID}")
+        return None
+    body = {**fields, 'version': us['version']}
+    return api('PATCH', f'/userstories/{us_id}', body)
+```
+
+Lo mismo aplica para tareas. Las épicas y otros recursos no asignados a ti se leen pero no se modifican.
+
+### 2. Al crear nuevo, asignar y verificar
+
+Las creaciones (`POST /userstories`, `POST /tasks`) deben llevar `assigned_to: TAIGA_USER_ID`. Después del POST, hacer GET y comprobar que el campo quedó así:
+
+```python
+new_us = api('POST', '/userstories', {
+    'project': PROJECT_ID,
+    'subject': '...',
+    'description': '...',
+    'assigned_to': USER_ID,
+    'status': STATUS_ID,
+})
+assert new_us.get('assigned_to') == USER_ID
+```
+
+### 3. Antes de publicar masivamente: redactar local y mostrar al usuario
+
+Para hidrataciones grandes (decenas de descripciones), no escribir directo al API:
+1. Redactar todas las descripciones a un módulo Python (`descriptions.py` con dicts `US_DESCRIPTIONS[us_id] = "..."` y `TASK_DESCRIPTIONS[task_id] = "..."`).
+2. Mostrarle al humano el contenido inline o en archivos.
+3. Esperar aprobación explícita.
+4. Aplicar con un script idempotente que loguee `OK / SKIPPED / ERROR` por operación.
+
+### 4. Estructura consistente de descripciones
+
+**Historias** (épica/feature):
+
+```markdown
+## Objetivo
+Una a tres líneas con el "qué" y el "por qué".
+
+## Alcance
+- Lo que incluye, agrupado por capa (backend/frontend/infra) cuando aplica.
+- Lo que NO incluye (delimitar).
+
+## Implementación
+- Componentes/archivos clave.
+- Decisiones técnicas relevantes (con tabla cuando aplica).
+
+## Resultado
+- Versión(es) y fechas (`docs/CHANGELOG.md` § X.Y.Z).
+- Métricas (tests, bundle, etc.) cuando aplican.
+
+## Referencias
+- Docs internas, US/T relacionadas, commits.
+```
+
+**Tareas** (subtarea técnica):
+
+```markdown
+## Qué se hizo
+Descripción concreta de la implementación.
+
+## Archivos clave
+Lista de los archivos tocados o creados.
+
+## Notas / Decisiones
+Por qué se hizo así (cuando no es obvio).
+
+## Verificación
+Cómo se validó (tests, lint, manual, etc.).
+```
+
+### 5. PATCH siempre con `version` (control de concurrencia optimista)
+
+Leer la versión justo antes del PATCH. Si otro proceso modificó el recurso entremedio, el PATCH falla y hay que releer:
+
+```python
+def patch_with_retry(path, fields, max_retries=3):
+    for _ in range(max_retries):
+        obj = api('GET', path)
+        try:
+            return api('PATCH', path, {**fields, 'version': obj['version']})
+        except urllib.error.HTTPError as e:
+            if e.code != 412:  # Precondition Failed
+                raise
+    raise RuntimeError(f'Versión cambió 3 veces en {path}')
+```
+
+### 6. Idempotencia y log de cambios
+
+Mantener tres listas (`ok`, `skipped`, `errors`) y volcarlas al final del script. Esto permite re-ejecutar sin miedo:
+
+```python
+ok, skipped, errors = [], [], []
+# ... operaciones ...
+print(f"\nRESUMEN: {len(ok)} OK, {len(skipped)} skipped, {len(errors)} errors")
+for line in ok: print(f"  ✓ {line}")
+for line in skipped: print(f"  · {line}")
+for line in errors: print(f"  ✗ {line}")
+```
+
+### 7. No mover de estado salvo solicitud explícita
+
+Hidratar descripciones **no implica** mover de `New → Done`. Los cambios de estado siempre van con instrucción explícita del humano para evitar marcar algo como hecho cuando no lo está. Excepción: si una US tiene todas sus tareas `Closed`, sugerirle al humano y aplicar solo si confirma.
+
+### 8. Vinculación de épicas: usar el endpoint correcto
+
+`POST /epics/{epic_id}/related_userstories` con `{'user_story': US_ID, 'epic': EPIC_ID}`. Después GET y verificar `us['epics']` no nulo. Ver "Vincular historia de usuario a una épica".
 
 ---
 
