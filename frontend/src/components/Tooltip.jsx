@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
-import useGlobal from '../context/useGlobal';
-import IcoQuestion from '../assets/icons/ico_tooltip.svg';
-import IcoX from '../assets/icons/ico_x_slow.svg';
+import React, { useState, useRef, useEffect } from 'react';
+import useGlobal from '@context/useGlobal';
+import IcoQuestion from '@assets/icons/ico_tooltip.svg';
+import IcoX from '@assets/icons/ico_x_slow.svg';
 
 const Tooltip = ({ text, showIcon = true, size = 'normal', children }) => {
     const { isDesktop } = useGlobal();
     const [isHovered, setIsHovered] = useState(false);
     const typeTooltip = isDesktop ? size : 'full';
-    let hoverTimeout;
+    const hoverTimeoutRef = useRef(null);
+
+    useEffect(() => () => {
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    }, []);
 
     if(!text) return children;
 
@@ -26,14 +30,15 @@ const Tooltip = ({ text, showIcon = true, size = 'normal', children }) => {
                 className="relative"
                 onMouseEnter={() => {
                     if (typeTooltip === 'full') {
-                        hoverTimeout = setTimeout(() => setIsHovered(true), 1000);
+                        hoverTimeoutRef.current = setTimeout(() => setIsHovered(true), 1000);
                     } else {
                         setIsHovered(true);
                     }
                 }}
                 onMouseLeave={() => {
-                    if (typeTooltip === 'full') {
-                        clearTimeout(hoverTimeout);
+                    if (hoverTimeoutRef.current) {
+                        clearTimeout(hoverTimeoutRef.current);
+                        hoverTimeoutRef.current = null;
                     }
                     setIsHovered(false);
                 }}

@@ -4,7 +4,7 @@ import Button from '@components/Button';
 import Typography from '@components/Typography';
 import FieldRenderer from './FieldRenderer';
 import { evaluarShowWhen } from './conditional';
-import useWizard from '../context/useWizard';
+import useWizard from '@forms/context/useWizard';
 
 const renderItemLabel = (template, index) => {
     if (!template) return `Item ${index + 1}`;

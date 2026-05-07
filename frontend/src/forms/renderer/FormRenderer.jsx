@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import Typography from '@components/Typography';
 import StepRenderer from './StepRenderer';
-import NavigateStep from '../components/wizard/NavigateStep';
-import useWizard from '../context/useWizard';
+import NavigateStep from '@forms/components/wizard/NavigateStep';
+import useWizard from '@forms/context/useWizard';
 
 const FormRenderer = ({
     definicion, envio, catalogos,
@@ -47,7 +47,7 @@ const FormRenderer = ({
 
     const isLastTab = (() => {
         if (step?.type !== 'repeater') return true;
-        const items = methods.watch(step.id) || [];
+        const items = methods.getValues(step.id) || [];
         return activeTab >= items.length - 1;
     })();
 
@@ -78,7 +78,6 @@ const FormRenderer = ({
                     }}
                     methods={methods}
                     catalogos={catalogos}
-                    datos={methods.watch()}
                     onUpload={onUpload}
                 />
             </div>

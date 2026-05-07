@@ -3,7 +3,7 @@ import FormStep from './FormStep';
 import RepeaterStep from './RepeaterStep';
 import SummaryStep from './SummaryStep';
 
-const StepRenderer = ({ step, methods, catalogos, datos, onUpload }) => {
+const StepRenderer = ({ step, methods, catalogos, onUpload }) => {
     switch (step.type) {
     case 'form':
         return <FormStep step={step} methods={methods} catalogos={catalogos} onUpload={onUpload} />;
@@ -13,7 +13,7 @@ const StepRenderer = ({ step, methods, catalogos, datos, onUpload }) => {
         return (
             <SummaryStep
                 definicion={{ steps: step.allSteps, nombre: step.formNombre, descripcion: step.formDescripcion }}
-                datos={datos}
+                methods={methods}
                 catalogos={catalogos}
                 summaryStep={step}
             />

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useWatch } from 'react-hook-form';
 import Text from '@components/Text';
 import Typography from '@components/Typography';
 import Divide from '@components/Divide';
@@ -86,7 +87,8 @@ const renderRepeaterStep = (step, datos, catalogos) => {
     );
 };
 
-const SummaryStep = ({ definicion, datos, catalogos, summaryStep }) => {
+const SummaryStep = ({ definicion, methods, catalogos, summaryStep }) => {
+    const datos = useWatch({ control: methods.control }) || {};
     const realSteps = (definicion.steps || []).filter((s) => s.type !== 'summary');
     const isMobile = false;
 
