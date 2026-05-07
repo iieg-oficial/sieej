@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Controller, useFormState } from 'react-hook-form';
-import icoDrag from '../assets/icons/ico_avance_guardado.svg';
-import DynamicDiv from '../helpers/DynamicDiv';
-import ErrorsRequired from '../helpers/ErrorsRequired';
-import extractFileName from '../helpers/extractFileName';
+import icoDrag from '@assets/icons/ico_avance_guardado.svg';
+import DynamicDiv from '@helpers/DynamicDiv';
+import ErrorsRequired from '@helpers/ErrorsRequired';
+import extractFileName from '@helpers/extractFileName';
+import useGlobal from '@context/useGlobal';
 import Label from './Label';
 
 const Dragger = ({
@@ -12,26 +13,40 @@ const Dragger = ({
 }) => {
     const { control, setValue, getValues } = methods;
     const { errors } = useFormState({ control, name });
+    const { openModal } = useGlobal();
     const [ fileList, setFileList ] = useState([]);
 
     const handleFiles = async (files, onChange) => {
+        const oversize = [];
         const validFiles = Array.from(files).filter(file => {
             if (file.size > maxSizeMB * 1024 * 1024) {
-                alert(`El archivo "${file.name}" excede ${maxSizeMB}MB.`);
+                oversize.push(file.name);
                 return false;
             }
             return true;
         });
 
+        if (oversize.length) {
+            openModal(
+                'error',
+                'Archivo demasiado grande',
+                `Los siguientes archivos exceden ${maxSizeMB}MB: ${oversize.join(', ')}`
+            );
+        }
+
         try {
             if (validFiles.length) {
                 const isMultiple = multiple ? [...fileList, ...validFiles] : validFiles;
-                await onFile(isMultiple, idItem)
+                await onFile(isMultiple, idItem);
                 setFileList(isMultiple);
                 onChange(multiple ? validFiles : validFiles[0]);
             }
         } catch (error) {
-            console.error('Problemas con subir el archivo.', error)
+            openModal(
+                'error',
+                'Error al subir archivo',
+                error?.message || 'No se pudo procesar el archivo seleccionado.'
+            );
         }
     };
 

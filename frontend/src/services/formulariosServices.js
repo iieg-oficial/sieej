@@ -2,9 +2,17 @@ const API_HOST = import.meta.env.VITE_BACKEND_API_HOST;
 
 const buildUrl = (path) => `${API_HOST}${path}`;
 
+const safeParse = (text) => {
+    if (!text) return null;
+    try {
+        return JSON.parse(text);
+    } catch {
+        return null;
+    }
+};
+
 const parseJson = async (response) => {
-    const text = await response.text();
-    const data = text ? JSON.parse(text) : null;
+    const data = safeParse(await response.text());
     if (!response.ok) {
         const detail = data?.detail;
         const msg = typeof detail === 'string' ? detail : `HTTP ${response.status}`;

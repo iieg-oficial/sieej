@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useFormState } from 'react-hook-form';
-import icoFilled from '../assets/icons/ico_filled.svg';
-import icoNotFilled from '../assets/icons/ico_not_filled.svg';
-import icoShow from '../assets/icons/ico_show.svg';
-import icoHidden from '../assets/icons/ico_hidden.svg';
-import ErrorsRequired from '../helpers/ErrorsRequired';
-import DynamicDiv from '../helpers/DynamicDiv';
+import icoFilled from '@assets/icons/ico_filled.svg';
+import icoNotFilled from '@assets/icons/ico_not_filled.svg';
+import icoShow from '@assets/icons/ico_show.svg';
+import icoHidden from '@assets/icons/ico_hidden.svg';
+import ErrorsRequired from '@helpers/ErrorsRequired';
+import DynamicDiv from '@helpers/DynamicDiv';
 import Typography from './Typography';
 
 const Input = ({
-    name, type, pattern, patternMessage, placeholder, label, required, colSpan, 
-    wDiv, tooltip, methods, _inside, clean, className, normalize = 'capitalize',
+    name, type, pattern, patternMessage, placeholder, label, required, colSpan,
+    wDiv, tooltip, methods, _inside, clean, className, normalize = 'normal',
     filled, maxLength, ...rest
 }) => {
     const { register, control, setValue, watch } = methods;
@@ -60,7 +60,7 @@ const Input = ({
                     id={name}
                     name={name}
                     placeholder={placeholder || label}
-                    maxLength={maxLength || 100}
+                    maxLength={maxLength}
                     inputMode={normalize === 'number' ? 'numeric' : undefined}
                     onInput={handleInput}
                     {...rest}
@@ -87,17 +87,19 @@ const Input = ({
                     style={{ marginBottom: errors[name] && 0 }}
                 />
                 {isPassword && (
-                    <span
+                    <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#5C2472]"
+                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                        aria-pressed={showPassword}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5C2472] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C2472] rounded"
                     >
-                        <img 
-                            src={showPassword ? icoShow : icoHidden} 
-                            alt={showPassword ? 'showPassword' : 'hiddenPassword'} 
-                            className="w-[22px] h-[22px]" 
+                        <img
+                            src={showPassword ? icoShow : icoHidden}
+                            alt=""
+                            className="w-[22px] h-[22px]"
                         />
-                    </span>
+                    </button>
                 )}
                 {filled && watchedValue && !errors[name] && (
                     <span className="absolute right-3 top-1/2 transform -translate-y-1/2">

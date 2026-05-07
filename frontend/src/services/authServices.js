@@ -2,6 +2,15 @@ const API_HOST = import.meta.env.VITE_BACKEND_API_HOST;
 
 const buildUrl = (path) => `${API_HOST}${path}`;
 
+const safeParse = (text) => {
+    if (!text) return null;
+    try {
+        return JSON.parse(text);
+    } catch {
+        return null;
+    }
+};
+
 const fetchJson = async (url, options = {}) => {
     const response = await fetch(url, {
         ...options,
@@ -13,12 +22,14 @@ const fetchJson = async (url, options = {}) => {
         },
     });
 
-    const text = await response.text();
-    const data = text ? JSON.parse(text) : null;
+    const data = safeParse(await response.text());
 
     if (!response.ok) {
         const detail = data?.detail || `HTTP ${response.status}`;
-        throw new Error(typeof detail === 'string' ? detail : 'Error en la solicitud');
+        const error = new Error(typeof detail === 'string' ? detail : 'Error en la solicitud');
+        error.status = response.status;
+        error.data = data;
+        throw error;
     }
 
     return data;

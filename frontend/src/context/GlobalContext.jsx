@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { pushAnalyticsEvent } from '../helpers/analytics';
+import { pushAnalyticsEvent } from '@helpers/analytics';
 
 const GlobalContext = createContext();
 
@@ -26,8 +26,7 @@ const GlobalProvider = ({ children }) => {
     const isDesktop = !isMobile && !isTablet;
     const patternMessageEmail = 'El formato del correo electrónico es inválido';
     const linkPrivacity = 'https://www.iieg.gob.mx/ns/wp-content/uploads/2025/02/Aviso_Privacidad_Integral_IIEG_01_2025.pdf';
-    const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    const regexPass = /^(?!.*(\b(SELECT|INSERT|DELETE|UPDATE|DROP|UNION|--|#|;|<|>)\b)).*$/;
+    const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const regexTel = /^(\d{2}-?){4}\d{2}$/;
     const regexExt = /^\d{1,9}$/;
 
@@ -35,25 +34,31 @@ const GlobalProvider = ({ children }) => {
         pushAnalyticsEvent('Todo', action, label);
     };
 
-    const updateScreenSize = () => {
-        const width = window.innerWidth;
-        setScreenSize({
-            sm: width >= 100 && width < 768,
-            md: width >= 768 && width < 1024,
-            lg: width >= 1024 && width < 1280,
-            xl: width >= 1280 && width < 1536,
-            xxl: width >= 1536,
-        });
-    };
-
     const handleMessage = (status) => setMessageOpen(status);
     const closeModal = () => { setIsModalOpen(false); };
     const handleModalButtons = (buttons) => { setModalButtons(buttons); };
 
     useEffect(() => {
+        let frame = null;
+        const updateScreenSize = () => {
+            if (frame) cancelAnimationFrame(frame);
+            frame = requestAnimationFrame(() => {
+                const width = window.innerWidth;
+                setScreenSize({
+                    sm: width < 768,
+                    md: width >= 768 && width < 1024,
+                    lg: width >= 1024 && width < 1280,
+                    xl: width >= 1280 && width < 1536,
+                    xxl: width >= 1536,
+                });
+            });
+        };
         updateScreenSize();
         window.addEventListener('resize', updateScreenSize);
-        return () => window.removeEventListener('resize', updateScreenSize);
+        return () => {
+            if (frame) cancelAnimationFrame(frame);
+            window.removeEventListener('resize', updateScreenSize);
+        };
     }, []);
 
     const openModal = (type, title, message, buttons) => {
@@ -68,7 +73,7 @@ const GlobalProvider = ({ children }) => {
         hostBackend, isDevelopment, screenSize,
         isMobile, isTablet, isDesktop,
         isMessageOpen, onMessage: handleMessage,
-        regexEmail, regexPass, regexTel, regexExt,
+        regexEmail, regexTel, regexExt,
         patternMessageEmail, linkPrivacity,
         isDisabledEdition,
         isModalOpen, modalType, modalMessage, modalButtons, modalTitle,
