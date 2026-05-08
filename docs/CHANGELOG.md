@@ -4,6 +4,31 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.12.0] - 2026-05-08
+
+### Reportes: integrar widget Colibri como FAB en bottom-right
+
+Integra el widget embebible de Colibri (`@iieg/colibri-widget`) en SIEEJ. Los usuarios autenticados ven un boton flotante en la esquina inferior derecha que abre el panel de reportes centralizado del IIEG, con el usuario ya identificado y la ruta actual como contexto.
+
+#### Frontend
+
+**Componente nuevo:**
+- `src/components/ColibriReportButton.jsx`: FAB con el patron estandar IIEG (bg blanco, text gris hover morado, w-7 h-7 md:w-6 md:h-6, rounded-full, shadow sutil) en `fixed bottom-4 right-4 z-50`. Incluye `style={{ padding: 0, border: 0 }}` inline para evitar que el reset CSS global de SIEEJ (`button { padding: 0.6em 1.2em; border: 1px solid }` en `index.css`) lo deforme en pildora — este reset gana specificity sobre las utilities Tailwind via selector de tipo. Al click llama `window.colibri.identify()` con datos del usuario logueado (id, email, name, role) y `setContext()` con `auto` (UA, viewport, lang, timestamp), `sourceRoute` (pathname actual). Despues abre el panel via `window.colibri.openPanel({ sourceApp, apiKey })`.
+
+**Integracion:**
+- `src/layout/MainLayout.jsx`: monta `<ColibriReportButton />` como hermano del `<Body />`. Solo aparece en rutas autenticadas (Login, Disclaimer y Cambio de contrasena no lo tienen porque no usan `MainLayout`).
+
+#### Infraestructura
+
+- `frontend/index.html`: `<script src="/colibri/widget/colibri-widget.v1.js" defer>` antes de `</head>`.
+- `frontend/vite.config.js`: ya tenia (commit anterior) proxy `/colibri` y `/api/public` -> `MARIACHI_DEV_TARGET`.
+- `frontend/Dockerfile` + `docker-compose.yml`: ARGs y env vars `VITE_COLIBRI_SOURCE_APP=sieej` y `VITE_COLIBRI_API_KEY` (en frontend dev y frontend-build args).
+- `.env.example`: documenta las dos vars con nota de generar la key desde `/colibri/source-apps` del panel admin de Colibri.
+
+#### Patron estandar
+
+Este es el segundo huesped (despues de mapalab) que usa el patron React documentado en `/colibri/docs/#patron-react`. Los proximos integradores pueden copiar el snippet de ahi.
+
 ## [1.11.0] - 2026-05-08
 
 Vista dedicada de "Mis envíos" — v1 del histórico, con detalle por

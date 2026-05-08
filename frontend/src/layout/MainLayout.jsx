@@ -9,6 +9,7 @@ import logoJal from '@assets/svg/logo_jal_header.svg';
 import Button from '@components/Button';
 import EnvBadge from '@components/EnvBadge';
 import IncompleteBadge from '@components/IncompleteBadge';
+import ColibriReportButton from '@components/ColibriReportButton';
 import ClosePage from '@pages/ClosePage';
 import { FormsProvider } from '@forms/context/FormsContext';
 import { CatalogosProvider } from '@forms/context/CatalogosContext';
@@ -179,6 +180,7 @@ const MainLayout = () => {
                 `}>
                     <Header />
                     <Body />
+                    <ColibriReportButton />
                 </div>
             </FormsProvider>
         </CatalogosProvider>

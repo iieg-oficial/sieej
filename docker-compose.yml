@@ -14,7 +14,10 @@ services:
       VITE_BASE_PATH: ${VITE_BASE_PATH:-/}
       VITE_DISABLED_EDITION: ${VITE_DISABLED_EDITION:-false}
       VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+      VITE_COLIBRI_SOURCE_APP: ${VITE_COLIBRI_SOURCE_APP:-sieej}
+      VITE_COLIBRI_API_KEY: ${VITE_COLIBRI_API_KEY:-}
       BACKEND_DEV_TARGET: ${BACKEND_DEV_TARGET:-}
+      MARIACHI_DEV_TARGET: ${MARIACHI_DEV_TARGET:-}
     volumes:
       - ./frontend/src:/app/src:ro
       - ./frontend/public:/app/public:ro
@@ -44,6 +47,8 @@ services:
         VITE_APP_ENV: ${VITE_APP_ENV:-beta}
         VITE_DISABLED_EDITION: ${VITE_DISABLED_EDITION:-false}
         VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+        VITE_COLIBRI_SOURCE_APP: ${VITE_COLIBRI_SOURCE_APP:-sieej}
+        VITE_COLIBRI_API_KEY: ${VITE_COLIBRI_API_KEY:-}
     profiles: ["build"]
     environment:
       HOST_UID: ${UID:-1000}
