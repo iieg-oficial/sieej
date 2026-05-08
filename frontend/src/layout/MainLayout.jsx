@@ -28,6 +28,7 @@ const Header = () => {
         [formularios]
     );
     const isOnList = location.pathname === '/';
+    const isOnMisEnvios = location.pathname.startsWith('/mis-envios');
 
     const initial = (user?.nombre?.charAt(0)?.toUpperCase() || 'A')
         + (user?.apellido?.charAt(0)?.toUpperCase() || 'A');
@@ -127,6 +128,17 @@ const Header = () => {
                                         {incompleteCount} por completar
                                     </span>
                                 )}
+                            </button>
+                            <button
+                                role="menuitem"
+                                onClick={() => { setMenuOpen(false); navigate('/mis-envios'); }}
+                                disabled={isOnMisEnvios}
+                                className={`
+                                    block w-full text-left px-4 py-2 text-black border-b border-gray-100
+                                    ${isOnMisEnvios ? 'opacity-50 cursor-default' : 'hover:bg-gray-100 cursor-pointer'}
+                                `}
+                            >
+                                Mis envíos
                             </button>
                             <button
                                 role="menuitem"

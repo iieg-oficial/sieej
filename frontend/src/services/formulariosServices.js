@@ -63,3 +63,20 @@ export const uploadArchivo = async (onFetch, slug, fieldPath, file) => {
     });
     return parseJson(r);
 };
+
+export const listMisEnvios = async (onFetch, params = {}) => {
+    const qs = new URLSearchParams();
+    if (params.estado) qs.set('estado', params.estado);
+    if (params.q) qs.set('q', params.q);
+    if (params.page) qs.set('page', String(params.page));
+    if (params.page_size) qs.set('page_size', String(params.page_size));
+    if (params.sort) qs.set('sort', params.sort);
+    const url = buildUrl(`/formularios/mis-envios${qs.toString() ? `?${qs}` : ''}`);
+    const r = await onFetch(url);
+    return parseJson(r);
+};
+
+export const getMiEnvioDetalle = async (onFetch, envioId) => {
+    const r = await onFetch(buildUrl(`/formularios/mis-envios/${envioId}`));
+    return parseJson(r);
+};

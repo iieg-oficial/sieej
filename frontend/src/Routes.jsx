@@ -11,6 +11,8 @@ const ChangePassword = lazy(() => import('./pages/ChangePassword'));
 const ErrorPage = lazy(() => import('./pages/ErrorPage'));
 const FormList = lazy(() => import('./pages/FormList'));
 const FormPage = lazy(() => import('./pages/FormPage'));
+const MisEnvios = lazy(() => import('./pages/MisEnvios'));
+const EnvioDetalle = lazy(() => import('./pages/EnvioDetalle'));
 
 const ProtectedRoute = () => {
     const { isAuthenticated, user } = useAuth();
@@ -19,10 +21,23 @@ const ProtectedRoute = () => {
     if (!isAuthenticated) {
         return <Navigate to="/inicio-sesion" replace state={{ from: location }} />;
     }
-    if (user?.must_change_password && location.pathname !== '/cambiar-contrasena') {
+    if (user?.must_change_password) {
         return <Navigate to="/cambiar-contrasena" replace />;
     }
     return <MainLayout/>;
+};
+
+const ChangePasswordRoute = () => {
+    const { isAuthenticated, user } = useAuth();
+    const location = useLocation();
+
+    if (!isAuthenticated) {
+        return <Navigate to="/inicio-sesion" replace state={{ from: location }} />;
+    }
+    if (!user?.must_change_password) {
+        return <Navigate to="/" replace />;
+    }
+    return <ChangePassword />;
 };
 
 const Routes = () => (
@@ -30,9 +45,11 @@ const Routes = () => (
         <RoutesRRD>
             <Route path="inicio-sesion" element={<Login />} />
             <Route path="exencion" element={<Disclaimer />} />
+            <Route path="cambiar-contrasena" element={<ChangePasswordRoute />} />
             <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<FormList />} />
-                <Route path="cambiar-contrasena" element={<ChangePassword />} />
+                <Route path="mis-envios" element={<MisEnvios />} />
+                <Route path="mis-envios/:id" element={<EnvioDetalle />} />
                 <Route path=":slug" element={<FormPage />} />
             </Route>
             <Route path="error" element={<ErrorPage />} />

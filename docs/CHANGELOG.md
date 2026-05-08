@@ -4,6 +4,72 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.11.0] - 2026-05-08
+
+Vista dedicada de "Mis envíos" — v1 del histórico, con detalle por
+envío, timeline de eventos y adjuntos descargables. Consume los dos
+endpoints respondent nuevos en `mariachi/api`
+(`GET /formularios/mis-envios` y `GET /formularios/mis-envios/:id`).
+
+### Added
+
+- **`pages/MisEnvios.jsx`** (ruta `/mis-envios`): listado paginado del
+  histórico del usuario con búsqueda por nombre/slug, filtro por estado
+  (`en_proceso/enviado/expirado`) y ordenamiento
+  (`-actualizado_en/-enviado_en/nombre`). 12 items por página, paginación
+  Anterior/Siguiente. Empty state distinto para "sin envíos" vs.
+  "sin resultados con filtros". Cada card abre `/mis-envios/:id`.
+- **`pages/EnvioDetalle.jsx`** (ruta `/mis-envios/:id`): vista de
+  revisión del envío.
+  - Reusa `SummaryStep` con `useForm({ defaultValues: envio.datos })`
+    apuntando a `definicion_snapshot` (la del momento del envío, no la
+    actual del formulario) para fidelidad histórica.
+  - Banner morado clarifica "vista de solo lectura".
+  - Sidebar (xl: derecha; mobile: abajo) con `EventTimeline` y
+    `EnvioAdjuntos`.
+  - Maneja 403/404 con un mensaje genérico ("este envío no existe o no
+    te pertenece") sin filtrar la diferencia.
+- **`forms/components/EventTimeline.jsx`**: timeline vertical con
+  bullets por tipo (`iniciado/guardado/enviado/expirado/reabierto`).
+  Copy en primera persona cuando aplica
+  ("Iniciaste el formulario", "Enviaste el formulario", etc.).
+- **`forms/components/EnvioAdjuntos.jsx`**: lista de adjuntos con link
+  `target="_blank"`, MIME y tamaño formateado (B/KB/MB).
+- **`services/formulariosServices.js`**: `listMisEnvios(onFetch, params)`
+  y `getMiEnvioDetalle(onFetch, envioId)`. Tests en
+  `test/misEnviosServices.test.js` (9 cases — URL params, parseo, 403,
+  404).
+- **`Routes.jsx`**: rutas `mis-envios` y `mis-envios/:id` declaradas
+  ANTES de `:slug` para que React Router no las trate como path param.
+- **`MainLayout.jsx`** dropdown del avatar: nuevo item "Mis envíos"
+  entre "Mis formularios" y "Cerrar sesión", deshabilitado cuando ya
+  estás en esa sección.
+
+### Changed / Reverted
+
+- **`pages/FormList.jsx`** revertido al estado pre-1.10.0 (sin tabs ni
+  búsqueda). El histórico ahora vive en su propia página dedicada
+  (`/mis-envios`); `/` queda como lista de formularios asignados activa.
+  Decisión: separar flujos en lugar de mezclarlos en tabs.
+- **Removido** `helpers/filterForms.js` y su test (eran del MVP de tabs
+  en `FormList`; el filtrado ahora es server-side via los endpoints
+  nuevos).
+
+### Bump
+
+- **`VERSION`** -> 1.11.0.
+- **`frontend/package.json`** -> 1.11.0.
+- **`frontend/public/ontoy.json`** -> 1.11.0.
+
+### Dependencias
+
+Requiere `mariachi/api` con commit
+`feat(sieej-formularios): endpoints respondent /mis-envios` ya
+desplegado. Antes de eso, `/mis-envios` muestra el error de carga
+gracefully (catch del 404).
+
+---
+
 ## [1.10.0] - 2026-05-07
 
 UX de cambio de contraseña + MVP de "Mis envíos" + bug fixes visuales.
