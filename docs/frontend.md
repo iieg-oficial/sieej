@@ -69,10 +69,14 @@ frontend/
     │                        # IncompleteBadge, CardPage, Message, Text, Divide
     ├── layout/MainLayout.jsx
     ├── pages/               # Login, Disclaimer, FormList, FormPage,
+    │                        # MisEnvios, EnvioDetalle (1.11.0),
     │                        # ChangePassword, ClosePage, NoMatch, ErrorPage
     ├── context/             # AuthContext + GlobalContext (raiz)
     ├── forms/
-    │   ├── components/wizard/{StepIndicator,NavigateStep,Tabs}.jsx
+    │   ├── components/
+    │   │   ├── wizard/{StepIndicator,NavigateStep,Tabs}.jsx
+    │   │   ├── EventTimeline.jsx        (1.11.0)
+    │   │   └── EnvioAdjuntos.jsx        (1.11.0)
     │   ├── context/         # CatalogosContext, FormsContext,
     │   │                    # SubmissionContext, WizardContext + hooks
     │   └── renderer/

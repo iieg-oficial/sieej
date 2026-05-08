@@ -114,6 +114,8 @@ catalogos del wizard original.
 | GET | `/formularios/:slug/envio` | Datos del envio (lazy init) |
 | PUT | `/formularios/:slug/envio` | Guardar parcial (`enviar:false`) o enviar (`enviar:true`) |
 | POST | `/formularios/:slug/envio/upload` | Multipart con `field_path` + `file` |
+| GET | `/formularios/mis-envios` | Listado paginado del histórico del usuario (filtros `estado`, `q`, `page`, `page_size`, `sort`). Item ligero sin `datos` ni `definicion_snapshot`. |
+| GET | `/formularios/mis-envios/:id` | Detalle del envio: `definicion_snapshot` + `datos` + `archivos[]` + `eventos[]`. 404 si no existe; 403 si pertenece a otro usuario. No expone `actor_usuario_id`. |
 | GET | `/formularios/catalogos` | 8 catalogos SIEEJ (sin cambios) |
 
 ### Admin — `/sieej/...`
@@ -143,15 +145,22 @@ Gateado por `staff_dep` (`tetlamamakani` + `editora`).
 - `/` — `FormList` (lista de formularios visibles, modo grid o lista
   con toggle, persistencia `localStorage.sieej_form_list_view`).
 - `/:slug` — `FormPage` (renderer dinamico).
+- `/mis-envios` — `MisEnvios` (histórico paginado con filtros).
+- `/mis-envios/:id` — `EnvioDetalle` (vista de revisión read-only con
+  `definicion_snapshot`, timeline y adjuntos).
 - Reservadas: `/inicio-sesion`, `/exencion`, `/cambiar-contrasena`,
-  `/error`. Declaradas literal antes de `/:slug` para precedencia.
+  `/error`. Declaradas literal antes de `/:slug` para precedencia (igual
+  que `/mis-envios` y `/mis-envios/:id`).
 
 ### Estructura
 ```
 src/
-├── pages/{FormList,FormPage,Login,...}.jsx
+├── pages/{FormList,FormPage,MisEnvios,EnvioDetalle,Login,...}.jsx
 ├── forms/
-│   ├── components/wizard/{StepIndicator,NavigateStep,Tabs}.jsx
+│   ├── components/
+│   │   ├── wizard/{StepIndicator,NavigateStep,Tabs}.jsx
+│   │   ├── EventTimeline.jsx                     (1.11.0)
+│   │   └── EnvioAdjuntos.jsx                     (1.11.0)
 │   ├── context/
 │   │   ├── {FormsContext,SubmissionContext,WizardContext}.jsx + hooks
 │   │   └── CatalogosContext.jsx + useCatalogos.js   (movido en 1.9.0)
@@ -165,7 +174,7 @@ src/
 │   │           ├── index.jsx                     (downloadSieejLevantamientoPdf)
 │   │           └── PdfForm.jsx                   (245 LOC custom)
 │   └── ...
-├── services/{authServices,formulariosServices}.js
+├── services/{authServices,formulariosServices}.js   (incluye listMisEnvios y getMiEnvioDetalle desde 1.11.0)
 ├── components/{Input,Select,Radio,DatePicker,Checkbox,Dragger,...,IncompleteBadge}.jsx
 ├── helpers/{normalizeUser,DynamicDiv,FieldLayout,ErrorsRequired,...}.{js,jsx}
 └── context/{Auth,Global}Context.jsx + hooks       (provider tree raiz)
