@@ -13,7 +13,6 @@ const FormList = lazy(() => import('./pages/FormList'));
 const FormPage = lazy(() => import('./pages/FormPage'));
 const MisEnvios = lazy(() => import('./pages/MisEnvios'));
 const EnvioDetalle = lazy(() => import('./pages/EnvioDetalle'));
-const MapaCultivos = lazy(() => import('./pages/MapaCultivos'));
 
 const ProtectedRoute = () => {
     const { isAuthenticated, user } = useAuth();
@@ -46,7 +45,6 @@ const Routes = () => (
         <RoutesRRD>
             <Route path="inicio-sesion" element={<Login />} />
             <Route path="exencion" element={<Disclaimer />} />
-            <Route path="mapa-cultivos" element={<MapaCultivos />} />
             <Route path="cambiar-contrasena" element={<ChangePasswordRoute />} />
             <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<FormList />} />

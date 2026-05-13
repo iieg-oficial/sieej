@@ -577,6 +577,104 @@ Hidratar descripciones **no implica** mover de `New → Done`. Los cambios de es
 
 `POST /epics/{epic_id}/related_userstories` con `{'user_story': US_ID, 'epic': EPIC_ID}`. Después GET y verificar `us['epics']` no nulo. Ver "Vincular historia de usuario a una épica".
 
+### 9. Asignación por default (POST y PATCH)
+
+Cuando crees o modifiques épicas, historias, tareas o issues:
+
+- Si el item **no tiene `assigned_to`** (es `null` o no viene en el body), asignarlo a `TAIGA_USER_ID` por default.
+- Si ya tiene `assigned_to` (otro usuario), **no sobrescribir** — respetar la asignación existente.
+
+Aplica al crear (POST) y al actualizar (PATCH). En PATCH, si el `GET` previo muestra `assigned_to: null`, incluir `"assigned_to": USER_ID` en el cuerpo del PATCH antes de enviar.
+
+```python
+target = api('GET', f'/userstories/{us_id}')
+patch = {'version': target['version'], **resto_de_cambios}
+if target.get('assigned_to') is None:
+    patch['assigned_to'] = TAIGA_USER_ID
+api('PATCH', f'/userstories/{us_id}', patch)
+```
+
+Esta regla complementa a la regla 1 (no tocar lo asignado a otros): si está `null` lo tomamos, si está asignado a alguien más lo dejamos.
+
+### 10. Títulos de tareas: sin prefijo de commit
+
+Las tareas se leen en Taiga por personas no técnicas (PMs, stakeholders). Los títulos deben usar la **descripción del commit** como subject, sin el prefijo `tipo(scope):`. El prefijo y el hash del commit van en la descripción de la tarea.
+
+- ❌ `feat(formularios): MVP de vista de envios — tabs, busqueda y empty states por tab`
+- ✅ `MVP de vista de envíos — tabs, búsqueda y empty states por tab`
+
+Aplica a tareas nuevas y a renombrado de tareas existentes que estén asignadas al usuario actual. **No renombrar tareas asignadas a otros** (regla 1).
+
+### 11. Helpers idempotentes `ensure_us` / `ensure_task`
+
+Re-ejecutar un script de hidratación no debe duplicar items. Buscar por subject exacto y aplicar `PATCH` si existe, `POST` si no:
+
+```python
+def ensure_us(subject, description, epic_id, status_id):
+    existing = api('GET', f'/userstories?project={PROJECT_ID}')
+    found = next((u for u in existing if u['subject'] == subject), None)
+    if found:
+        full = api('GET', f"/userstories/{found['id']}")
+        return api('PATCH', f"/userstories/{found['id']}", {
+            'description': description,
+            'status': status_id,
+            'version': full['version'],
+        })
+    us = api('POST', '/userstories', {
+        'project': PROJECT_ID,
+        'subject': subject,
+        'description': description,
+        'assigned_to': TAIGA_USER_ID,
+    })
+    api('POST', f'/epics/{epic_id}/related_userstories', {
+        'user_story': us['id'],
+        'epic': epic_id,
+    })
+    full = api('GET', f"/userstories/{us['id']}")
+    return api('PATCH', f"/userstories/{us['id']}", {
+        'status': status_id,
+        'version': full['version'],
+    })
+```
+
+Misma estructura para `ensure_task(us_id, subject, description, status_id)`. La regla 9 (asignación por default) aplica dentro del helper.
+
+### 12. Status cerrado para trabajo ya mergeado
+
+Cuando creas items en Taiga para trabajo que **ya está mergeado** en `develop`/`production`, marcarlos al status con `is_closed=true` para que no se cuelen al sprint planning:
+
+```python
+us_statuses = api('GET', f'/userstory-statuses?project={PROJECT_ID}')
+task_statuses = api('GET', f'/task-statuses?project={PROJECT_ID}')
+US_DONE = next(s['id'] for s in us_statuses if s.get('is_closed'))
+TASK_DONE = next(s['id'] for s in task_statuses if s.get('is_closed'))
+```
+
+Aplicar el `status` cerrado en un PATCH separado (post-creación) o en el mismo POST si la API lo permite. **Excepción a la regla 7**: hidratar trabajo histórico ya mergeado sí justifica marcar como Done sin nueva confirmación, porque el estado real del código ya lo refleja.
+
+### 13. Hash de commit en descripción
+
+Última línea de la descripción de toda tarea: ``Commit `<hash-corto>`.`` o ``Commits: `<hash1>`, `<hash2>`.`` cuando aplique. Permite saltar de Taiga al repo sin abrir GitHub:
+
+```
+- ...bullet técnico...
+- ...otro bullet...
+
+Commit `fd6ce8d`.
+```
+
+Para historias que agrupan varios commits, listar los relevantes al final del bloque `## Referencias` (regla 4) en vez de inline.
+
+### 14. Estructura jerárquica de hidratación por release
+
+Para un release `vX.Y.Z`:
+
+1. **Épica** `SIEEJ X.Y.x` — resumen ejecutivo de la versión en markdown, con secciones por subversión y viñetas por feature.
+2. **User Story** `vX.Y.Z — <feature>` — descripción técnica del bloque de cambios. Vincular a la épica con `POST /epics/{id}/related_userstories` (regla 8).
+3. **Tareas** — una por commit relevante; descripción con bullets concretas + hash del commit al final (regla 13).
+
+Cuando un release toca varios subsistemas (ej. respondent + admin), una US por subsistema, no una US por release. La épica `SIEEJ X.Y.x` agrupa todas las US de las versiones `X.Y.0`, `X.Y.1`, ..., `X.Y.N`.
+
 ---
 
 ## Notas generales
