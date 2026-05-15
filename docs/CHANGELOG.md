@@ -4,6 +4,27 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [No publicado]
+
+---
+
+## [1.12.1] - 2026-05-15
+
+### Docs de arquitectura alineados: MinIO se engloba como Acervo
+
+#### Cambiado
+
+- **`docs/arquitectura.md`** (3 ocurrencias):
+  - `MinIO bucket sieej-diccionarios` → `SeaweedFS bucket sieej-diccionarios`.
+  - `mariachi-api → AcervoClient.upload_file() → MinIO bucket sieej-diccionarios` → `mariachi-api → AcervoClient.upload_file() → Acervo bucket sieej-diccionarios (SeaweedFS S3)`.
+  - `Acervo: MinIO con bucket dedicado sieej-diccionarios` → `Acervo: SeaweedFS (S3-compatible) con bucket dedicado sieej-diccionarios`.
+
+#### Nota
+
+- `VERSION` venia en `1.11.0` mientras el CHANGELOG ya tenia `1.12.0` (drift detectado en la auditoria). Se sube directamente a `1.12.1` para realinear.
+
+---
+
 ## [1.12.0] - 2026-05-08
 
 ### Reportes: integrar widget Colibri como FAB en bottom-right

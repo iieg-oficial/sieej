@@ -25,7 +25,7 @@ graph TD
     end
 
     subgraph "Acervo"
-        AC[(MinIO bucket sieej-diccionarios)]
+        AC[(SeaweedFS bucket sieej-diccionarios)]
     end
 
     subgraph "SIEEJ (este repo)"
@@ -57,7 +57,7 @@ graph TD
    Browser → gateway → portal → mariachi-nginx → `location /api/` → mariachi-api FastAPI.
 7. mariachi-api valida cookie HttpOnly + CSRF, ejecuta query en `iieg_portal.sieej.*`, responde.
 8. Subida de diccionario: `POST /api/administrador/formularios/bases-datos/{id}/diccionario`
-   → mariachi-api → `AcervoClient.upload_file()` → MinIO bucket `sieej-diccionarios`.
+   → mariachi-api → `AcervoClient.upload_file()` → Acervo bucket `sieej-diccionarios` (SeaweedFS S3).
 
 ## Flujo de request en desarrollo
 
@@ -111,7 +111,7 @@ graph TD
   `/sieej`, proxy `/api/` a mariachi-api.
 - gateway-hub: proxy reverso publico, TLS, locations por prefijo,
   rate limit, security headers.
-- Acervo: MinIO con bucket dedicado `sieej-diccionarios`.
+- Acervo: SeaweedFS (S3-compatible) con bucket dedicado `sieej-diccionarios`.
 
 ## Seguridad
 
