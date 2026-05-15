@@ -502,43 +502,44 @@ Para hidrataciones grandes (decenas de descripciones), no escribir directo al AP
 
 ### 4. Estructura consistente de descripciones
 
-**Historias** (épica/feature):
+Toda **épica** y toda **historia** se hidrata con tres o cuatro secciones, en este orden:
 
 ```markdown
 ## Objetivo
-Una a tres líneas con el "qué" y el "por qué".
 
-## Alcance
-- Lo que incluye, agrupado por capa (backend/frontend/infra) cuando aplica.
-- Lo que NO incluye (delimitar).
+Una a tres líneas que explican qué se busca lograr y a quién beneficia. Lenguaje
+accesible: si la lee una persona de área no técnica, debe entender el qué y el porqué.
 
-## Implementación
-- Componentes/archivos clave.
-- Decisiones técnicas relevantes (con tabla cuando aplica).
+## Contexto
+
+Por qué se hace el cambio: incidente, deuda técnica, requerimiento externo, falla
+observada. Aquí sí se pueden mencionar archivos, funciones y nombres internos.
 
 ## Resultado
-- Versión(es) y fechas (`docs/CHANGELOG.md` § X.Y.Z).
-- Métricas (tests, bundle, etc.) cuando aplican.
 
-## Referencias
-- Docs internas, US/T relacionadas, commits.
+Estado final tras la entrega. Una a tres líneas.
+
+## Coordinación  (opcional)
+
+Dependencias con otros sistemas/repos, requisitos de versión mínima, variables de
+entorno compartidas. Se omite si no aplica.
 ```
 
-**Tareas** (subtarea técnica):
+Las **tareas** llevan estructura más simple:
 
 ```markdown
-## Qué se hizo
-Descripción concreta de la implementación.
+## Cambios
 
-## Archivos clave
-Lista de los archivos tocados o creados.
+- Bullet técnico 1 (archivo, función, número de línea cuando aporta).
+- Bullet técnico 2.
 
-## Notas / Decisiones
-Por qué se hizo así (cuando no es obvio).
-
-## Verificación
-Cómo se validó (tests, lint, manual, etc.).
+Commit: `<hash-corto>`.
 ```
+
+Lenguaje:
+
+- **Épicas** y la primera sección (Objetivo) de las historias se redactan para servidor público común: evitar `hook`, `provider`, `context`, `closure`, etc. cuando se puedan sustituir por una descripción funcional. Términos genuinos del dominio (`SeaweedFS`, `Acervo`, `mariachi`, `respondent`) sí pueden quedarse.
+- Sin emojis en subjects ni descripciones.
 
 ### 5. PATCH siempre con `version` (control de concurrencia optimista)
 
@@ -596,14 +597,34 @@ api('PATCH', f'/userstories/{us_id}', patch)
 
 Esta regla complementa a la regla 1 (no tocar lo asignado a otros): si está `null` lo tomamos, si está asignado a alguien más lo dejamos.
 
-### 10. Títulos de tareas: sin prefijo de commit
+### 10. Títulos: patrón homologado
 
-Las tareas se leen en Taiga por personas no técnicas (PMs, stakeholders). Los títulos deben usar la **descripción del commit** como subject, sin el prefijo `tipo(scope):`. El prefijo y el hash del commit van en la descripción de la tarea.
+Las tres jerarquías siguen un patrón fijo. Mantenerlo es lo que permite que el backlog se lea de un golpe y que cualquier ingest futuro sea visualmente coherente con los anteriores.
 
+**Épica** — contenedor del rango de versiones, sin descripción inline:
+
+- Patrón: `SIEEJ X.Y.x`
+- Ejemplos: `SIEEJ 1.12.x`, `SIEEJ 1.10.x`
+- Para épicas temáticas no asociadas a una versión, usar nombre descriptivo en sustantivo (ej. `Plataforma SIEEJ: Ingesta de fuentes estatales`).
+- ❌ `SIEEJ 1.10.0 — Auth UX: cambio de contraseña y mis envíos` (sin descripción inline; eso va en la descripción de la épica).
+
+**User Story** — un cambio coherente dentro de una versión específica:
+
+- Patrón: `vX.Y.Z — <descripción funcional>`
+- `v` en minúscula, em-dash (`—`) con espacios alrededor, descripción que empieza con sustantivo o sustantivada (no con verbo).
+- Ejemplos: `v1.12.0 — Integración del widget Colibri como botón flotante`, `v1.11.0 — Vista dedicada de "Mis envíos" con detalle, timeline y adjuntos`.
+- ❌ `SIEEJ 1.10.0 — auth: cambio de contraseña y MVP de mis envíos` (sin prefijo `SIEEJ`, sin dos puntos enlistando, no se mezclan nombres internos en el subject).
+- ❌ `Implementar cambio de contraseña en dos pasos` (un subject que empieza con verbo es de tarea, no de historia).
+
+**Tarea** — un paso técnico concreto, sin prefijo de versión:
+
+- Patrón: `<Verbo en infinitivo> <objeto técnico>`
+- Sin prefijo de commit (`tipo(scope):`); el prefijo y el hash del commit van en la descripción.
+- Ejemplos: `Reescribir ChangePassword con flujo de dos pasos`, `Crear helpers/passwordStrength con tests`, `Quitar w-screen de header y main`.
 - ❌ `feat(formularios): MVP de vista de envios — tabs, busqueda y empty states por tab`
-- ✅ `MVP de vista de envíos — tabs, búsqueda y empty states por tab`
+- ❌ `v1.10.0 — Reescribir ChangePassword` (las tareas no llevan prefijo de versión)
 
-Aplica a tareas nuevas y a renombrado de tareas existentes que estén asignadas al usuario actual. **No renombrar tareas asignadas a otros** (regla 1).
+Aplica a items nuevos y a renombrado de items existentes que estén asignados al usuario actual. **No renombrar items asignados a otros** (regla 1).
 
 ### 11. Helpers idempotentes `ensure_us` / `ensure_task`
 
@@ -674,6 +695,99 @@ Para un release `vX.Y.Z`:
 3. **Tareas** — una por commit relevante; descripción con bullets concretas + hash del commit al final (regla 13).
 
 Cuando un release toca varios subsistemas (ej. respondent + admin), una US por subsistema, no una US por release. La épica `SIEEJ X.Y.x` agrupa todas las US de las versiones `X.Y.0`, `X.Y.1`, ..., `X.Y.N`.
+
+### 15. Granularidad: una historia por fix/feature concreto
+
+Las historias deben representar **un cambio coherente y verificable**, no agrupar cosas porque vivan en el mismo archivo. Si un release toca cinco bugs distintos del mismo hook, son cinco historias (cada una con su descripción de Objetivo / Contexto / Resultado), no una historia "Bugfixes del hook". Esto facilita revisión, estimación y trazabilidad a commits.
+
+Regla práctica: si tienes que usar la palabra "y" en el subject de la historia, probablemente es más de una historia. Excepciones: ajustes finos sumamente pequeños del mismo parámetro (ej. dos constantes relacionadas) pueden ir juntos.
+
+### 16. Etiquetas por área técnica
+
+Aplicar al campo `tags` (lista de strings) según el área principal del item. Las etiquetas son libres en este proyecto (no hay catálogo fijo); usar el set siguiente como convención:
+
+- `backend` — cambios en `mariachi/api` o servicios backend relacionados.
+- `frontend` — cambios en `frontend/src/**` del repo SIEEJ.
+- `infra` — `docker-compose`, `Dockerfile`, `vite.config`, gateway-hub, deploy.
+- `docs` — `docs/**`, `README.md`, `CHANGELOG.md`, `.env.example`.
+- `tests` — cambios en suites de prueba (`test/**`, `*.test.js`).
+
+Las épicas pueden cargar varias etiquetas (`backend`, `frontend`, `infra`, `docs`). Las historias y tareas idealmente una o dos.
+
+### 17. Puntos: escala Fibonacci del proyecto
+
+La escala configurada en el proyecto SIIEJ (IDs reales en `GET /points?project=3`):
+
+| Nombre | Valor | ID |
+|--------|------:|---:|
+| `1/2`  | 0.5   | 27 |
+| `1`    | 1.0   | 28 |
+| `2`    | 2.0   | 29 |
+| `3`    | 3.0   | 30 |
+| `5`    | 5.0   | 31 |
+| `8`    | 8.0   | 32 |
+| `10`   | 10.0  | 33 |
+| `13`   | 13.0  | 34 |
+| `20`   | 20.0  | 35 |
+| `40`   | 40.0  | 36 |
+
+Roles del proyecto (IDs reales en `GET /roles?project=3`): `17 UX`, `18 Design`, `19 Front`, `20 Back`, `21 Product Owner`, `22 Stakeholder`, `23 Gobernanza`, `24 Datos Abiertos`, `140 Análisis`.
+
+El campo `points` de una user story es un dict `{role_id_str: point_id}`. Asignar el punto al **rol principal** del trabajo. Ejemplo para una historia frontend de 5 puntos:
+
+```python
+api('PATCH', f'/userstories/{us_id}', {
+    'points': {'19': 31},  # Rol Front (19) → punto "5" (id 31)
+    'version': us_full['version'],
+})
+```
+
+Las **tareas no llevan puntos individuales** (no aplica el campo). La suma de tareas puede ser menor o igual a la estimación de la historia: la historia se estima de manera integral, las tareas son desglose técnico.
+
+Calibración mental (no es regla rígida):
+
+- `1/2` — cambio de una sola constante o flag.
+- `1` — refactor mecánico, rename, ajuste menor con tests intactos.
+- `2` — fix de un solo bug acotado, con análisis breve.
+- `3` — feature pequeña aislada, o fix con análisis profundo en un componente.
+- `5` — integración nueva (librería + config + docs), o fix con cambios coordinados en varios archivos.
+- `8` — feature mediana con efectos cross-cutting, o módulo nuevo con pruebas.
+- `13` — auditoría a fondo (múltiples bugs latentes), refactor de un sistema completo.
+- `20+` — un release entero o un cambio que cruza varios subsistemas; idealmente dividir.
+
+### 18. Fecha límite (`due_date`)
+
+Aplica a **épicas y tareas**. Las user stories no llevan `due_date` en la convención del proyecto (su entrega se rastrea por el milestone y por el estado de sus tareas).
+
+Formato: `YYYY-MM-DD`. Para trabajo retroactivo (épica que se hidrata después de mergear), usar la fecha del día de hidratación: refleja cuándo se cerró el registro en Taiga, aunque el merge sea anterior.
+
+```python
+api('PATCH', f'/epics/{epic_id}', {
+    'due_date': '2026-05-15',
+    'version': epic_full['version'],
+})
+```
+
+### 19. Valores observados de statuses en SIIEJ
+
+Sujetos a cambio si se reconfigura el proyecto. Verificar con `GET /epic-statuses?project=3`, `/userstory-statuses?project=3`, `/task-statuses?project=3`:
+
+- Epic status `Done` → id `15`.
+- User story status `Done` → id `17` (también existe `Archived` id `18`, también cerrado).
+- Task status `Closed` → id `14` (es el único `is_closed=true` del flujo).
+
+Aun cerrando el item, sí aplica la regla 18 (`due_date`).
+
+### 20. Verificar vínculos de una épica
+
+Después de un POST a `related_userstories`, validar:
+
+```python
+rel = api('GET', f'/epics/{epic_id}/related_userstories')
+print(f'{len(rel)} historias vinculadas')
+```
+
+Nota: el campo `user_story_extra_info` de la respuesta puede venir vacío (`ref=None, subject=None`); la relación sí está creada, es un detalle de hidratación del endpoint. Para ver los refs, hacer GET individual a cada `user_story` id de la respuesta.
 
 ---
 
