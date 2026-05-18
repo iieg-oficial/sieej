@@ -8,6 +8,18 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.13.0] - 2026-05-18
+
+### frontend-build: ownership portable sin variables UID/GID
+
+#### Cambiado
+
+- **`docker-compose.yml`** (servicio `frontend-build`):
+  - Se eliminan `HOST_UID: ${UID:-1000}` y `HOST_GID: ${GID:-1000}` del bloque `environment` (defaults inline prohibidos por convencion del proyecto y origen del error "grupo desconocido" en maquinas donde `UID`/`GID` no estan exportadas).
+  - El `entrypoint` ahora deriva `uid:gid` del directorio montado `/output` via `stat -c %u/%g` antes del `chown -R`, adoptando el dueño real del host sin depender del shell.
+
+---
+
 ## [1.12.1] - 2026-05-15
 
 ### Docs de arquitectura alineados: MinIO se engloba como Acervo

@@ -50,12 +50,9 @@ services:
         VITE_COLIBRI_SOURCE_APP: ${VITE_COLIBRI_SOURCE_APP:-sieej}
         VITE_COLIBRI_API_KEY: ${VITE_COLIBRI_API_KEY:-}
     profiles: ["build"]
-    environment:
-      HOST_UID: ${UID:-1000}
-      HOST_GID: ${GID:-1000}
     volumes:
       - ./frontend/dist:/output
-    entrypoint: ["sh", "-c", "rm -rf /output/* /output/.[!.]* 2>/dev/null; cp -a /app/dist/. /output/ && chown -R $$HOST_UID:$$HOST_GID /output"]
+    entrypoint: ["sh", "-c", "uid=$$(stat -c %u /output); gid=$$(stat -c %g /output); rm -rf /output/* /output/.[!.]* 2>/dev/null; cp -a /app/dist/. /output/ && chown -R $$uid:$$gid /output"]
 
 volumes:
   frontend-node-modules:
