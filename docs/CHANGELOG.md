@@ -8,6 +8,22 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.13.1] - 2026-05-21
+
+### ontoy: schema homologado del endpoint `/sieej/ontoy`
+
+El JSON servido en `frontend/public/ontoy.json` (consumido vía `/sieej/ontoy` por Mariachi) se alinea con el formato del resto del ecosistema: `{version, service, released_at}`.
+
+#### Cambiado
+
+- **`frontend/public/ontoy.json`**: se eliminan los campos `slug` y `label` (información que Mariachi ya tiene hardcoded en `platforms_config.py`); se añaden `service: "sieej"` y `released_at`. Se actualiza `version` para reflejar el `VERSION` actual del repo.
+
+#### Por qué bump patch
+
+Cambio puramente de formato del manifesto de versión expuesto en `/sieej/ontoy`. No afecta build, runtime ni features del frontend.
+
+---
+
 ## [1.13.0] - 2026-05-18
 
 ### frontend-build: ownership portable sin variables UID/GID
