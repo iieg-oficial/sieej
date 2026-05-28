@@ -8,6 +8,27 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.14.0] - 2026-05-28
+
+### auth + forms: auto-recovery del CSRF y empty state mejorado en "Mis formularios"
+
+Atiende los hallazgos del documento de pruebas del tester. La causa raíz del U9 (externo no podía cambiar contraseña) era que la cookie HttpOnly persistía al cruzar de mariachi-admin a SIEEJ pero el token CSRF se quedaba atrás (mariachi guarda en `sessionStorage['csrf_token']`, SIEEJ usa `sessionStorage['sieej_csrf_token']`). El `handleFetchWithAuth` mandaba el POST sin header `X-CSRF-Token` y el backend respondía 403.
+
+#### Agregado
+
+- **`frontend/src/context/AuthContext.jsx::refreshCsrfToken`**: helper con dedup vía `csrfRefreshPromiseRef` (evita N llamadas concurrentes si varias mutaciones disparan recovery al mismo tiempo). Hace `GET ${hostBackend}/autenticacion/csrf` con `credentials: 'include'` y guarda el token en `sessionStorage['sieej_csrf_token']`.
+- **Auto-recovery reactivo** en `handleFetchWithAuth`: si una mutación (`POST/PUT/PATCH/DELETE`) recibe 403 y el `detail` del response incluye "csrf" (case-insensitive), llama `refreshCsrfToken()` y reintenta el request UNA vez con flag `__csrfRetried` (evita loop infinito). Usa `response.clone()` para leer el body sin consumir la response original.
+- **Pre-fetch** en `handleCheckAuth`: cuando el `getProfile()` sale OK pero `sessionStorage[CSRF_KEY]` está vacío, llama `refreshCsrfToken()` antes de soltar el control. Cubre el escenario del externo que llega redirigido desde mariachi-admin (caso U9 documentado) y el de pestañas nuevas con sesión activa pre-existente.
+- **Empty state visual en "Mis formularios"** (`frontend/src/pages/FormList.jsx`): antes era una línea pequeña "No tienes formularios asignados por el momento." que el tester documentó como confusa cuando la causa real era un formulario en `borrador`. Ahora es un card centrado con icono de documento, título "No hay formularios disponibles" y texto explicativo que sugiere las dos causas reales (sin asignación todavía, o asignados pero en preparación) y dirige al usuario a contactar al enlace IIEG.
+
+#### Por qué bump minor
+
+- Auto-recovery + pre-fetch del CSRF cierra un caso de fallo previamente sin manejo en el cliente. Compatible hacia atrás (solo agrega comportamiento).
+- Empty state mejorado es cambio visible al usuario final pero no rompe nada (sustituye un mensaje, no agrega ruta).
+- Mariachi se libera en paralelo como `1.21.0` para alinear el patrón de auto-recovery del CSRF y unificar la política de contraseñas. Ver `mariachi/docs/CHANGELOG.md` §[1.21.0].
+
+---
+
 ## [1.13.1] - 2026-05-21
 
 ### ontoy: schema homologado del endpoint `/sieej/ontoy`

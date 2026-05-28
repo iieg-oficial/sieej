@@ -1,7 +1,7 @@
 # SIEEJ frontend — Contexto del proyecto
 
-**Version:** 1.11.0
-**Fecha de este documento:** 2026-05-08
+**Version:** 1.14.0
+**Fecha de este documento:** 2026-05-28
 **Repo:** https://github.com/iieg-oficial/sieej
 
 Referencia general del proyecto SIEEJ. Para detalles de arquitectura
