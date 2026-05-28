@@ -13,7 +13,7 @@ const CSRF_KEY = 'sieej_csrf_token';
 const MUTATION_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 const AuthProvider = ({ children }) => {
-    const { onMessage } = useGlobal();
+    const { onMessage, hostBackend } = useGlobal();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -21,6 +21,8 @@ const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isAuthLoading, setAuthLoading] = useState(true);
     const [authError, setAuthError] = useState(null);
+
+    const csrfRefreshPromiseRef = useRef(null);
 
     const originPage = location.state?.from?.pathname || '/';
 
@@ -30,8 +32,32 @@ const AuthProvider = ({ children }) => {
 
     const closeMessageError = () => setAuthError(null);
 
+    const refreshCsrfToken = useCallback(async () => {
+        if (csrfRefreshPromiseRef.current) return csrfRefreshPromiseRef.current;
+        csrfRefreshPromiseRef.current = (async () => {
+            try {
+                const response = await fetch(`${hostBackend}/autenticacion/csrf`, {
+                    credentials: 'include',
+                });
+                if (!response.ok) return null;
+                const data = await response.json();
+                const newToken = data?.csrf_token;
+                if (newToken) {
+                    sessionStorage.setItem(CSRF_KEY, newToken);
+                    return newToken;
+                }
+                return null;
+            } catch {
+                return null;
+            } finally {
+                csrfRefreshPromiseRef.current = null;
+            }
+        })();
+        return csrfRefreshPromiseRef.current;
+    }, [hostBackend]);
+
     const handleFetchWithAuth = useCallback(async (url, options = {}) => {
-        const { body: rawBody, headers: rawHeaders, ...rest } = options;
+        const { body: rawBody, headers: rawHeaders, __csrfRetried, ...rest } = options;
         const method = (rest.method || 'GET').toUpperCase();
         const headers = {
             'Accept': 'application/json',
@@ -70,10 +96,27 @@ const AuthProvider = ({ children }) => {
             if (!location.pathname.endsWith('/inicio-sesion')) {
                 navigate('/inicio-sesion');
             }
+            return response;
+        }
+
+        if (response.status === 403 && MUTATION_METHODS.has(method) && !__csrfRetried) {
+            let detail = null;
+            try {
+                const data = await response.clone().json();
+                detail = data?.detail;
+            } catch {
+                /* respuesta sin JSON, no es CSRF */
+            }
+            if (typeof detail === 'string' && detail.toLowerCase().includes('csrf')) {
+                const newToken = await refreshCsrfToken();
+                if (newToken) {
+                    return handleFetchWithAuth(url, { ...options, __csrfRetried: true });
+                }
+            }
         }
 
         return response;
-    }, [location.pathname, navigate]);
+    }, [location.pathname, navigate, refreshCsrfToken]);
 
     const mountedRef = useRef(true);
     useEffect(() => () => { mountedRef.current = false; }, []);
@@ -85,13 +128,16 @@ const AuthProvider = ({ children }) => {
             const profile = await getProfile();
             safeSet(setUser)(normalizeUser(profile));
             safeSet(setIsAuthenticated)(true);
+            if (!sessionStorage.getItem(CSRF_KEY)) {
+                await refreshCsrfToken();
+            }
         } catch {
             safeSet(setUser)(null);
             safeSet(setIsAuthenticated)(false);
         } finally {
             safeSet(setAuthLoading)(false);
         }
-    }, []);
+    }, [refreshCsrfToken]);
 
     const handleLogin = async ({ username, password }) => {
         safeSet(setAuthLoading)(true);
