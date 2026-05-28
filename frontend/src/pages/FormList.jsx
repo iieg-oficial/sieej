@@ -160,11 +160,24 @@ const FormList = () => {
             </div>
 
             {formularios.length === 0 ? (
-                <div className="w-full mt-8 py-8 text-center">
+                <div className="w-full mt-10 py-10 flex flex-col items-center text-center max-w-[420px] mx-auto">
+                    <div className="w-16 h-16 rounded-full bg-[#F0E2F5] flex items-center justify-center mb-5">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5C2473" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="9" y1="13" x2="15" y2="13"/>
+                            <line x1="9" y1="17" x2="13" y2="17"/>
+                        </svg>
+                    </div>
+                    <Typography
+                        as="h3"
+                        className="text-[#212121] font-garetbold mb-2"
+                        titleName="No hay formularios disponibles"
+                    />
                     <Typography
                         as="p"
-                        className="text-[#7C7C7C]"
-                        titleName="No tienes formularios asignados por el momento."
+                        className="text-[#7C7C7C] font-garetregular"
+                        titleName="Tu dependencia aún no tiene formularios asignados, o los formularios asignados están en preparación. Vuelve a revisar más tarde o ponte en contacto con tu enlace en el IIEG."
                     />
                 </div>
             ) : view === 'grid' ? (
