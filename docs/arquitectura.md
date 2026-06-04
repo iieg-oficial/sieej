@@ -25,7 +25,7 @@ graph TD
     end
 
     subgraph "Acervo"
-        AC[(SeaweedFS bucket sieej-diccionarios)]
+        AC[(SeaweedFS bucket sieej)]
     end
 
     subgraph "SIEEJ (este repo)"
@@ -34,9 +34,8 @@ graph TD
     end
 
     B --> GW
-    GW -- "/sieej/" --> MN
+    GW -- "/sieej/ (alias dist)" --> FE
     GW -- "/api/administrador/*" --> MN
-    MN -- alias --> FE
     MN -- "/api/" --> MA
     MA --> PG
     MA --> RD
@@ -50,14 +49,15 @@ graph TD
 
 1. `https://<APP_DOMAIN>/sieej/` llega al gateway-hub.
 2. Gateway aplica TLS, security headers, rate limit, bot-protection.
-3. `proxy_pass http://portal` → upstream `portal` = `mariachi-nginx:80`.
-4. mariachi-nginx hace match con `location /sieej { alias ...; try_files ... /sieej/index.html; }`.
-5. Sirve el SPA (React).
-6. SPA hace `fetch('/api/administrador/formularios/catalogos')`:
-   Browser → gateway → portal → mariachi-nginx → `location /api/` → mariachi-api FastAPI.
-7. mariachi-api valida cookie HttpOnly + CSRF, ejecuta query en `iieg_portal.sieej.*`, responde.
-8. Subida de diccionario: `POST /api/administrador/formularios/bases-datos/{id}/diccionario`
-   → mariachi-api → `AcervoClient.upload_file()` → Acervo bucket `sieej-diccionarios` (SeaweedFS S3).
+3. `location ^~ /sieej/` hace match: `alias` al dist montado por bind mount
+   (`sieej/frontend/dist` read-only) con `try_files ... /sieej/index.html`.
+   gateway-hub sirve el SPA directamente, sin upstream ni proxy para SIEEJ.
+4. SPA (React) hace `fetch('/api/administrador/formularios/catalogos')`:
+   Browser → gateway → `location /api/` → upstream `portal` (= mariachi-nginx)
+   → `location /api/` → mariachi-api FastAPI.
+5. mariachi-api valida cookie HttpOnly + CSRF, ejecuta query en `iieg_portal.sieej.*`, responde.
+6. Subida de diccionario: `POST /api/administrador/formularios/bases-datos/{id}/diccionario`
+   → mariachi-api → `AcervoClient.upload_file()` → Acervo bucket `sieej` (SeaweedFS S3).
 
 ## Flujo de request en desarrollo
 
@@ -103,15 +103,17 @@ graph TD
 - Servicios en `app/services/sieej/`.
 - Modelos en schema `sieej` (8 catalogos + 3 entidades + 1 N:M).
 - Migration `e7f8a9b0c1d2` aplica DDL + seeds + crea
-  `MediaBucket(acervo_bucket='sieej-diccionarios')`.
+  `MediaBucket(acervo_bucket='sieej-diccionarios')`, renombrado a `sieej`
+  en la migracion `a1b2c3d4e5f6` (nombre canonico actual del bucket).
 
 ### Infra
 
-- mariachi-nginx: sirve `admin/dist` en `/mariachi`, `sieej/dist` en
-  `/sieej`, proxy `/api/` a mariachi-api.
 - gateway-hub: proxy reverso publico, TLS, locations por prefijo,
-  rate limit, security headers.
-- Acervo: SeaweedFS (S3-compatible) con bucket dedicado `sieej-diccionarios`.
+  rate limit, security headers. Sirve `sieej/dist` directamente en
+  `/sieej/` via `alias` (bind mount read-only), sin upstream propio.
+- mariachi-nginx: sirve `admin/dist` en `/mariachi` y hace proxy `/api/`
+  a mariachi-api (upstream `portal` para las llamadas de SIEEJ).
+- Acervo: SeaweedFS (S3-compatible) con bucket dedicado `sieej`.
 
 ## Seguridad
 

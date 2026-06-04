@@ -81,7 +81,7 @@ Catalogos (sin cambios): `catalogo_unidad_admin`, `categoria_datos`,
           "options": [{"value":"true","label":"Si"}], // o "catalog": "unidades_admin"
           "showWhen": {"field":"otro","equals":"true"},
           "validation": {"minLength":1,"maxLength":255,"pattern":"^...$","min":0,"max":100},
-          "bucket": "sieej-uploads",                  // type=file
+          "bucket": "sieej",                          // type=file
           "accept": [".pdf",".csv"],                  // type=file
           "maxSizeMB": 10                             // type=file (cap absoluto 100)
         }
@@ -117,6 +117,38 @@ catalogos del wizard original.
 | GET | `/formularios/mis-envios` | Listado paginado del histórico del usuario (filtros `estado`, `q`, `page`, `page_size`, `sort`). Item ligero sin `datos` ni `definicion_snapshot`. |
 | GET | `/formularios/mis-envios/:id` | Detalle del envio: `definicion_snapshot` + `datos` + `archivos[]` + `eventos[]`. 404 si no existe; 403 si pertenece a otro usuario. No expone `actor_usuario_id`. |
 | GET | `/formularios/catalogos` | 8 catalogos SIEEJ (sin cambios) |
+
+#### Upload de archivos por campo (`POST /formularios/:slug/envio/upload`)
+
+Los campos `type=file` (p. ej. el diccionario de datos en CSV/XLSX/PDF) no
+viajan dentro del JSON del envio: se suben **al instante de seleccionarlos**,
+de forma independiente al `PUT .../envio`.
+
+Flujo end-to-end:
+
+1. **UI** — `components/Dragger.jsx` (click o drag&drop). Valida tamano
+   contra `field.maxSizeMB`; el filtro de extension lo hace `accept` del
+   schema (`field.accept`).
+2. **Frontend service** — `services/formulariosServices.js#uploadArchivo`
+   arma un `FormData` con `field_path` (`paso.campo` o `paso[idx].campo` en
+   repeaters) + `file`, y hace `POST` con cookie HttpOnly + `X-CSRF-Token`.
+3. **Backend** — `EnviosService.upload_archivo` (mariachi/api):
+   - Resuelve el bucket con `_bucket_para_field` leyendo `field.bucket` del
+     `definicion_snapshot` del envio (no del schema vivo).
+   - Sube a **Acervo** (SeaweedFS S3-compatible) via `AcervoClient.upload_file`
+     con `object_key = envio{envio_id}/{uuid}.{ext}`.
+   - Persiste un registro en `sieej.envio_archivo` (bucket, object_key,
+     url_publica, filename_original, mime, size_bytes).
+   - Inserta el valor del campo en `envio.datos[field_path]` server-side.
+4. **Respuesta** (`EnvioUploadResponse`):
+   `{ field_path, url_publica, filename_original, mime, size_bytes }`. El
+   frontend guarda este objeto como valor del campo (lo consume `SummaryStep`
+   y el PDF); el `PUT .../envio` posterior lo reenvia tal cual.
+
+**Donde queda el archivo:** en Acervo, en el bucket que declare
+`field.bucket` (actualmente `sieej`), bajo la ruta
+`envio{id}/{uuid}.{ext}`. La URL publica y los metadatos quedan en
+`sieej.envio_archivo` y referenciados en `sieej.envio_formulario.datos`.
 
 ### Admin — `/sieej/...`
 Gateado por `staff_dep` (`tetlamamakani` + `editora`).
