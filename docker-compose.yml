@@ -6,18 +6,18 @@ services:
     profiles: ["dev"]
     init: true
     environment:
-      VITE_BACKEND_API_HOST: ${VITE_BACKEND_API_HOST:-/api/administrador}
-      VITE_NODE_ENV: ${VITE_NODE_ENV:-development}
-      VITE_APP_ENV: ${VITE_APP_ENV:-dev}
-      VITE_PORT: ${VITE_PORT:-5174}
-      VITE_SITE_URL: ${VITE_SITE_URL:-}
-      VITE_BASE_PATH: ${VITE_BASE_PATH:-/}
-      VITE_DISABLED_EDITION: ${VITE_DISABLED_EDITION:-false}
-      VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
-      VITE_COLIBRI_SOURCE_APP: ${VITE_COLIBRI_SOURCE_APP:-sieej}
-      VITE_COLIBRI_API_KEY: ${VITE_COLIBRI_API_KEY:-}
-      BACKEND_DEV_TARGET: ${BACKEND_DEV_TARGET:-}
-      MARIACHI_DEV_TARGET: ${MARIACHI_DEV_TARGET:-}
+      VITE_BACKEND_API_HOST: ${VITE_BACKEND_API_HOST:?Falta VITE_BACKEND_API_HOST en el .env}
+      VITE_NODE_ENV: ${VITE_NODE_ENV:?Falta VITE_NODE_ENV en el .env}
+      VITE_APP_ENV: ${VITE_APP_ENV:?Falta VITE_APP_ENV en el .env}
+      VITE_PORT: ${VITE_PORT:?Falta VITE_PORT en el .env}
+      VITE_SITE_URL: ${VITE_SITE_URL:?Falta VITE_SITE_URL en el .env}
+      VITE_BASE_PATH: ${VITE_BASE_PATH:?Falta VITE_BASE_PATH en el .env}
+      VITE_DISABLED_EDITION: ${VITE_DISABLED_EDITION:?Falta VITE_DISABLED_EDITION en el .env}
+      VITE_SENTRY_DSN: ${VITE_SENTRY_DSN?Falta VITE_SENTRY_DSN en el .env (puede ir vacio)}
+      VITE_COLIBRI_SOURCE_APP: ${VITE_COLIBRI_SOURCE_APP:?Falta VITE_COLIBRI_SOURCE_APP en el .env}
+      VITE_COLIBRI_API_KEY: ${VITE_COLIBRI_API_KEY?Falta VITE_COLIBRI_API_KEY en el .env (puede ir vacio)}
+      BACKEND_DEV_TARGET: ${BACKEND_DEV_TARGET:?Falta BACKEND_DEV_TARGET en el .env}
+      MARIACHI_DEV_TARGET: ${MARIACHI_DEV_TARGET?Falta MARIACHI_DEV_TARGET en el .env (puede ir vacio)}
     volumes:
       - ./frontend/src:/app/src:ro
       - ./frontend/public:/app/public:ro
@@ -25,11 +25,11 @@ services:
       - ./frontend/vite.config.js:/app/vite.config.js:ro
       - frontend-node-modules:/app/node_modules
     ports:
-      - "${FRONTEND_PORT:-5174}:${VITE_PORT:-5174}"
+      - "${FRONTEND_PORT:?Falta FRONTEND_PORT en el .env}:${VITE_PORT}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${VITE_PORT:-5174}/ > /dev/null || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${VITE_PORT}/ > /dev/null || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -40,15 +40,15 @@ services:
     build:
       context: ./frontend
       args:
-        VITE_BASE_PATH: ${VITE_BASE_PATH:-/sieej/}
-        VITE_BACKEND_API_HOST: ${VITE_BACKEND_API_HOST:-/api/administrador}
-        VITE_SITE_URL: ${VITE_SITE_URL:-}
-        VITE_NODE_ENV: ${VITE_NODE_ENV:-production}
-        VITE_APP_ENV: ${VITE_APP_ENV:-beta}
-        VITE_DISABLED_EDITION: ${VITE_DISABLED_EDITION:-false}
-        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
-        VITE_COLIBRI_SOURCE_APP: ${VITE_COLIBRI_SOURCE_APP:-sieej}
-        VITE_COLIBRI_API_KEY: ${VITE_COLIBRI_API_KEY:-}
+        VITE_BASE_PATH: ${VITE_BASE_PATH:?Falta VITE_BASE_PATH en el .env}
+        VITE_BACKEND_API_HOST: ${VITE_BACKEND_API_HOST:?Falta VITE_BACKEND_API_HOST en el .env}
+        VITE_SITE_URL: ${VITE_SITE_URL:?Falta VITE_SITE_URL en el .env}
+        VITE_NODE_ENV: ${VITE_NODE_ENV:?Falta VITE_NODE_ENV en el .env}
+        VITE_APP_ENV: ${VITE_APP_ENV:?Falta VITE_APP_ENV en el .env}
+        VITE_DISABLED_EDITION: ${VITE_DISABLED_EDITION:?Falta VITE_DISABLED_EDITION en el .env}
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN?Falta VITE_SENTRY_DSN en el .env (puede ir vacio)}
+        VITE_COLIBRI_SOURCE_APP: ${VITE_COLIBRI_SOURCE_APP:?Falta VITE_COLIBRI_SOURCE_APP en el .env}
+        VITE_COLIBRI_API_KEY: ${VITE_COLIBRI_API_KEY?Falta VITE_COLIBRI_API_KEY en el .env (puede ir vacio)}
     profiles: ["build"]
     volumes:
       - ./frontend/dist:/output
@@ -59,4 +59,4 @@ volumes:
 
 networks:
   default:
-    name: ${NETWORK_NAME:-sieej-network}
+    name: ${NETWORK_NAME:?Falta NETWORK_NAME en el .env}
