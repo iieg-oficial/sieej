@@ -8,6 +8,29 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.15.0] - 2026-06-04
+
+### forms: subida de archivos por campo confiable y bucket `sieej` homologado
+
+Cierra el flujo de subida de archivos de los formularios (diccionarios CSV/XLSX/PDF). El campo `type=file` subía el archivo a Acervo pero el frontend descartaba la respuesta del backend y guardaba el `File` local, que se perdía al serializar el envío. Además las definiciones apuntaban a buckets inexistentes (`sieej-uploads`/`sieej-diccionarios`), por lo que el upload respondía 500.
+
+#### Corregido
+
+- **`frontend/src/components/Dragger.jsx`**: captura el retorno de `onFile` (la respuesta del backend con `url_publica`/`filename_original`) y lo guarda como valor del campo en lugar del `File` local. El render del nombre soporta los tres shapes (`filename_original`, `filename`, `name`).
+- **`docker-compose.yml`**: elimina los defaults inline `${VAR:-valor}`; el compose ahora falla explícitamente si falta una variable. `.env.example` declara `MARIACHI_DEV_TARGET`.
+
+#### Documentación
+
+- `docs/arquitectura.md`: gateway-hub sirve el `dist` directo via `alias` (no via mariachi-nginx). Bucket canónico `sieej`.
+- `docs/plataforma-formularios.md`: documenta el flujo de subida por campo (`POST /formularios/:slug/envio/upload`) y a dónde va a parar el archivo (Acervo, bucket `sieej`, ruta `{slug}/envio{id}/{uuid}.{ext}`).
+
+#### Por qué bump minor
+
+- El flujo de subida pasa de roto (500 / referencia perdida) a funcional end-to-end; cambio visible para el usuario que sube diccionarios. Compatible hacia atrás.
+- Mariachi se libera en paralelo como `1.31.0`: ruta de archivos por encuesta, homologación del bucket `sieej` (migración `c2d3e4f5a6b7`) y comparación de vigencia tz-safe. Ver `mariachi/docs/CHANGELOG.md` §[api 1.31.0 / admin 1.31.0].
+
+---
+
 ## [1.14.0] - 2026-05-28
 
 ### auth + forms: auto-recovery del CSRF y empty state mejorado en "Mis formularios"

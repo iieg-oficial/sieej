@@ -1,7 +1,7 @@
 # SIEEJ frontend — Contexto del proyecto
 
-**Version:** 1.14.0
-**Fecha de este documento:** 2026-05-28
+**Version:** 1.15.0
+**Fecha de este documento:** 2026-06-04
 **Repo:** https://github.com/iieg-oficial/sieej
 
 Referencia general del proyecto SIEEJ. Para detalles de arquitectura
@@ -66,6 +66,12 @@ viven en `mariachi`.
 - **DataEngine queda fuera del alcance.** SIEEJ no toca la BD externa
   PostGIS de DataEngine. Cualquier cambio futuro a DataEngine va en
   rama `prod-migracion` con `alembic -x db=dataengine`.
+- **Subida de archivos por campo.** Los campos `type=file` se suben al
+  instante via `POST /formularios/:slug/envio/upload` al bucket Acervo
+  `sieej` (nombre canonico tras renombrar `sieej-diccionarios`), bajo la
+  ruta `{slug}/envio{id}/{uuid}.{ext}` para escalar a multiples encuestas.
+  El valor del campo guarda la respuesta del backend (`url_publica`,
+  `filename_original`), no el `File` local.
 
 ## Arquitectura
 
