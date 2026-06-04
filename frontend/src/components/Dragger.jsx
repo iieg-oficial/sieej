@@ -36,10 +36,11 @@ const Dragger = ({
 
         try {
             if (validFiles.length) {
-                const isMultiple = multiple ? [...fileList, ...validFiles] : validFiles;
-                await onFile(isMultiple, idItem);
-                setFileList(isMultiple);
-                onChange(multiple ? validFiles : validFiles[0]);
+                const accumulated = multiple ? [...fileList, ...validFiles] : validFiles;
+                const result = await onFile(accumulated, idItem);
+                const stored = multiple ? accumulated : (result ?? validFiles[0]);
+                setFileList(Array.isArray(stored) ? stored : [stored]);
+                onChange(stored);
             }
         } catch (error) {
             openModal(
@@ -123,7 +124,11 @@ const Dragger = ({
                                 {fileList.map((file, index) => (
                                     <li key={index} className="h-[25px] flex items-center justify-between px-2 rounded-md hover:bg-[#F8F8F8]">
                                         <span className="text-xs font-garetmedium text-[#465055] line-clamp-1">
-                                            { typeof file === 'string' ? extractFileName(file) : file.name }
+                                            {
+                                                typeof file === 'string'
+                                                    ? extractFileName(file)
+                                                    : file?.filename_original || file?.filename || file?.name || extractFileName(file?.url_publica || '')
+                                            }
                                         </span>
                                         <button
                                             type="button"
