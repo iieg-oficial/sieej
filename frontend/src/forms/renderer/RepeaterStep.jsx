@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import Button from '@components/Button';
 import Typography from '@components/Typography';
@@ -29,6 +29,16 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
             onActiveTab?.(0);
         }
     }, [fields.length, activeTab, onActiveTab]);
+
+    const seeded = useRef(false);
+    useEffect(() => {
+        if (seeded.current) return;
+        if (fields.length < minItems) {
+            seeded.current = true;
+            for (let i = fields.length; i < minItems; i += 1) append({});
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fields.length, minItems]);
 
     const handleAdd = () => {
         append({});
