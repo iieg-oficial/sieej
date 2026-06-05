@@ -11,12 +11,22 @@ const safeParse = (text) => {
     }
 };
 
+const resolveErrorMessage = (detail, status) => {
+    if (typeof detail === 'string') return detail;
+    const errores = detail?.errores;
+    if (Array.isArray(errores) && errores.length) {
+        return errores
+            .map((e) => (e?.path ? `${e.path}: ${e.msg}` : e?.msg))
+            .filter(Boolean)
+            .join(' · ');
+    }
+    return `HTTP ${status}`;
+};
+
 const parseJson = async (response) => {
     const data = safeParse(await response.text());
     if (!response.ok) {
-        const detail = data?.detail;
-        const msg = typeof detail === 'string' ? detail : `HTTP ${response.status}`;
-        const error = new Error(msg);
+        const error = new Error(resolveErrorMessage(data?.detail, response.status));
         error.status = response.status;
         error.data = data;
         throw error;

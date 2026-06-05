@@ -13,10 +13,42 @@ import Modal from '@components/Modal';
 import useGlobal from '@context/useGlobal';
 import useCatalogos from '@forms/context/useCatalogos';
 
+const construirMapaLabels = (definicion) => {
+    const mapa = {};
+    (definicion?.steps ?? []).forEach((step) => {
+        mapa[step.id] = {
+            title: step.title || step.id,
+            fields: Object.fromEntries(
+                (step.fields ?? []).map((f) => [f.name, f.label || f.name]),
+            ),
+        };
+    });
+    return mapa;
+};
+
+const formatearErrores = (errores, definicion) => {
+    const mapa = construirMapaLabels(definicion);
+    const lineas = errores.map(({ path, msg }) => {
+        const match = String(path).match(/^([^.[]+)(?:\[(\d+)\])?(?:\.(.+))?$/);
+        if (!match) return `${path}: ${msg}`;
+        const [, stepId, idx, fieldName] = match;
+        const step = mapa[stepId];
+        if (!step) return `${path}: ${msg}`;
+        const prefijo = idx !== undefined ? `${step.title} (#${Number(idx) + 1})` : step.title;
+        if (fieldName) {
+            return `${prefijo} › ${step.fields[fieldName] || fieldName}: ${msg}`;
+        }
+        return `${prefijo}: ${msg}`;
+    });
+    const MAX = 12;
+    const extra = lineas.length - MAX;
+    return lineas.slice(0, MAX).join(' · ') + (extra > 0 ? ` · (+${extra} más)` : '');
+};
+
 const FormularioContent = () => {
     const { definicion, envio, loading, error, guardar, enviar, subirArchivo } = useSubmission();
     const { currentStep, activeTab, visitedTabs, sizeTabs, onActiveTab } = useWizard();
-    const { onMessage, isMobile } = useGlobal();
+    const { onMessage, isMobile, openModal } = useGlobal();
     const { catalogos } = useCatalogos();
     const navigate = useNavigate();
     const [methods, setMethods] = useState(null);
@@ -33,12 +65,20 @@ const FormularioContent = () => {
     }
     if (!definicion) return null;
 
+    const notificarError = (e, titulo) => {
+        const errores = e?.data?.detail?.errores;
+        const mensaje = Array.isArray(errores) && errores.length
+            ? formatearErrores(errores, definicion)
+            : e.message;
+        openModal('error', titulo, mensaje);
+    };
+
     const handleSave = async (values, paso, silent = false) => {
         try {
             await guardar(values, paso ?? currentStep);
             if (!silent) onMessage?.(false, 'Borrador guardado');
         } catch (e) {
-            onMessage?.(true, e.message);
+            notificarError(e, 'No se pudo guardar el borrador');
         }
     };
 
@@ -48,7 +88,7 @@ const FormularioContent = () => {
             onMessage?.(false, 'Enviado');
             navigate('/');
         } catch (e) {
-            onMessage?.(true, e.message);
+            notificarError(e, 'Faltan datos por completar');
         }
     };
 
@@ -56,7 +96,7 @@ const FormularioContent = () => {
         try {
             return await subirArchivo(fieldPath, file);
         } catch (e) {
-            onMessage?.(true, e.message);
+            notificarError(e, 'No se pudo subir el archivo');
             throw e;
         }
     };
