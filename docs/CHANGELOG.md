@@ -8,6 +8,27 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.16.0] - 2026-06-05
+
+### forms: errores de validación legibles por campo y repeaters con `minItems` sembrados
+
+Mejora la experiencia al responder formularios. Antes, un envío inválido devolvía 422 y el frontend mostraba un "HTTP 422" genérico; además los repeaters con `minItems` quedaban vacíos y provocaban ese mismo 422 sin contexto.
+
+#### Corregido
+
+- **`frontend/src/forms/renderer/RepeaterStep.jsx`**: al montar el repeater siembra los `minItems` ítems vacíos cuando vienen menos. Evita repeaters vacíos que rompían el envío con HTTP 422.
+
+#### Agregado
+
+- **`frontend/src/pages/FormPage.jsx`**: `formatearErrores` traduce el arreglo `detail.errores` del backend a líneas legibles por campo (`Paso › Campo: mensaje`, con índice en repeaters) y las muestra en un modal al guardar, enviar o subir archivo. Tope de 12 líneas con resumen "(+N más)".
+- **`frontend/src/services/formulariosServices.js`**: `resolveErrorMessage` arma el mensaje desde `detail.errores` cuando el `detail` no es string, en lugar del genérico "HTTP {status}".
+
+#### Por qué bump minor
+
+- Cambia el comportamiento visible al usuario final (mensajes de error y siembra de repeaters). Compatible hacia atrás.
+
+---
+
 ## [1.15.0] - 2026-06-04
 
 ### forms: subida de archivos por campo confiable y bucket `sieej` homologado
