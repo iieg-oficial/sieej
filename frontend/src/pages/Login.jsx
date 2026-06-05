@@ -53,7 +53,7 @@ export default function Login() {
                         <Input
                             name="username"
                             label="Usuario o correo electrónico"
-                            normalize="lowercase"
+                            normalize="identifier"
                             className="mb-8"
                             methods={methods}
                             filled

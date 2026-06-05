@@ -24,6 +24,10 @@ Cierra el flujo de subida de archivos de los formularios (diccionarios CSV/XLSX/
 - `docs/arquitectura.md`: gateway-hub sirve el `dist` directo via `alias` (no via mariachi-nginx). Bucket canónico `sieej`.
 - `docs/plataforma-formularios.md`: documenta el flujo de subida por campo (`POST /formularios/:slug/envio/upload`) y a dónde va a parar el archivo (Acervo, bucket `sieej`, ruta `{slug}/envio{id}/{uuid}.{ext}`).
 
+#### UX
+
+- **`components/Input.jsx` + `pages/Login.jsx`**: el campo de usuario/correo del login elimina todos los espacios (nueva normalización `identifier`), no solo los de los extremos. Atiende el hallazgo del tester.
+
 #### Por qué bump minor
 
 - El flujo de subida pasa de roto (500 / referencia perdida) a funcional end-to-end; cambio visible para el usuario que sube diccionarios. Compatible hacia atrás.

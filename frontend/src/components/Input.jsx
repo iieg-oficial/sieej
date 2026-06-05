@@ -25,6 +25,7 @@ const Input = ({
             capitalize: (text) => text.charAt(0).toUpperCase() + text.slice(1).toLowerCase(),
             lowercase: (text) => text.toLowerCase(),
             uppercase: (text) => text.toUpperCase(),
+            identifier: (text) => text.replace(/\s/g, '').toLowerCase(),
             number: (text) => text.replace(/\D/g, ''),
             normal: (text) => text
         };
