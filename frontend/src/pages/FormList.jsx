@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import useForms from '@forms/context/useForms';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
+import AccessDenied from '@components/AccessDenied';
 
 const ESTADO_LABEL = {
     no_iniciado: 'Sin iniciar',
@@ -111,7 +112,7 @@ const FormCard = ({ formulario, onClick, view }) => {
 };
 
 const FormList = () => {
-    const { formularios, loading, error } = useForms();
+    const { formularios, loading, error, errorStatus } = useForms();
     const navigate = useNavigate();
     const [view, setView] = useState(() => {
         if (typeof window === 'undefined') return 'grid';
@@ -125,6 +126,8 @@ const FormList = () => {
     }, [view]);
 
     if (loading) return <div className="flex justify-center py-10"><Loading /></div>;
+
+    if (errorStatus === 403) return <AccessDenied />;
 
     if (error) {
         return (

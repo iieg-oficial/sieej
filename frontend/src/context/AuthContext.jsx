@@ -9,7 +9,7 @@ import { normalizeUser } from '@helpers/normalizeUser';
 
 const AuthContext = createContext();
 
-const CSRF_KEY = 'sieej_csrf_token';
+export const CSRF_KEY = 'sieej_csrf_token';
 const MUTATION_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
 const AuthProvider = ({ children }) => {

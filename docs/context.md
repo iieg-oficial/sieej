@@ -1,7 +1,7 @@
 # SIEEJ frontend — Contexto del proyecto
 
-**Version:** 1.15.0
-**Fecha de este documento:** 2026-06-04
+**Version:** 1.17.0
+**Fecha de este documento:** 2026-06-15
 **Repo:** https://github.com/iieg-oficial/sieej
 
 Referencia general del proyecto SIEEJ. Para detalles de arquitectura
@@ -141,6 +141,14 @@ gateway-hub (Nginx :443, TLSv1.2/1.3, HSTS)
 6. 401 → limpiar CSRF + redirect.
 7. `setUser` siempre pasa por `normalizeUser(...)` para garantizar
    `nombre`/`apellido`.
+8. **Cambio de contraseña** (`POST /autenticacion/cambiar-contrasena`):
+   el backend (mariachi) rota la cookie JWT y devuelve un `csrf_token`
+   fresco; sin eso la sesión quedaba inválida (el `iat` anterior a
+   `password_changed_at` daba 401 en `/perfil`). `ChangePassword.jsx`
+   persiste ese token en `CSRF_KEY` (exportado por `AuthContext`).
+9. **Sin acceso al proyecto** (403 al listar formularios): `FormsContext`
+   expone `errorStatus` y `FormList` muestra `components/AccessDenied.jsx`
+   (pantalla amable + cerrar sesión) en lugar del error genérico.
 
 ## Variables de entorno
 

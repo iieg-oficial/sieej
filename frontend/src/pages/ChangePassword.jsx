@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import useGlobal from '@context/useGlobal';
 import useAuth from '@context/useAuth';
+import { CSRF_KEY } from '@context/AuthContext';
 import logoIIEG from '@assets/svg/logo_iieg_login.svg';
 import logoSIEEJ from '@assets/svg/logo_sieej_login.svg';
 import Typography from '@components/Typography';
@@ -143,6 +144,10 @@ const FormStep = ({ user, onBack, onSuccess }) => {
 
             if (!response.ok) {
                 throw new Error(result?.detail || 'No se pudo actualizar la contraseña');
+            }
+
+            if (result?.csrf_token) {
+                sessionStorage.setItem(CSRF_KEY, result.csrf_token);
             }
 
             await onSuccess();
