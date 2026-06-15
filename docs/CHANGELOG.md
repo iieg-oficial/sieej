@@ -8,6 +8,28 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.17.0] - 2026-06-15
+
+### auth: sesión estable tras cambio de contraseña y acceso denegado legible
+
+Cierra el flujo de primer ingreso de usuarios nuevos (con contraseña temporal) y el caso de usuarios autenticados sin acceso al proyecto SIEEJ. Antes, al actualizar la contraseña la sesión quedaba inválida (401 en `/perfil`) y un usuario sin acceso veía un crudo "Error al cargar formularios / HTTP 403".
+
+#### Corregido
+
+- **`frontend/src/pages/ChangePassword.jsx`** + **`frontend/src/context/AuthContext.jsx`**: tras cambiar la contraseña el backend rota la cookie JWT (su `iat` quedaba anterior a `password_changed_at`, invalidando la sesión). El frontend ahora persiste el `csrf_token` fresco que devuelve el endpoint, reutilizando la constante exportada `CSRF_KEY`. El cambio de backend vive en mariachi (`api 1.40.0`).
+
+#### Agregado
+
+- **`frontend/src/components/AccessDenied.jsx`**: pantalla amable para usuarios autenticados sin acceso al proyecto SIEEJ, con botón de cerrar sesión.
+- **`frontend/src/forms/context/FormsContext.jsx`**: expone `errorStatus` además de `error`.
+- **`frontend/src/pages/FormList.jsx`**: ante un 403 al listar formularios muestra `AccessDenied` en lugar del error genérico.
+
+#### Por qué bump minor
+
+- Agrega comportamiento visible nuevo (pantalla de acceso denegado) y estabiliza el flujo de cambio de contraseña. Compatible hacia atrás.
+
+---
+
 ## [1.16.0] - 2026-06-05
 
 ### forms: errores de validación legibles por campo y repeaters con `minItems` sembrados
