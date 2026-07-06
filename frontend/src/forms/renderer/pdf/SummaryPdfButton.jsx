@@ -9,7 +9,7 @@ const SummaryPdfButton = ({ step, definicion, datos, catalogos, onError }) => {
         try {
             if (step?.pdfTemplate === 'sieej-levantamiento') {
                 const { downloadSieejLevantamientoPdf } = await import('./templates/sieej-levantamiento');
-                await downloadSieejLevantamientoPdf(datos);
+                await downloadSieejLevantamientoPdf(datos, definicion.nombre);
             } else {
                 const { downloadGenericPdf } = await import('./genericPdf');
                 await downloadGenericPdf(definicion, datos, catalogos);

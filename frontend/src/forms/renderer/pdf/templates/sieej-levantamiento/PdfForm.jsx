@@ -75,7 +75,7 @@ const Footer = () => (
     </View>
 );
 
-const PdfForm = ({ formData }) => {
+const PdfForm = ({ formData, nombre }) => {
     const general = formData?.informacion_general;
     const enlaces = formData?.informacion_enlaces;
     const basesDatos = formData?.informacion_basesdatos;
@@ -90,7 +90,7 @@ const PdfForm = ({ formData }) => {
             <Page size="A4" style={styles.page}>
                 <Header date={currentDate} />
                 <Text style={styles.h1}>
-                    Registro de enlaces para el Sistema de Información Estratégica del Estado de Jalisco
+                    {nombre || 'Formulario'}
                 </Text>
                 <View style={styles.section}>
                     <Text style={styles.h2}>Información General</Text>

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useForm, FormProvider } from 'react-hook-form';
+import Tabs from '@forms/components/wizard/Tabs';
 import useAuth from '@context/useAuth';
 import useCatalogos from '@forms/context/useCatalogos';
 import { getMiEnvioDetalle } from '@services/formulariosServices';
 import SummaryStep from '@forms/renderer/SummaryStep';
+import SummaryPdfButton from '@forms/renderer/pdf/SummaryPdfButton';
 import EventTimeline from '@forms/components/EventTimeline';
 import EnvioAdjuntos from '@forms/components/EnvioAdjuntos';
 import Loading from '@components/Loading';
@@ -30,77 +32,110 @@ const formatDate = (iso) => {
     });
 };
 
+const MOBILE_TABS = [
+    { id: 'resumen', label: 'Resumen' },
+    { id: 'adjuntos', label: 'Adjuntos' },
+    { id: 'actividad', label: 'Actividad' },
+];
+
 const EnvioDetalleContent = ({ envio }) => {
     const { catalogos } = useCatalogos();
     const navigate = useNavigate();
     const methods = useForm({ defaultValues: envio.datos || {} });
+    const [activeTab, setActiveTab] = useState(0);
+    const backLabel = 'Volver a mis formularios';
 
     const definicion = envio.definicion_snapshot || {};
     const summaryStep = (definicion.steps || []).find((s) => s.type === 'summary') || null;
+    const summaryDefinicion = {
+        steps: definicion.steps || [],
+        nombre: envio.formulario.nombre,
+        descripcion: envio.formulario.descripcion,
+    };
 
     return (
         <FormProvider {...methods}>
-            <div className="flex flex-col xl:flex-row gap-5">
+            <div className="flex flex-col xl:flex-row gap-5 pb-5">
                 <main className="flex-1 min-w-0 rounded-[20px] bg-white px-2 pb-2 md:px-10 md:pb-10 md:pt-10">
-                    <button
-                        type="button"
-                        onClick={() => navigate('/mis-envios')}
-                        className="text-[12px] text-[#7C7C7C] hover:text-[#5C2472] font-garetmedium mb-4 flex items-center gap-1"
-                        aria-label="Volver a mis envíos"
-                    >
-                        ← Volver a mis envíos
-                    </button>
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                        <div className="min-w-0">
-                            <Typography as="h1" titleName={envio.formulario.nombre} />
-                            {envio.formulario.descripcion && (
-                                <Typography
-                                    as="p"
-                                    className="text-[#7C7C7C] font-garetregular mt-1"
-                                    titleName={envio.formulario.descripcion}
-                                />
+                    <div className="sticky top-0 z-10 bg-white pb-4 space-y-4">
+                        <div className="flex items-center justify-between gap-3">
+                            <button
+                                type="button"
+                                onClick={() => navigate('/')}
+                                className="text-[12px] text-[#7C7C7C] hover:text-[#5C2472] font-garetmedium flex items-center gap-1"
+                                aria-label={backLabel}
+                            >
+                                ← <span className="md:hidden">Volver</span>
+                                <span className="hidden md:inline">{backLabel}</span>
+                            </button>
+                            {summaryStep && (
+                                <div className="shrink-0">
+                                    <SummaryPdfButton
+                                        step={summaryStep}
+                                        definicion={summaryDefinicion}
+                                        datos={envio.datos || {}}
+                                        catalogos={catalogos}
+                                    />
+                                </div>
                             )}
                         </div>
-                        <span className={`
-                            shrink-0 text-xs font-garetbold px-3 py-1 rounded-full
-                            ${ESTADO_COLOR[envio.estado] || 'bg-neutral-100 text-neutral-700'}
-                        `}>
-                            {ESTADO_LABEL[envio.estado] || envio.estado}
-                        </span>
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                                <Typography as="h1" titleName={envio.formulario.nombre} />
+                                {envio.formulario.descripcion && (
+                                    <Typography
+                                        as="p"
+                                        className="text-[#7C7C7C] font-garetregular mt-1"
+                                        titleName={envio.formulario.descripcion}
+                                    />
+                                )}
+                            </div>
+                            <span className={`
+                                shrink-0 text-xs font-garetbold px-3 py-1 rounded-full
+                                ${ESTADO_COLOR[envio.estado] || 'bg-neutral-100 text-neutral-700'}
+                            `}>
+                                {ESTADO_LABEL[envio.estado] || envio.estado}
+                            </span>
+                        </div>
+                        <div className="xl:hidden">
+                            <Tabs
+                                show
+                                numbered={false}
+                                items={MOBILE_TABS}
+                                activeTab={activeTab}
+                                onTabClick={setActiveTab}
+                            />
+                        </div>
                     </div>
-                    <div className="rounded-[16px] bg-[#F8F8F8] px-4 py-3 mb-6 border-l-4 border-[#5C2473]">
-                        <Typography
-                            as="p"
-                            className="text-[12px] text-[#465055]"
-                            titleName="Vista de revisión: este formulario es solo de lectura. Refleja la estructura del formulario al momento del envío, aunque el formulario haya cambiado después."
+                    <div className={`${activeTab === 0 ? 'block' : 'hidden'} xl:block`}>
+                        <SummaryStep
+                            definicion={summaryDefinicion}
+                            methods={methods}
+                            catalogos={catalogos}
+                            summaryStep={summaryStep}
+                            showPdfButton={false}
                         />
                     </div>
-                    <SummaryStep
-                        definicion={{
-                            steps: definicion.steps || [],
-                            nombre: envio.formulario.nombre,
-                            descripcion: envio.formulario.descripcion,
-                        }}
-                        methods={methods}
-                        catalogos={catalogos}
-                        summaryStep={summaryStep}
-                    />
                 </main>
-                <aside className="xl:w-[360px] xl:shrink-0 flex flex-col gap-5">
-                    <section className="rounded-[20px] bg-white p-6">
-                        <Typography as="h3" titleName="Línea de tiempo" />
-                        <p className="text-[11px] text-[#7C7C7C] font-garetregular mb-3">
-                            Iniciado el {formatDate(envio.iniciado_en)}
-                            {envio.enviado_en && ` · Enviado el ${formatDate(envio.enviado_en)}`}
-                        </p>
-                        <EventTimeline eventos={envio.eventos || []} />
-                    </section>
-                    <section className="rounded-[20px] bg-white p-6">
-                        <Typography as="h3" titleName="Archivos adjuntos" />
-                        <div className="mt-3">
-                            <EnvioAdjuntos archivos={envio.archivos || []} />
-                        </div>
-                    </section>
+                <aside className={`xl:w-[360px] xl:shrink-0 ${activeTab === 0 ? 'hidden xl:block' : ''}`}>
+                    <div className="flex flex-col gap-5 xl:sticky xl:top-0 xl:max-h-[calc(100dvh-160px)]">
+                        <section className={`${activeTab === 1 ? 'block' : 'hidden'} xl:block rounded-[20px] bg-white p-6 shrink-0`}>
+                            <Typography as="h3" titleName="Archivos adjuntos" />
+                            <div className="mt-3">
+                                <EnvioAdjuntos archivos={envio.archivos || []} />
+                            </div>
+                        </section>
+                        <section className={`${activeTab === 2 ? 'flex' : 'hidden'} xl:flex rounded-[20px] bg-white p-6 flex-col xl:min-h-0`}>
+                            <Typography as="h3" titleName="Línea de tiempo" />
+                            <p className="text-[11px] text-[#7C7C7C] font-garetregular mb-3">
+                                Iniciado el {formatDate(envio.iniciado_en)}
+                                {envio.enviado_en && ` · Enviado el ${formatDate(envio.enviado_en)}`}
+                            </p>
+                            <div className="xl:flex-1 xl:min-h-0 xl:overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                <EventTimeline eventos={envio.eventos || []} />
+                            </div>
+                        </section>
+                    </div>
                 </aside>
             </div>
         </FormProvider>
@@ -140,8 +175,8 @@ const EnvioDetalle = () => {
             <div className="w-full rounded-[20px] bg-white p-7 text-center space-y-4">
                 <Typography as="h2" titleName="No pudimos cargar este envío" />
                 <Typography as="p" titleName={error} />
-                <Button label="Volver a mis envíos" variant="primary"
-                    onClick={() => navigate('/mis-envios')} center />
+                <Button label="Volver a mis formularios" variant="primary"
+                    onClick={() => navigate('/')} center />
             </div>
         );
     }

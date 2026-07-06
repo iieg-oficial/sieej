@@ -5,7 +5,7 @@ import Button from '@components/Button';
 const Tabs = ({
     show, vertical, className, items = [],
     activeTab, visitedTabs, onTabClick, onTabRemove,
-    isMobile = false,
+    isMobile = false, numbered = true,
 }) => {
     if (!show) return null;
 
@@ -19,6 +19,7 @@ const Tabs = ({
                 const isActive = activeTab === index;
                 const allowRemove = vertical && isActive && typeof onTabRemove === 'function';
                 const tabId = item.id ?? item._id ?? `tab-${index}`;
+                const itemLabel = item.label || item.nombre_bd || item.nombre || `Item ${index + 1}`;
                 return (
                     <Button
                         key={tabId}
@@ -26,7 +27,7 @@ const Tabs = ({
                         aria-selected={isActive}
                         tabIndex={isActive ? 0 : -1}
                         variant="label"
-                        label={isMobile ? index + 1 : `${index + 1}.  ${item.label || item.nombre_bd || item.nombre || `Item ${index + 1}`}`}
+                        label={!numbered ? itemLabel : isMobile ? index + 1 : `${index + 1}.  ${itemLabel}`}
                         sufIcon={allowRemove ? icoX : null}
                         sufIconButton={allowRemove}
                         onSufClick={allowRemove ? () => onTabRemove(item, index) : undefined}

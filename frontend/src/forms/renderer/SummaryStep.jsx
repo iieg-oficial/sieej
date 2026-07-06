@@ -87,7 +87,7 @@ const renderRepeaterStep = (step, datos, catalogos) => {
     );
 };
 
-const SummaryStep = ({ definicion, methods, catalogos, summaryStep }) => {
+const SummaryStep = ({ definicion, methods, catalogos, summaryStep, showPdfButton = true }) => {
     const datos = useWatch({ control: methods.control }) || {};
     const realSteps = (definicion.steps || []).filter((s) => s.type !== 'summary');
     const isMobile = false;
@@ -107,7 +107,7 @@ const SummaryStep = ({ definicion, methods, catalogos, summaryStep }) => {
                 </React.Fragment>
             ))}
 
-            {summaryStep && (summaryStep.exportPdf || summaryStep.pdfTemplate) && (
+            {showPdfButton && summaryStep && (summaryStep.exportPdf || summaryStep.pdfTemplate) && (
                 <div className="w-full mt-8 flex justify-end">
                     <SummaryPdfButton
                         step={summaryStep}

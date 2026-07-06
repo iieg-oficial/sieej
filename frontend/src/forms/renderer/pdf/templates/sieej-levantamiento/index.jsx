@@ -36,13 +36,13 @@ const adaptDatosToFormData = (datos) => ({
         : datos.bases_datos,
 });
 
-export const downloadSieejLevantamientoPdf = async (datos, filename = 'Registro de enlaces SIEEJ.pdf') => {
+export const downloadSieejLevantamientoPdf = async (datos, nombre, filename) => {
     const formData = adaptDatosToFormData(datos);
-    const blob = await pdf(<PdfForm formData={formData} />).toBlob();
+    const blob = await pdf(<PdfForm formData={formData} nombre={nombre} />).toBlob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = filename;
+    a.download = filename || `${nombre || 'formulario'}.pdf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
