@@ -9,6 +9,12 @@ const COLOR_TEXT = {
     default: 'text-[#7C7C7C]',
 };
 
+const CIRCLE_STYLE = {
+    Completada: 'bg-[#EAF6ED] text-[#34A853]',
+    'En proceso': 'bg-[#5C2473] text-white border border-[#5C2473] inset-ring-4 ring-white',
+    'No iniciada': 'bg-[#F0E2F5] text-[#5C2472]',
+};
+
 const ConectionPoints = ({ size = '10' }) => (
     <div className={`w-[2px] h-${size} bg-[#E2E2E2] mt-1`}></div>
 );
@@ -39,10 +45,7 @@ const StepIndicator = ({
                                     className={`
                                         flex items-center justify-center w-8 h-8 rounded-full
                                         text-sm font-garetbold
-                                        ${index === currentStep ?
-                        'bg-[#5C2473] text-white border border-[#5C2473] inset-ring-4 ring-white' :
-                        'bg-[#F0E2F5] text-[#5C2472]'
-                    }
+                                        ${CIRCLE_STYLE[status] || CIRCLE_STYLE['No iniciada']}
                                     `}
                                 >
                                     {status === 'Completada'

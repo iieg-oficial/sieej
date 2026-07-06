@@ -12,6 +12,7 @@ import Button from '@components/Button';
 import Modal from '@components/Modal';
 import useGlobal from '@context/useGlobal';
 import useCatalogos from '@forms/context/useCatalogos';
+import { buildRepeaterItems } from '@forms/renderer/repeaterItems';
 
 const construirMapaLabels = (definicion) => {
     const mapa = {};
@@ -105,11 +106,7 @@ const FormularioContent = () => {
     const showSidePanel = steps.length > 1;
     const currentStepData = steps[currentStep];
     const repeaterItems = currentStepData?.type === 'repeater' && methods
-        ? (methods.watch(currentStepData.id) || []).map((item, idx) => ({
-            id: `${currentStepData.id}-${idx}`,
-            label: item?.nombre_bd || item?.nombres || item?.nombre || `Item ${idx + 1}`,
-            ...item,
-        }))
+        ? buildRepeaterItems(currentStepData, methods.watch(currentStepData.id))
         : [];
 
     const handleTabRemove = (_item, idx) => {

@@ -4,6 +4,8 @@ import Typography from '@components/Typography';
 import StepRenderer from './StepRenderer';
 import NavigateStep from '@forms/components/wizard/NavigateStep';
 import useWizard from '@forms/context/useWizard';
+import useGlobal from '@context/useGlobal';
+import { requisitosPendientes, stepIncompleto } from './completeness';
 
 const FormRenderer = ({
     definicion, envio, catalogos,
@@ -14,8 +16,9 @@ const FormRenderer = ({
         defaultValues: envio?.datos ?? {},
         mode: 'onBlur',
     });
-    const { handleSubmit, reset, getValues } = methods;
+    const { handleSubmit, reset, getValues, formState: { isDirty } } = methods;
     const { currentStep, goNext, goPrev, activeTab } = useWizard();
+    const { openModal, closeModal } = useGlobal();
 
     useEffect(() => {
         if (envio?.datos) reset(envio.datos);
@@ -31,18 +34,46 @@ const FormRenderer = ({
     const isLast = currentStep >= steps.length - 1;
     const isReadOnly = envio?.estado === 'enviado' || envio?.estado === 'expirado';
 
+    const pendienteMsg = !isReadOnly && step
+        ? requisitosPendientes(step, { [step.id]: methods.watch(step.id) })
+        : null;
+
     const handleSave = async (silent = false) => {
         const values = getValues();
         await onSave?.(values, currentStep, silent);
     };
 
-    const handleNext = handleSubmit(async (values) => {
+    const avanzar = async (values) => {
         await onSave?.(values, currentStep, true);
         if (isLast) {
             await onSubmit?.(values);
         } else {
             goNext();
         }
+    };
+
+    const handleNext = handleSubmit(async (values) => {
+        const notice = step?.incompleteNotice;
+        if (notice && !isReadOnly && stepIncompleto(step, values)) {
+            openModal(
+                'warn',
+                notice.title || 'Sección incompleta',
+                notice.message || 'Aún hay campos sin llenar en esta sección. Puedes continuar de todos modos.',
+                [
+                    { label: 'Revisar', variant: 'secondary', onClick: closeModal },
+                    {
+                        label: isLast ? 'Enviar de todos modos' : 'Continuar de todos modos',
+                        variant: 'primary',
+                        onClick: () => {
+                            closeModal();
+                            avanzar(values);
+                        },
+                    },
+                ],
+            );
+            return;
+        }
+        await avanzar(values);
     });
 
     const isLastTab = (() => {
@@ -63,6 +94,9 @@ const FormRenderer = ({
                 isLast={isLast}
                 isLastTab={isLastTab}
                 isMobile={isMobile}
+                nextDisabled={!!pendienteMsg}
+                nextTooltip={pendienteMsg}
+                saveDisabled={isReadOnly || !isDirty}
                 onPrev={goPrev}
                 onSubmit={handleNext}
                 onSave={isReadOnly ? null : handleSave}

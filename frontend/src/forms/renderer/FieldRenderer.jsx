@@ -15,7 +15,7 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload }) => {
 
     if (type === 'info') {
         return (
-            <div className={`col-span-${colSpan}`}>
+            <div className={layout?.colSpan ? `col-span-${layout.colSpan}` : 'col-span-full'}>
                 <Typography variant="body">{label}</Typography>
             </div>
         );

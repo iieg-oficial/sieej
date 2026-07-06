@@ -7,6 +7,7 @@ import Button from '@components/Button';
 
 const NavigateStep = ({
     step, isFirst, isLast, isLastTab, isMobile = false,
+    nextDisabled = false, nextTooltip = null, saveDisabled = false,
     onPrev, onSubmit, onSave,
 }) => {
     return (
@@ -33,13 +34,16 @@ const NavigateStep = ({
                     label={isLast ? 'Confirmar y enviar' : (isLastTab ? 'Siguiente sección' : 'Siguiente')}
                     variant="primary"
                     onClick={onSubmit}
+                    disabled={nextDisabled}
+                    tooltip={nextDisabled ? nextTooltip : null}
                     sufIcon={rigthIcon}
                     center
                 />
                 <Button
                     variant="primary"
                     onClick={onSave}
-                    tooltip="Guardar avance"
+                    disabled={saveDisabled}
+                    tooltip={saveDisabled ? 'Sin cambios por guardar' : 'Guardar avance'}
                     iconButton={saveIcon}
                     colSpan={isLast ? 0 : undefined}
                     center

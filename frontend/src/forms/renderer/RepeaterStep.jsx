@@ -1,19 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import Button from '@components/Button';
 import Typography from '@components/Typography';
+import Tabs from '@forms/components/wizard/Tabs';
+import useWizard from '@forms/context/useWizard';
+import useGlobal from '@context/useGlobal';
 import FieldRenderer from './FieldRenderer';
 import { evaluarShowWhen } from './conditional';
-import useWizard from '@forms/context/useWizard';
-
-const renderItemLabel = (template, index) => {
-    if (!template) return `Item ${index + 1}`;
-    return template.replace('{{index}}', String(index + 1));
-};
+import { buildRepeaterItems, renderItemLabel } from './repeaterItems';
 
 const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
     const { fields, append, remove } = useFieldArray({ control: methods.control, name: step.id });
-    const { activeTab, onActiveTab, onSizeTab } = useWizard();
+    const { activeTab, visitedTabs, onActiveTab, onSizeTab } = useWizard();
+    const { isMobile } = useGlobal();
 
     const minItems = step.minItems ?? 0;
     const maxItems = step.maxItems ?? null;
@@ -30,16 +29,6 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
         }
     }, [fields.length, activeTab, onActiveTab]);
 
-    const seeded = useRef(false);
-    useEffect(() => {
-        if (seeded.current) return;
-        if (fields.length < minItems) {
-            seeded.current = true;
-            for (let i = fields.length; i < minItems; i += 1) append({});
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fields.length, minItems]);
-
     const handleAdd = () => {
         append({});
         onActiveTab?.(fields.length);
@@ -52,23 +41,27 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
     };
 
     if (fields.length === 0) {
+        const minMsg = minItems > 0
+            ? ` Para poder enviar el formulario se requiere al menos ${minItems}.`
+            : '';
         return (
-            <div className="space-y-6 py-8">
-                <Typography as="h3" titleName="Aún no hay elementos" />
-                <Typography as="p" titleName={`Agrega el primer elemento para comenzar (mínimo ${minItems}).`} />
-                <Button
-                    label="Agregar"
-                    variant="primary"
-                    onClick={handleAdd}
-                    disabled={maxItems !== null && fields.length >= maxItems}
-                    center
-                />
+            <div className="max-w-xl mx-auto text-center space-y-4 py-10">
+                <Typography as="h2" titleName="Aún no hay elementos en esta sección" />
+                <Typography as="p" titleName={`Esta sección se captura por elementos y puedes agregar los que necesites.${minMsg}`} />
+                <div className="flex justify-center pt-2">
+                    <Button
+                        label="Agregar el primero"
+                        variant="primary"
+                        onClick={handleAdd}
+                    />
+                </div>
             </div>
         );
     }
 
     const currentIndex = Math.max(0, Math.min(activeTab, fields.length - 1));
     const itemValues = methods.watch(`${step.id}.${currentIndex}`) || {};
+    const items = buildRepeaterItems(step, methods.watch(step.id) || []);
 
     const visibleFields = step.fields.filter((field) => {
         if (!evaluarShowWhen(field.showWhen, itemValues)) return false;
@@ -78,6 +71,16 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
 
     return (
         <div className="space-y-6">
+            <Tabs
+                show
+                items={items}
+                activeTab={currentIndex}
+                visitedTabs={visitedTabs}
+                onTabClick={onActiveTab}
+                isMobile={isMobile}
+                className="border-b border-neutral-200 pb-2"
+            />
+
             <div className="flex items-center justify-between">
                 <Typography
                     as="h3"
@@ -92,14 +95,12 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
                             center
                         />
                     )}
-                    {fields.length > minItems && (
-                        <Button
-                            label="Eliminar"
-                            variant="link"
-                            onClick={() => handleRemove(currentIndex)}
-                            center
-                        />
-                    )}
+                    <Button
+                        label="Eliminar"
+                        variant="link"
+                        onClick={() => handleRemove(currentIndex)}
+                        center
+                    />
                 </div>
             </div>
 

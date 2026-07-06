@@ -97,6 +97,7 @@ const Button = ({
                     style={{
                         ...(isLabel && { width: 'auto', padding: '4px 16px', borderRadius: '0.5rem', height: '30px' }),
                         ...(iconButton && { width: '40px', height: '40px', padding: 9, borderRadius: !isMobile && '50%', flexShrink: 0}),
+                        ...(disabled && tooltip && { pointerEvents: 'none' }),
                     }}
                     aria-busy={loading}
                     aria-label={label || 'button'}
