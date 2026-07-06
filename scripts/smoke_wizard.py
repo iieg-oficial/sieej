@@ -13,7 +13,7 @@ Recorre los cinco pasos del wizard como un usuario rol externo:
 Requiere:
 
 - mariachi-api corriendo en BASE_URL.
-- Postgres iieg_portal con schema sieej seedeado.
+- Postgres mariachi con schema sieej seedeado.
 - Un usuario rol externo con UserProject sieej. Se puede crear con:
     POST /api/administrador/usuarios/agregar-dependencia-sieej
   desde una sesion admin (ver mariachi/admin -> Sieej -> Agregar dependencia).

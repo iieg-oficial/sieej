@@ -20,7 +20,7 @@ graph TD
     subgraph "mariachi (otro repo)"
         MN[mariachi-nginx :80]
         MA[mariachi-api :8000]
-        PG[(PostgreSQL iieg_portal)]
+        PG[(PostgreSQL mariachi)]
         RD[(Redis)]
     end
 
@@ -55,7 +55,7 @@ graph TD
 4. SPA (React) hace `fetch('/api/administrador/formularios/catalogos')`:
    Browser → gateway → `location /api/` → upstream `portal` (= mariachi-nginx)
    → `location /api/` → mariachi-api FastAPI.
-5. mariachi-api valida cookie HttpOnly + CSRF, ejecuta query en `iieg_portal.sieej.*`, responde.
+5. mariachi-api valida cookie HttpOnly + CSRF, ejecuta query en `mariachi.sieej.*`, responde.
 6. Subida de diccionario: `POST /api/administrador/formularios/bases-datos/{id}/diccionario`
    → mariachi-api → `AcervoClient.upload_file()` → Acervo bucket `sieej` (SeaweedFS S3).
 

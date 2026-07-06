@@ -4,12 +4,12 @@ Frontend del **Sistema de Información Estadística del Estado de Jalisco** —
 plataforma de captura para que dependencias e instituciones de gobierno
 entreguen información estructurada al IIEG.
 
-**Version:** 1.9.0
+**Version:** 1.18.0
 **Repo:** [iieg-oficial/sieej](https://github.com/iieg-oficial/sieej)
 
 > **Backend**: este repositorio **solo** contiene el frontend. La API la
 > sirve `mariachi/api` bajo `/api/administrador/formularios/*` (modulo
-> SIEEJ con schema dedicado `sieej` en `iieg_portal`).
+> SIEEJ con schema dedicado `sieej` en `mariachi`).
 >
 > **Despliegue**: el `dist/` generado se sirve directamente desde
 > `gateway-hub` en `/sieej/` (bind mount al volumen del nginx, igual

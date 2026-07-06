@@ -1,7 +1,7 @@
 # SIEEJ frontend — Contexto del proyecto
 
-**Version:** 1.17.0
-**Fecha de este documento:** 2026-06-15
+**Version:** 1.18.0
+**Fecha de este documento:** 2026-07-06
 **Repo:** https://github.com/iieg-oficial/sieej
 
 Referencia general del proyecto SIEEJ. Para detalles de arquitectura
@@ -27,14 +27,14 @@ viven en `mariachi`.
 
 - **Eliminacion del backend propio.** El backend FastAPI/SQLModel que
   vivia en `SIEEJ/backend/` se absorbio dentro de `mariachi/api` como
-  modulo `formularios`. Razones: una sola DB (`iieg_portal`), Alembic
-  desde el dia 1, integracion nativa con Acervo (MinIO), borradores ya
+  modulo `formularios`. Razones: una sola DB (`mariachi`), Alembic
+  desde el dia 1, integracion nativa con Acervo (SeaweedFS), borradores ya
   implementados, RBAC multi-proyecto, rate-limit y Sentry. El stub
   `formularios.py` que mariachi tenia con 501 se reemplazo por
   implementacion completa.
 - **Schema dedicado `sieej`.** Las 12 tablas (8 catalogos + general +
   enlace + bases_datos + bd_ejes_estrategicos) viven en
-  `iieg_portal.sieej.*`. Aislado de `public` para facilitar
+  `mariachi.sieej.*`. Aislado de `public` para facilitar
   mantenimiento y eventual migracion.
 - **Postgres y Redis externos a SIEEJ.** Provistos por mariachi. SIEEJ
   no levanta servicios de datos.
@@ -72,6 +72,23 @@ viven en `mariachi`.
   ruta `{slug}/envio{id}/{uuid}.{ext}` para escalar a multiples encuestas.
   El valor del campo guarda la respuesta del backend (`url_publica`,
   `filename_original`), no el `File` local.
+- **Formularios enviados abren el resumen read-only.** Cuando el
+  `estado_envio === 'enviado'`, al hacer clic en una tarjeta del listado
+  el frontend navega a `/mis-envios/{envio_id}` (resumen de solo lectura
+  con header sticky, tabs moviles y boton PDF) en lugar de abrir el
+  wizard de captura. La navegacion depende del campo `envio_id` que
+  devuelve `GET /formularios/` desde mariachi api >= 1.48.0.
+- **Pantalla "Mis envios" eliminada.** La ruta `/mis-envios` (listado
+  paginado de envios) se elimino por redundante con "Mis formularios",
+  que ya muestra el estado de cada formulario. Solo se conserva el
+  detalle individual `/mis-envios/:id`. Si en el futuro el levantamiento
+  se vuelve periodico y admite multi-envio por formulario, se reevalua
+  reintroducir una vista de historial.
+- **Busqueda search-reveal en Mis formularios.** Un icono de lupa junto
+  al ViewToggle expande un input de busqueda con autofocus. Filtrado
+  client-side por nombre, descripcion y slug. Al colapsar (Esc, blur sin
+  texto) se limpia el estado y se restaura la lista completa. Estado
+  vacio especifico: "Sin resultados para «q»".
 
 ## Arquitectura
 
