@@ -1,6 +1,6 @@
 # SIEEJ frontend — Contexto del proyecto
 
-**Version:** 1.18.0
+**Version:** 1.19.0
 **Fecha de este documento:** 2026-07-06
 **Repo:** https://github.com/iieg-oficial/sieej
 
@@ -84,11 +84,24 @@ viven en `mariachi`.
   detalle individual `/mis-envios/:id`. Si en el futuro el levantamiento
   se vuelve periodico y admite multi-envio por formulario, se reevalua
   reintroducir una vista de historial.
-- **Busqueda search-reveal en Mis formularios.** Un icono de lupa junto
-  al ViewToggle expande un input de busqueda con autofocus. Filtrado
-  client-side por nombre, descripcion y slug. Al colapsar (Esc, blur sin
-  texto) se limpia el estado y se restaura la lista completa. Estado
-  vacio especifico: "Sin resultados para «q»".
+- **Busqueda siempre visible en Mis formularios.** Un input de busqueda
+  con icono de lupa junto al titulo, siempre desplegado y ocupando el
+  ancho disponible. Filtrado client-side por nombre, descripcion y slug.
+  Sin toggle grid/lista: solo vista en tarjetas (grid), columnas
+  adaptativas (1/2/3). En mobile los controles de busqueda ocupan toda la
+  fila debajo del titulo.
+- **Acciones directas en formularios enviados.** Las tarjetas de
+  formularios con `estado_envio === 'enviado'` muestran un footer con la
+  etiqueta de estado y dos botones de accion: descarga de PDF (fetch del
+  detalle del envio + generacion client-side via `@react-pdf/renderer`) y
+  solicitud de reapertura via Colibri (panel pre-llenado con `envioId` y
+  nombre del formulario, tipo `solicitud`). El polyfill de `Buffer`
+  (`buffer/` + `global: 'globalThis'` en vite.config.js) permite que la
+  generacion de PDF funcione desde cualquier ruta.
+- **PDF usa el nombre del formulario.** El titulo del documento y el
+  nombre de archivo del PDF usan `definicion.nombre` en lugar del titulo
+  generico legacy ("Registro de enlaces para el Sistema de Informacion
+  Estrategica del Estado de Jalisco").
 
 ## Arquitectura
 
