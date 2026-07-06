@@ -3,7 +3,7 @@
     "description": "Interfaz web para SIEEJ del Instituto de Informacion Estadistica y Geografica.",
     "license": "MIT",
     "author": "Edgar Alejandro Villarreal Padilla <edgar.villarreal@iieg.gob.mx>",
-    "version": "1.17.0",
+    "version": "1.19.0",
     "private": true,
     "type": "module",
     "scripts": {
@@ -17,6 +17,7 @@
     "dependencies": {
         "@react-pdf/renderer": "^4.3.0",
         "@sentry/react": "^10.49.0",
+        "buffer": "^6.0.3",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-hook-form": "^7.54.2",

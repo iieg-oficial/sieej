@@ -19,7 +19,8 @@ export default defineConfig(({ mode }) => {
     return {
         base: BASE_PATH,
         define: {
-            __APP_VERSION__: JSON.stringify(pkg.version)
+            __APP_VERSION__: JSON.stringify(pkg.version),
+            global: 'globalThis',
         },
         plugins: [react(), tailwindcss()],
         test: {
@@ -78,6 +79,7 @@ export default defineConfig(({ mode }) => {
                 '@png': resolve(__dirname, './src/assets/png'),
                 '@svg': resolve(__dirname, './src/assets/svg'),
                 '@fonts': resolve(__dirname, './src/assets/fonts'),
+                buffer: 'buffer/',
             },
         },
     };
