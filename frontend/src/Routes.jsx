@@ -11,7 +11,6 @@ const ChangePassword = lazy(() => import('./pages/ChangePassword'));
 const ErrorPage = lazy(() => import('./pages/ErrorPage'));
 const FormList = lazy(() => import('./pages/FormList'));
 const FormPage = lazy(() => import('./pages/FormPage'));
-const MisEnvios = lazy(() => import('./pages/MisEnvios'));
 const EnvioDetalle = lazy(() => import('./pages/EnvioDetalle'));
 
 const ProtectedRoute = () => {
@@ -48,7 +47,6 @@ const Routes = () => (
             <Route path="cambiar-contrasena" element={<ChangePasswordRoute />} />
             <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<FormList />} />
-                <Route path="mis-envios" element={<MisEnvios />} />
                 <Route path="mis-envios/:id" element={<EnvioDetalle />} />
                 <Route path=":slug" element={<FormPage />} />
             </Route>
