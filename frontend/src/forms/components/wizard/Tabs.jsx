@@ -17,7 +17,7 @@ const Tabs = ({
         >
             {items.map((item, index) => {
                 const isActive = activeTab === index;
-                const allowRemove = vertical && isActive && typeof onTabRemove === 'function';
+                const allowRemove = isActive && typeof onTabRemove === 'function';
                 const tabId = item.id ?? item._id ?? `tab-${index}`;
                 const itemLabel = item.label || item.nombre_bd || item.nombre || `Item ${index + 1}`;
                 return (

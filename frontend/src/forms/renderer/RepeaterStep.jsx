@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import Button from '@components/Button';
+import Tooltip from '@components/Tooltip';
 import Typography from '@components/Typography';
 import Tabs from '@forms/components/wizard/Tabs';
 import useWizard from '@forms/context/useWizard';
 import useGlobal from '@context/useGlobal';
 import FieldRenderer from './FieldRenderer';
 import { evaluarShowWhen } from './conditional';
-import { buildRepeaterItems, renderItemLabel } from './repeaterItems';
+import { buildRepeaterItems } from './repeaterItems';
 
 const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
     const { fields, append, remove } = useFieldArray({ control: methods.control, name: step.id });
@@ -70,38 +71,35 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
     });
 
     return (
-        <div className="space-y-6">
-            <Tabs
-                show
-                items={items}
-                activeTab={currentIndex}
-                visitedTabs={visitedTabs}
-                onTabClick={onActiveTab}
-                isMobile={isMobile}
-                className="border-b border-neutral-200 pb-2"
-            />
-
-            <div className="flex items-center justify-between">
-                <Typography
-                    as="h3"
-                    titleName={renderItemLabel(step.itemLabel, currentIndex)}
-                />
-                <div className="flex space-x-2">
-                    {(maxItems === null || fields.length < maxItems) && (
-                        <Button
-                            label="Agregar"
-                            variant="secondary"
-                            onClick={handleAdd}
-                            center
-                        />
-                    )}
-                    <Button
-                        label="Eliminar"
-                        variant="link"
-                        onClick={() => handleRemove(currentIndex)}
-                        center
+        <div className="space-y-4">
+            <div className="flex items-start gap-2">
+                <div className="flex-1 min-w-0">
+                    <Tabs
+                        show
+                        items={items}
+                        activeTab={currentIndex}
+                        visitedTabs={visitedTabs}
+                        onTabClick={onActiveTab}
+                        onTabRemove={(_item, idx) => handleRemove(idx)}
+                        isMobile={isMobile}
                     />
                 </div>
+                {(maxItems === null || fields.length < maxItems) && (
+                    <Tooltip text="Agregar" showIcon={false} size="small">
+                        <button
+                            type="button"
+                            onClick={handleAdd}
+                            aria-label="Agregar"
+                            className="
+                                flex items-center justify-center flex-shrink-0 w-[30px] h-[30px] rounded-full
+                                bg-[#F8F8F8] border border-[#5C2472] text-[#5C2472] text-lg leading-none font-garetbold
+                                hover:bg-white hover:shadow-[0px_8px_16px_#6E6E6E29]
+                            "
+                        >
+                            +
+                        </button>
+                    </Tooltip>
+                )}
             </div>
 
             {tabs && (
