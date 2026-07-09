@@ -57,7 +57,7 @@ const formatearErrores = (errores, definicion) => {
 
 const FormularioContent = () => {
     const { definicion, envio, loading, error, guardar, enviar, subirArchivo } = useSubmission();
-    const { currentStep, activeTab, visitedTabs, sizeTabs, onActiveTab } = useWizard();
+    const { currentStep, visited, goTo, activeTab, visitedTabs, sizeTabs, onActiveTab } = useWizard();
     const { onMessage, isMobile, openModal } = useGlobal();
     const { catalogos } = useCatalogos();
     const navigate = useNavigate();
@@ -118,6 +118,12 @@ const FormularioContent = () => {
         ? buildRepeaterItems(currentStepData, methods.watch(currentStepData.id))
         : [];
 
+    const handleStepClick = (idx) => {
+        if (idx === currentStep || !visited?.has(idx)) return;
+        if (methods) handleSave(methods.getValues(), currentStep, true);
+        goTo(idx);
+    };
+
     const handleTabRemove = (_item, idx) => {
         if (!methods) return;
         const list = methods.getValues(currentStepData.id) || [];
@@ -147,6 +153,8 @@ const FormularioContent = () => {
                             <StepIndicator
                                 steps={steps}
                                 currentStep={currentStep}
+                                visited={visited}
+                                onStepClick={handleStepClick}
                                 repeaterItems={repeaterItems}
                                 activeTab={activeTab}
                                 visitedTabs={visitedTabs}

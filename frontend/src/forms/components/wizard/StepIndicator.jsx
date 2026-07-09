@@ -15,10 +15,6 @@ const CIRCLE_STYLE = {
     'No iniciada': 'bg-[#F0E2F5] text-[#5C2472]',
 };
 
-const ConectionPoints = ({ size = '10' }) => (
-    <div className={`w-[2px] h-${size} bg-[#E2E2E2] mt-1`}></div>
-);
-
 const computeStatus = (idx, currentStep) => {
     if (idx < currentStep) return 'Completada';
     if (idx === currentStep) return 'En proceso';
@@ -26,56 +22,75 @@ const computeStatus = (idx, currentStep) => {
 };
 
 const StepIndicator = ({
-    steps, currentStep,
-    repeaterItems, activeTab, visitedTabs, sizeTabs,
+    steps, currentStep, visited, onStepClick,
+    repeaterItems, activeTab, visitedTabs,
     onTabClick, onTabRemove,
 }) => {
     const isShowTabs = (index) =>
         index === currentStep && Array.isArray(repeaterItems) && repeaterItems.length > 0;
 
     return (
-        <div className="flex flex-col mt-4 space-y-1">
+        <div className="flex flex-col mt-4">
             {steps.map((step, index) => {
                 const status = computeStatus(index, currentStep);
+                const isClickable = typeof onStepClick === 'function'
+                    && index !== currentStep
+                    && !!visited?.has(index);
+                const isLastStep = index === steps.length - 1;
+                const showTabs = isShowTabs(index);
+                const hasBody = !isLastStep || showTabs;
                 return (
-                    <React.Fragment key={step.id || index}>
-                        <div className="flex items-start space-x-4">
-                            <div className="flex flex-col items-center">
-                                <div
-                                    className={`
-                                        flex items-center justify-center w-8 h-8 rounded-full
-                                        text-sm font-garetbold
-                                        ${CIRCLE_STYLE[status] || CIRCLE_STYLE['No iniciada']}
-                                    `}
-                                >
-                                    {status === 'Completada'
-                                        ? <span aria-label="Completada">&#10004;</span>
-                                        : index + 1}
-                                </div>
-                                {index < steps.length - 1 && <ConectionPoints />}
+                    <div key={step.id || index} className="flex flex-col">
+                        <div
+                            className={`flex items-center space-x-4 rounded-lg ${isClickable ? 'cursor-pointer' : ''}`}
+                            role={isClickable ? 'button' : undefined}
+                            tabIndex={isClickable ? 0 : undefined}
+                            onClick={isClickable ? () => onStepClick(index) : undefined}
+                            onKeyDown={isClickable
+                                ? (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onStepClick(index))
+                                : undefined}
+                        >
+                            <div
+                                className={`
+                                    flex items-center justify-center w-8 h-8 rounded-full shrink-0
+                                    text-sm font-garetbold
+                                    ${CIRCLE_STYLE[status] || CIRCLE_STYLE['No iniciada']}
+                                `}
+                            >
+                                {status === 'Completada'
+                                    ? <span aria-label="Completada">&#10004;</span>
+                                    : index + 1}
                             </div>
-                            <div>
-                                <Typography as="p" titleName={step.title} />
+                            <div className="flex-1 min-w-0">
+                                <Typography as="p" titleName={step.title} className="break-words" />
                                 <p className={`text-xs font-garetbold ${COLOR_TEXT[status] || COLOR_TEXT.default}`}>
                                     {status}
                                 </p>
                             </div>
                         </div>
-                        {isShowTabs(index) && (
-                            <div className="flex ml-[15px] -mt-[8px] space-x-7">
-                                <ConectionPoints size={String(sizeTabs * 11)} />
-                                <Tabs
-                                    show
-                                    vertical
-                                    items={repeaterItems}
-                                    activeTab={activeTab}
-                                    visitedTabs={visitedTabs}
-                                    onTabClick={onTabClick}
-                                    onTabRemove={onTabRemove}
-                                />
+                        {hasBody && (
+                            <div className="flex space-x-4">
+                                <div className="flex w-8 shrink-0 justify-center">
+                                    {!isLastStep && (
+                                        <div className="w-[2px] flex-1 min-h-[20px] bg-[#E2E2E2]" />
+                                    )}
+                                </div>
+                                <div className={`flex-1 min-w-0 ${showTabs ? 'pt-2 pb-2' : 'pb-6'}`}>
+                                    {showTabs && (
+                                        <Tabs
+                                            show
+                                            vertical
+                                            items={repeaterItems}
+                                            activeTab={activeTab}
+                                            visitedTabs={visitedTabs}
+                                            onTabClick={onTabClick}
+                                            onTabRemove={onTabRemove}
+                                        />
+                                    )}
+                                </div>
                             </div>
                         )}
-                    </React.Fragment>
+                    </div>
                 );
             })}
         </div>
