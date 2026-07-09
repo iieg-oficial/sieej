@@ -27,19 +27,28 @@ const construirMapaLabels = (definicion) => {
     return mapa;
 };
 
+const MSG_AMIGABLE = {
+    'telefono invalido': 'Teléfono inválido: deben ser 10 dígitos',
+    'email invalido': 'Correo electrónico con formato inválido',
+    'formato invalido': 'Formato inválido',
+    'requerido': 'Este campo es obligatorio',
+    'fecha invalida (YYYY-MM-DD)': 'Fecha inválida',
+};
+
 const formatearErrores = (errores, definicion) => {
     const mapa = construirMapaLabels(definicion);
     const lineas = errores.map(({ path, msg }) => {
+        const texto = MSG_AMIGABLE[msg] || msg;
         const match = String(path).match(/^([^.[]+)(?:\[(\d+)\])?(?:\.(.+))?$/);
-        if (!match) return `${path}: ${msg}`;
+        if (!match) return `${path}: ${texto}`;
         const [, stepId, idx, fieldName] = match;
         const step = mapa[stepId];
-        if (!step) return `${path}: ${msg}`;
+        if (!step) return `${path}: ${texto}`;
         const prefijo = idx !== undefined ? `${step.title} (#${Number(idx) + 1})` : step.title;
         if (fieldName) {
-            return `${prefijo} › ${step.fields[fieldName] || fieldName}: ${msg}`;
+            return `${prefijo} › ${step.fields[fieldName] || fieldName}: ${texto}`;
         }
-        return `${prefijo}: ${msg}`;
+        return `${prefijo}: ${texto}`;
     });
     const MAX = 12;
     const extra = lineas.length - MAX;

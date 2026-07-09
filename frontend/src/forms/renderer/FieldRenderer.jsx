@@ -9,6 +9,17 @@ import Typography from '@components/Typography';
 import Dragger from '@components/Dragger';
 import { resolveOptions } from './catalogResolver';
 
+const toRegExp = (raw) => {
+    if (!raw) return undefined;
+    const str = String(raw);
+    const match = str.match(/^\/(.*)\/([a-z]*)$/);
+    try {
+        return match ? new RegExp(match[1], match[2]) : new RegExp(str);
+    } catch {
+        return undefined;
+    }
+};
+
 const FieldRenderer = ({ field, methods, catalogos, onUpload }) => {
     const { type, name, label, required, placeholder, tooltip, validation, layout } = field;
     const colSpan = layout?.colSpan ?? 1;
@@ -25,17 +36,39 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload }) => {
         name, label, required, placeholder, tooltip, methods, colSpan,
     };
 
+    const patternProps = {
+        pattern: toRegExp(validation?.pattern),
+        patternMessage: validation?.patternMessage,
+    };
+
     switch (type) {
     case 'text':
-        return <Input {...baseProps} type="text" maxLength={validation?.maxLength} />;
+        return <Input {...baseProps} {...patternProps} type="text" maxLength={validation?.maxLength} />;
     case 'textarea':
-        return <Input {...baseProps} type="textarea" maxLength={validation?.maxLength} />;
+        return <Input {...baseProps} {...patternProps} type="textarea" maxLength={validation?.maxLength} />;
     case 'number':
         return <Input {...baseProps} type="number" />;
     case 'email':
-        return <Input {...baseProps} type="email" />;
+        return (
+            <Input
+                {...baseProps}
+                type="email"
+                maxLength={validation?.maxLength}
+                pattern={toRegExp(validation?.pattern) || /^[^@\s]+@[^@\s]+\.[^@\s]+$/}
+                patternMessage={patternProps.patternMessage || 'Ingresa un correo electrónico válido'}
+            />
+        );
     case 'tel':
-        return <Input {...baseProps} type="tel" />;
+        return (
+            <Input
+                {...baseProps}
+                type="tel"
+                normalize="number"
+                maxLength={validation?.maxLength ?? 10}
+                pattern={toRegExp(validation?.pattern) || /^\d{10}$/}
+                patternMessage={patternProps.patternMessage || 'Ingresa un teléfono válido de 10 dígitos'}
+            />
+        );
     case 'date':
         return <DatePicker {...baseProps} />;
     case 'select':
