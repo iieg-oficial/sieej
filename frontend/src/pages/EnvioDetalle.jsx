@@ -72,9 +72,7 @@ const EnvioDetalleContent = ({ envio }) => {
                                 <div className="shrink-0">
                                     <SummaryPdfButton
                                         step={summaryStep}
-                                        definicion={summaryDefinicion}
-                                        datos={envio.datos || {}}
-                                        catalogos={catalogos}
+                                        envioId={envio.id}
                                     />
                                 </div>
                             )}
@@ -114,6 +112,7 @@ const EnvioDetalleContent = ({ envio }) => {
                             catalogos={catalogos}
                             summaryStep={summaryStep}
                             showPdfButton={false}
+                            envioId={envio.id}
                         />
                     </div>
                 </main>

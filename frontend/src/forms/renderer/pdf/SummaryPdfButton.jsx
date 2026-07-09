@@ -1,19 +1,14 @@
 import React, { useState } from 'react';
 import Button from '@components/Button';
+import { downloadEnvioPdf } from '@services/formulariosServices';
 
-const SummaryPdfButton = ({ step, definicion, datos, catalogos, onError }) => {
+const SummaryPdfButton = ({ step, envioId, onError }) => {
     const [loading, setLoading] = useState(false);
 
     const handleClick = async () => {
         setLoading(true);
         try {
-            if (step?.pdfTemplate === 'sieej-levantamiento') {
-                const { downloadSieejLevantamientoPdf } = await import('./templates/sieej-levantamiento');
-                await downloadSieejLevantamientoPdf(datos, definicion.nombre);
-            } else {
-                const { downloadGenericPdf } = await import('./genericPdf');
-                await downloadGenericPdf(definicion, datos, catalogos);
-            }
+            await downloadEnvioPdf(envioId);
         } catch (e) {
             onError?.(e.message || 'Error al generar PDF');
         } finally {

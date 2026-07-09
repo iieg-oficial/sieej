@@ -34,7 +34,6 @@ export default defineConfig(({ mode }) => {
                 output: {
                     manualChunks: (id) => {
                         if (id.includes('node_modules')) {
-                            if (id.includes('@react-pdf')) return 'vendor-pdf';
                             if (id.includes('react-hook-form')) return 'vendor-form';
                             if (id.includes('react-router')) return 'vendor-router';
                             if (id.includes('react-dom') || id.includes('/react/') || id.includes('scheduler')) return 'vendor-react';
@@ -76,9 +75,7 @@ export default defineConfig(({ mode }) => {
                 '@forms': resolve(__dirname, './src/forms'),
                 '@assets': resolve(__dirname, './src/assets'),
                 '@icons': resolve(__dirname, './src/assets/icons'),
-                '@png': resolve(__dirname, './src/assets/png'),
                 '@svg': resolve(__dirname, './src/assets/svg'),
-                '@fonts': resolve(__dirname, './src/assets/fonts'),
                 buffer: 'buffer/',
             },
         },

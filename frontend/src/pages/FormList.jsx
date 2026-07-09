@@ -2,8 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import useForms from '@forms/context/useForms';
 import useAuth from '@context/useAuth';
-import useCatalogos from '@forms/context/useCatalogos';
-import { getMiEnvioDetalle } from '@services/formulariosServices';
+import { downloadEnvioPdf } from '@services/formulariosServices';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
 import AccessDenied from '@components/AccessDenied';
@@ -94,7 +93,6 @@ const FormCard = ({ formulario, onClick, onDownloadPdf, onContactAdmin }) => {
 const FormList = () => {
     const { formularios, loading, error, errorStatus } = useForms();
     const { onFetch, user } = useAuth();
-    const { catalogos } = useCatalogos();
     const navigate = useNavigate();
     const [q, setQ] = useState('');
 
@@ -114,15 +112,10 @@ const FormList = () => {
     };
 
     const handleDownloadPdf = async (f) => {
-        const envio = await getMiEnvioDetalle(onFetch, f.envio_id);
-        const def = envio.definicion_snapshot || {};
-        const summaryStep = (def.steps || []).find((s) => s.type === 'summary') || null;
-        if (summaryStep?.pdfTemplate === 'sieej-levantamiento') {
-            const { downloadSieejLevantamientoPdf } = await import('@forms/renderer/pdf/templates/sieej-levantamiento');
-            await downloadSieejLevantamientoPdf(envio.datos, def.nombre || f.nombre);
-        } else {
-            const { downloadGenericPdf } = await import('@forms/renderer/pdf/genericPdf');
-            await downloadGenericPdf(def, envio.datos, catalogos);
+        try {
+            await downloadEnvioPdf(f.envio_id);
+        } catch (e) {
+            console.error('Error al descargar PDF:', e);
         }
     };
 

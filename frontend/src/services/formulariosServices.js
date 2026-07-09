@@ -78,3 +78,23 @@ export const getMiEnvioDetalle = async (onFetch, envioId) => {
     const r = await onFetch(buildUrl(`/formularios/mis-envios/${envioId}`));
     return parseJson(r);
 };
+
+export const downloadEnvioPdf = async (envioId) => {
+    const url = buildUrl(`/formularios/mis-envios/${envioId}/pdf`);
+    const response = await fetch(url, { credentials: 'include' });
+    if (!response.ok) {
+        throw new Error('Error al descargar el PDF');
+    }
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const disposition = response.headers.get('Content-Disposition') || '';
+    const match = disposition.match(/filename\*=UTF-8''(.+)/);
+    const filename = match ? decodeURIComponent(match[1]) : 'formulario.pdf';
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+};
