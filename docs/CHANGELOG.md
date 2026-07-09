@@ -8,6 +8,29 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.20.0] - 2026-07-09
+
+### wizard: validación de teléfono/email, navegación en el sider y mejoras de repeater/móvil
+
+Ronda de mejoras de UX del wizard de captura. Cierra el caso del enlace técnico con teléfono inválido que reventaba al guardar/avanzar con un error genérico, hace navegable el indicador de pasos y moderniza el paso lista repetible y la botonera en móvil.
+
+#### Corregido
+
+- **`frontend/src/forms/renderer/FieldRenderer.jsx`**: el campo `tel` valida en cliente (10 dígitos por defecto) y `email` con formato estándar; ambos overridables por `validation.pattern`. Además ahora sí propaga `validation.pattern`/`patternMessage` al `Input` para todos los tipos de texto (antes se ignoraban). Esto bloquea el avance con valores inválidos y evita el 422 del backend al guardar borrador.
+- **`frontend/src/pages/FormPage.jsx`**: traduce los mensajes crudos del backend (`telefono invalido`, `email invalido`, `formato invalido`, `requerido`, `fecha invalida`) a textos legibles por campo.
+
+#### Agregado
+
+- **`frontend/src/forms/components/wizard/StepIndicator.jsx`** + **`FormPage.jsx`**: el indicador de pasos es clickeable hacia pasos ya visitados (solo cursor en hover, sin fondo). Rediseñado como timeline: la línea de continuidad se estira a la altura del contenido (abarca los items del repeater) y el título queda centrado verticalmente con el nodo.
+- **`frontend/src/forms/renderer/RepeaterStep.jsx`** + **`Tabs.jsx`**: eliminar item pasa a una "X" en la pestaña activa (Tabs habilita el remove en horizontal) y agregar a un botón "+" circular con borde morado pegado a la derecha; se quita el divisor y el título redundante.
+- **`frontend/src/forms/components/wizard/NavigateStep.jsx`** + **`assets/icons/ico_rigth_arrow_dark.svg`**: en móvil los 3 botones de navegación son círculos icon-only en una fila; la flecha de "Siguiente" usa una variante oscura solo cuando está deshabilitada.
+
+#### Por qué bump minor
+
+- Agrega comportamiento visible nuevo (navegación en el sider, validación en cliente, botonera móvil) manteniendo compatibilidad. La validación de patrón se homologa con el backend de mariachi (`api 1.49.0`).
+
+---
+
 ## [1.17.0] - 2026-06-15
 
 ### auth: sesión estable tras cambio de contraseña y acceso denegado legible
