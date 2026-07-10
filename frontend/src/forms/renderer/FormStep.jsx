@@ -6,7 +6,7 @@ const FormStep = ({ step, methods, catalogos, onUpload }) => {
     const stepValues = methods.watch(step.id) || {};
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             {step.fields.map((field) => {
                 if (!evaluarShowWhen(field.showWhen, stepValues)) return null;
                 const fullName = `${step.id}.${field.name}`;

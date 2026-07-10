@@ -21,20 +21,40 @@ const toRegExp = (raw) => {
 };
 
 const FieldRenderer = ({ field, methods, catalogos, onUpload }) => {
-    const { type, name, label, required, placeholder, tooltip, validation, layout } = field;
-    const colSpan = layout?.colSpan ?? 1;
+    const { type, name, label, required, placeholder, tooltip, validation, layout, showWhen } = field;
+    const gridSpan = (() => {
+        const cs = layout?.colSpan ?? 1;
+        if (cs === 2) return 3;
+        if (cs === 3) return 2;
+        return 6;
+    })();
 
     if (type === 'info') {
         return (
             <div className={layout?.colSpan ? `col-span-${layout.colSpan}` : 'col-span-full'}>
-                <Typography variant="body">{label}</Typography>
+                <Typography variant="body" className="text-[#7C7C7C] italic">{label}</Typography>
             </div>
         );
     }
 
     const baseProps = {
-        name, label, required, placeholder, tooltip, methods, colSpan,
+        name, label, required, placeholder, tooltip, methods, colSpan: gridSpan,
     };
+
+    const outer = showWhen ? (
+        <div>
+            <span className="inline-block text-[10px] font-garetmedium text-[#7C7C7C] bg-[#F0E2F5] px-2 py-0.5 rounded-full mb-1">
+                Condicionado
+            </span>
+        </div>
+    ) : null;
+
+    const wrapCondicional = (el) => showWhen ? (
+        <div>
+            {outer}
+            {el}
+        </div>
+    ) : el;
 
     const patternProps = {
         pattern: toRegExp(validation?.pattern),
@@ -43,13 +63,13 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload }) => {
 
     switch (type) {
     case 'text':
-        return <Input {...baseProps} {...patternProps} type="text" maxLength={validation?.maxLength} />;
+        return wrapCondicional(<Input {...baseProps} {...patternProps} type="text" maxLength={validation?.maxLength} />);
     case 'textarea':
-        return <Input {...baseProps} {...patternProps} type="textarea" maxLength={validation?.maxLength} />;
+        return wrapCondicional(<Input {...baseProps} {...patternProps} type="textarea" maxLength={validation?.maxLength} />);
     case 'number':
-        return <Input {...baseProps} type="number" />;
+        return wrapCondicional(<Input {...baseProps} type="number" />);
     case 'email':
-        return (
+        return wrapCondicional(
             <Input
                 {...baseProps}
                 type="email"
@@ -59,7 +79,7 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload }) => {
             />
         );
     case 'tel':
-        return (
+        return wrapCondicional(
             <Input
                 {...baseProps}
                 type="tel"
@@ -70,17 +90,17 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload }) => {
             />
         );
     case 'date':
-        return <DatePicker {...baseProps} />;
+        return wrapCondicional(<DatePicker {...baseProps} />);
     case 'select':
-        return <Select {...baseProps} options={resolveOptions(field, catalogos)} />;
+        return wrapCondicional(<Select {...baseProps} options={resolveOptions(field, catalogos)} />);
     case 'select_multiple':
-        return <SelectMultiple {...baseProps} options={resolveOptions(field, catalogos)} />;
+        return wrapCondicional(<SelectMultiple {...baseProps} options={resolveOptions(field, catalogos)} />);
     case 'radio':
-        return <Radio {...baseProps} options={resolveOptions(field, catalogos)} />;
+        return wrapCondicional(<Radio {...baseProps} options={resolveOptions(field, catalogos)} />);
     case 'checkbox':
-        return <Checkbox {...baseProps} />;
+        return wrapCondicional(<Checkbox {...baseProps} />);
     case 'file':
-        return (
+        return wrapCondicional(
             <Dragger
                 {...baseProps}
                 accept={field.accept?.join(',')}
