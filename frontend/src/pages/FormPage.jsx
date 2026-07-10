@@ -13,6 +13,7 @@ import Modal from '@components/Modal';
 import useGlobal from '@context/useGlobal';
 import useCatalogos from '@forms/context/useCatalogos';
 import { buildRepeaterItems } from '@forms/renderer/repeaterItems';
+import { stepCompleteness } from '@forms/renderer/completeness';
 
 const construirMapaLabels = (definicion) => {
     const mapa = {};
@@ -118,6 +119,17 @@ const FormularioContent = () => {
         ? buildRepeaterItems(currentStepData, methods.watch(currentStepData.id))
         : [];
 
+    const formValues = methods?.watch();
+    const stepsWithData = new Set();
+    steps.forEach((step, idx) => {
+        if (stepHasData(step, formValues ?? envio?.datos)) stepsWithData.add(idx);
+    });
+
+    const stepsCompleteness = new Map();
+    steps.forEach((step, idx) => {
+        stepsCompleteness.set(idx, stepCompleteness(step, formValues ?? envio?.datos));
+    });
+
     const handleStepClick = (idx) => {
         if (idx === currentStep || !visited?.has(idx)) return;
         if (methods) handleSave(methods.getValues(), currentStep, true);
@@ -161,6 +173,8 @@ const FormularioContent = () => {
                                 sizeTabs={sizeTabs}
                                 onTabClick={onActiveTab}
                                 onTabRemove={handleTabRemove}
+                                stepsWithData={stepsWithData}
+                                stepsCompleteness={stepsCompleteness}
                             />
                         </div>
                     </div>
@@ -188,11 +202,40 @@ const FormularioContent = () => {
     );
 };
 
+const stepHasData = (step, datos) => {
+    const value = datos?.[step.id];
+    if (!value) return false;
+    if (step.type === 'repeater') return Array.isArray(value) && value.length > 0;
+    if (typeof value === 'object') return Object.keys(value).length > 0;
+    return false;
+};
+
 const FormSizer = () => {
-    const { definicion, loading } = useSubmission();
+    const { definicion, envio, loading } = useSubmission();
     if (loading || !definicion) return <div className="flex justify-center py-10"><Loading /></div>;
+
+    const steps = definicion.steps ?? [];
+    const initialVisited = new Set([0]);
+    steps.forEach((step, idx) => {
+        if (idx > 0 && stepHasData(step, envio?.datos)) {
+            initialVisited.add(idx);
+        }
+    });
+
+    const initialVisitedTabs = (() => {
+        const data = envio?.datos;
+        if (!data) return null;
+        const s = new Set([0]);
+        for (const step of steps) {
+            if (step.type === 'repeater' && Array.isArray(data[step.id])) {
+                for (let i = 1; i < data[step.id].length; i++) s.add(i);
+            }
+        }
+        return s.size > 1 ? s : null;
+    })();
+
     return (
-        <WizardProvider totalSteps={definicion.steps.length}>
+        <WizardProvider totalSteps={steps.length} initialVisited={initialVisited} initialVisitedTabs={initialVisitedTabs}>
             <FormularioContent />
         </WizardProvider>
     );

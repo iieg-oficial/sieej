@@ -11,7 +11,7 @@ import { evaluarShowWhen } from './conditional';
 import { buildRepeaterItems } from './repeaterItems';
 
 const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
-    const { fields, append, remove } = useFieldArray({ control: methods.control, name: step.id });
+    const { append, remove } = useFieldArray({ control: methods.control, name: step.id });
     const { activeTab, visitedTabs, onActiveTab, onSizeTab } = useWizard();
     const { isMobile } = useGlobal();
 
@@ -20,28 +20,32 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
     const tabs = Array.isArray(step.tabs) ? step.tabs : null;
     const [activeSubTab, setActiveSubTab] = React.useState(tabs?.[0]?.id);
 
-    useEffect(() => {
-        onSizeTab?.(fields.length);
-    }, [fields.length, onSizeTab]);
+    const list = methods.watch(step.id);
+    const count = Array.isArray(list) ? list.length : 0;
 
     useEffect(() => {
-        if (fields.length > 0 && (activeTab >= fields.length || activeTab < 0)) {
+        onSizeTab?.(count);
+    }, [count, onSizeTab]);
+
+    useEffect(() => {
+        if (count > 0 && (activeTab >= count || activeTab < 0)) {
             onActiveTab?.(0);
         }
-    }, [fields.length, activeTab, onActiveTab]);
+    }, [count, activeTab, onActiveTab]);
 
     const handleAdd = () => {
         append({});
-        onActiveTab?.(fields.length);
+        onActiveTab?.(count);
+        setActiveSubTab(tabs?.[0]?.id);
     };
 
     const handleRemove = (index) => {
         remove(index);
-        const newActive = Math.max(0, Math.min(activeTab, fields.length - 2));
+        const newActive = Math.max(0, Math.min(activeTab, count - 2));
         onActiveTab?.(newActive);
     };
 
-    if (fields.length === 0) {
+    if (count === 0) {
         const minMsg = minItems > 0
             ? ` Para poder enviar el formulario se requiere al menos ${minItems}.`
             : '';
@@ -60,9 +64,9 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
         );
     }
 
-    const currentIndex = Math.max(0, Math.min(activeTab, fields.length - 1));
+    const currentIndex = Math.max(0, Math.min(activeTab, count - 1));
     const itemValues = methods.watch(`${step.id}.${currentIndex}`) || {};
-    const items = buildRepeaterItems(step, methods.watch(step.id) || []);
+    const items = buildRepeaterItems(step, list || []);
 
     const visibleFields = step.fields.filter((field) => {
         if (!evaluarShowWhen(field.showWhen, itemValues)) return false;
@@ -84,7 +88,7 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
                         isMobile={isMobile}
                     />
                 </div>
-                {(maxItems === null || fields.length < maxItems) && (
+                {(maxItems === null || count < maxItems) && (
                     <Tooltip text="Agregar" showIcon={false} size="small">
                         <button
                             type="button"

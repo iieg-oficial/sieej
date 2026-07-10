@@ -5,6 +5,7 @@ import Tabs from './Tabs';
 const COLOR_TEXT = {
     Completada: 'text-[#34A853]',
     'En proceso': 'text-[#4285F4]',
+    'Datos incompletos': 'text-[#FF8300]',
     'No iniciada': 'text-[#7C7C7C]',
     default: 'text-[#7C7C7C]',
 };
@@ -12,19 +13,22 @@ const COLOR_TEXT = {
 const CIRCLE_STYLE = {
     Completada: 'bg-[#EAF6ED] text-[#34A853]',
     'En proceso': 'bg-[#5C2473] text-white border border-[#5C2473] inset-ring-4 ring-white',
+    'Datos incompletos': 'bg-[#FEDAB2] text-[#FF8300]',
     'No iniciada': 'bg-[#F0E2F5] text-[#5C2472]',
 };
 
-const computeStatus = (idx, currentStep) => {
-    if (idx < currentStep) return 'Completada';
+const computeStatus = (idx, currentStep, completeness) => {
     if (idx === currentStep) return 'En proceso';
+    if (idx < currentStep) return 'Completada';
+    if (completeness === 'completo') return 'Completada';
+    if (completeness === 'incompleto') return 'Datos incompletos';
     return 'No iniciada';
 };
 
 const StepIndicator = ({
     steps, currentStep, visited, onStepClick,
     repeaterItems, activeTab, visitedTabs,
-    onTabClick, onTabRemove,
+    onTabClick, onTabRemove, stepsCompleteness,
 }) => {
     const isShowTabs = (index) =>
         index === currentStep && Array.isArray(repeaterItems) && repeaterItems.length > 0;
@@ -32,7 +36,7 @@ const StepIndicator = ({
     return (
         <div className="flex flex-col mt-4">
             {steps.map((step, index) => {
-                const status = computeStatus(index, currentStep);
+                const status = computeStatus(index, currentStep, stepsCompleteness?.get(index));
                 const isClickable = typeof onStepClick === 'function'
                     && index !== currentStep
                     && !!visited?.has(index);

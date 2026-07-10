@@ -2,11 +2,11 @@ import React, { createContext, useCallback, useState } from 'react';
 
 export const WizardContext = createContext(null);
 
-export const WizardProvider = ({ totalSteps, initialStep = 0, children }) => {
+export const WizardProvider = ({ totalSteps, initialStep = 0, initialVisited, initialVisitedTabs, children }) => {
     const [currentStep, setCurrentStep] = useState(initialStep);
-    const [visited, setVisited] = useState(() => new Set([initialStep]));
+    const [visited, setVisited] = useState(() => initialVisited ?? new Set([initialStep]));
     const [activeTab, setActiveTab] = useState(0);
-    const [visitedTabs, setVisitedTabs] = useState(() => new Set([0]));
+    const [visitedTabs, setVisitedTabs] = useState(() => initialVisitedTabs ?? new Set([0]));
     const [sizeTabs, setSizeTabs] = useState(0);
 
     const goNext = useCallback(() => {

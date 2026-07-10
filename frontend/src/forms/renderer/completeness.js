@@ -14,6 +14,26 @@ const faltanRequeridos = (fields, item) => (fields ?? []).some((field) => {
     return sinValor(item?.[field.name]);
 });
 
+const faltanCampos = (fields, item) => (fields ?? []).some((field) => {
+    if (field.type === 'info') return false;
+    if (!evaluarShowWhen(field.showWhen, item)) return false;
+    return sinValor(item?.[field.name]);
+});
+
+export const stepCompleteness = (step, datos) => {
+    if (!step || step.type === 'summary') return 'vacio';
+    const scope = datos?.[step.id];
+    if (!scope || (typeof scope === 'object' && Object.keys(scope).length === 0)) return 'vacio';
+    if (Array.isArray(scope) && scope.length === 0) return 'vacio';
+    if (step.type === 'repeater') {
+        const items = Array.isArray(scope) ? scope : [];
+        const min = step.minItems ?? 0;
+        if (items.length < min) return 'incompleto';
+        return items.every((item) => !faltanCampos(step.fields, item ?? {})) ? 'completo' : 'incompleto';
+    }
+    return faltanCampos(step.fields, scope ?? {}) ? 'incompleto' : 'completo';
+};
+
 export const requisitosPendientes = (step, values) => {
     if (!step || step.type === 'summary') return null;
     const scope = values?.[step.id];
