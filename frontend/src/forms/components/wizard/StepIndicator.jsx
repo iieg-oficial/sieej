@@ -70,7 +70,7 @@ const StepIndicator = ({
                         </div>
                         {hasBody && (
                             <div className="flex space-x-4">
-                                <div className="flex w-8 shrink-0 justify-center">
+                                <div className="flex flex-col w-8 shrink-0 items-center">
                                     {!isLastStep && (
                                         <div className="w-[2px] flex-1 min-h-[20px] bg-[#E2E2E2]" />
                                     )}
