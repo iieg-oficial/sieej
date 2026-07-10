@@ -20,6 +20,8 @@ const toRegExp = (raw) => {
     }
 };
 
+const SPAN_CLASS = { 2: 'col-span-2', 3: 'col-span-3', 6: 'col-span-6' };
+
 const FieldRenderer = ({ field, methods, catalogos, onUpload }) => {
     const { type, name, label, required, placeholder, tooltip, validation, layout, showWhen } = field;
     const gridSpan = (() => {
@@ -29,9 +31,11 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload }) => {
         return 6;
     })();
 
+    const spanClass = SPAN_CLASS[gridSpan] || 'col-span-6';
+
     if (type === 'info') {
         return (
-            <div className={layout?.colSpan ? `col-span-${layout.colSpan}` : 'col-span-full'}>
+            <div className={spanClass}>
                 <Typography variant="body" className="text-[#7C7C7C] italic">{label}</Typography>
             </div>
         );
@@ -41,17 +45,11 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload }) => {
         name, label, required, placeholder, tooltip, methods, colSpan: gridSpan,
     };
 
-    const outer = showWhen ? (
-        <div>
+    const wrapCondicional = (el) => showWhen ? (
+        <div className={spanClass}>
             <span className="inline-block text-[10px] font-garetmedium text-[#7C7C7C] bg-[#F0E2F5] px-2 py-0.5 rounded-full mb-1">
                 Condicionado
             </span>
-        </div>
-    ) : null;
-
-    const wrapCondicional = (el) => showWhen ? (
-        <div>
-            {outer}
             {el}
         </div>
     ) : el;

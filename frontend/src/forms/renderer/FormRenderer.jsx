@@ -102,19 +102,17 @@ const FormRenderer = ({
                 onSave={isReadOnly ? null : handleSave}
             />
 
-            <div className="py-4">
-                <StepRenderer
-                    step={{
-                        ...step,
-                        allSteps: steps,
-                        formNombre: definicion.nombre,
-                        formDescripcion: definicion.descripcion,
-                    }}
-                    methods={methods}
-                    catalogos={catalogos}
-                    onUpload={onUpload}
-                />
-            </div>
+            <StepRenderer
+                step={{
+                    ...step,
+                    allSteps: steps,
+                    formNombre: definicion.nombre,
+                    formDescripcion: definicion.descripcion,
+                }}
+                methods={methods}
+                catalogos={catalogos}
+                onUpload={onUpload}
+            />
         </div>
     );
 };

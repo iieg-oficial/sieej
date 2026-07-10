@@ -8,6 +8,24 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.23.1] - 2026-07-10
+
+### forms: correcciones de layout del ancho por columnas
+
+Corrige el render del ancho por columnas (`layout.colSpan`) introducido en 1.23.0 sobre el grid de 6 columnas. En escritorio los campos "Grande" (la mayoría) se veían a 1/6 de ancho; en móvil (`grid-cols-1`) no se notaba.
+
+#### Corregido
+
+- **`frontend/src/helpers/DynamicDiv.jsx`**: agrega `col-span-5`/`col-span-6` al mapa de clases. Los campos "Grande" (`colSpan` 1 → `span 6`) vuelven a ancho completo; antes quedaban sin clase `col-span` (1/6) porque el mapa sólo llegaba a 4.
+- **`frontend/src/forms/renderer/FieldRenderer.jsx`**: los campos condicionales conservan su ancho de columna (el envoltorio del badge "Condicionado" ahora lleva el `col-span`, antes lo perdía al meter un `div` extra en el grid). Homologa el ancho de los campos `info` con el resto (mismo mapeo vía `SPAN_CLASS`, elimina la clase dinámica `col-span-${...}`).
+
+#### Cambiado
+
+- **`frontend/src/pages/FormPage.jsx`**: elimina el cálculo y la prop `stepsWithData` que el `StepIndicator` no consumía (un recorrido menos de `steps` por render).
+- **`frontend/src/forms/renderer/FormRenderer.jsx`**: quita el envoltorio con padding vertical redundante alrededor del paso.
+
+---
+
 ## [1.20.0] - 2026-07-09
 
 ### wizard: validación de teléfono/email, navegación en el sider y mejoras de repeater/móvil

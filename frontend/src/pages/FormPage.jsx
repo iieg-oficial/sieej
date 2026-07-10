@@ -120,11 +120,6 @@ const FormularioContent = () => {
         : [];
 
     const formValues = methods?.watch();
-    const stepsWithData = new Set();
-    steps.forEach((step, idx) => {
-        if (stepHasData(step, formValues ?? envio?.datos)) stepsWithData.add(idx);
-    });
-
     const stepsCompleteness = new Map();
     steps.forEach((step, idx) => {
         stepsCompleteness.set(idx, stepCompleteness(step, formValues ?? envio?.datos));
@@ -173,7 +168,6 @@ const FormularioContent = () => {
                                 sizeTabs={sizeTabs}
                                 onTabClick={onActiveTab}
                                 onTabRemove={handleTabRemove}
-                                stepsWithData={stepsWithData}
                                 stepsCompleteness={stepsCompleteness}
                             />
                         </div>
