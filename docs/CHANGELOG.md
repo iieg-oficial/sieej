@@ -8,6 +8,15 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.23.4] - 2026-07-13
+
+### Corregido
+
+- **`frontend/src/forms/renderer/FormStep.jsx`**: agrega `grid-flow-row-dense` al grid de 6 columnas para rellenar huecos que dejaban los campos con `colSpan` mayor a 1, mejorando el acomodo visual.
+- **`frontend/src/forms/renderer/RepeaterStep.jsx`**: agrega `grid-flow-row-dense` al grid del repeater y `pt-1` al contenedor para que el header sticky no solape el ring de la pestaña activa.
+
+---
+
 ## [1.23.3] - 2026-07-13
 
 ### Cambiado
