@@ -92,7 +92,7 @@ const FormCard = ({ formulario, onClick, onDownloadPdf, onContactAdmin }) => {
 
 const FormList = () => {
     const { formularios, loading, error, errorStatus } = useForms();
-    const { onFetch, user } = useAuth();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [q, setQ] = useState('');
 

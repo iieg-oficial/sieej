@@ -8,6 +8,46 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.23.2] - 2026-07-13
+
+### Corregido
+
+- **`frontend/src/components/Radio.jsx`**: el radio ahora respeta su `colSpan` configurado. Antes, cuando el valor seleccionado era `'true'`, `additionalInputType` forzaba `col-span-2` ignorando el layout definido, y además escribía campos fantasma `desc_`/`archivo_`/`nombre_`/`url_` en los datos del envío. Se eliminó esa maquinaria.
+
+---
+
+## [1.23.1] - 2026-07-10
+
+## [1.24.0] - 2026-07-13
+
+### wizard: grid de columnas homologado, encabezado con nombre/descripción y botonera responsive
+
+Ronda de mejoras al wizard de captura. Homologa el ancho de los campos en pasos formulario y repeater, agrega el nombre y descripción del formulario en el encabezado (desktop y móvil), y moderniza la botonera de navegación con labels adaptativos según viewport.
+
+#### Corregido
+
+- **`frontend/src/forms/renderer/FieldRenderer.jsx`**: elimina el envoltorio del badge "Condicionado" del renderer del respondent (ese badge es solo del editor admin de mariachi); los campos condicionales ya no pierden su `col-span`.
+- **`frontend/src/forms/renderer/FormStep.jsx`**: el grid de pasos `form` usa `grid-flow-row-dense` para rellenar huecos interiores cuando los `colSpan` de una fila no suman 6.
+- **`frontend/src/forms/renderer/RepeaterStep.jsx`**: mismo `grid-flow-row-dense` en el grid del repeater (+ ajuste menor `pt-1`).
+- **`frontend/src/components/Radio.jsx`**: elimina la lógica legacy que auto-expandía el `colSpan` a 2 al seleccionar "true"/"Otro" y manipulaba campos `desc_`/`archivo_`/`nombre_`/`url_`; ahora respeta el `colSpan` configurado.
+
+#### Agregado
+
+- **`frontend/src/forms/context/SubmissionContext.jsx`**: expone `nombre` y `descripcion` del detalle del formulario en el contexto.
+- **`frontend/src/pages/FormPage.jsx`**: usa `nombre`/`descripcion` del contexto, agrega la etiqueta "Formulario" en el panel lateral (desktop) y un encabezado equivalente en móvil (`xl:hidden`).
+
+#### Cambiado
+
+- **`frontend/src/forms/components/wizard/NavigateStep.jsx`**: reemplaza el flag `isMobile` por `screenSize` de `useGlobal` (`isSmall`/`isFull`); labels adaptativos ("Anterior"/"Anterior sección", "Enviar"/"Confirmar y enviar", "Siguiente"/"Siguiente sección").
+- **`frontend/src/components/Button.jsx`**: nueva prop `fit` (ancho según contenido con `w-auto px-6` en vez de ancho fijo).
+- **`frontend/src/helpers/DynamicDiv.jsx`**: soporta prop `inline` (usada por `Button fit`): devuelve un `div` sin clases de grid.
+
+#### Por qué bump minor
+
+- Agrega comportamiento visible nuevo (encabezado con nombre/descripción, botonera responsive con labels adaptativos) y corrige el layout de columnas del grid. Compatible hacia atrás. Los envíos ya iniciados renderizan su `definicion_snapshot` congelado (no se ven afectados hasta que mariachi refresque el snapshot).
+
+---
+
 ## [1.23.1] - 2026-07-10
 
 ### forms: correcciones de layout del ancho por columnas
