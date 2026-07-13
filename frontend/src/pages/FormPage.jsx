@@ -57,7 +57,7 @@ const formatearErrores = (errores, definicion) => {
 };
 
 const FormularioContent = () => {
-    const { definicion, envio, loading, error, guardar, enviar, subirArchivo } = useSubmission();
+    const { definicion, nombre, descripcion, envio, loading, error, guardar, enviar, subirArchivo } = useSubmission();
     const { currentStep, visited, goTo, activeTab, visitedTabs, sizeTabs, onActiveTab } = useWizard();
     const { onMessage, isMobile, openModal } = useGlobal();
     const { catalogos } = useCatalogos();
@@ -145,18 +145,17 @@ const FormularioContent = () => {
             <div className="flex space-x-2 md:space-x-5">
                 {showSidePanel && (
                     <div className="hidden xl:block w-[513px] rounded-[20px] bg-white p-7 sx:hidden lg:w-[670px] lg:p-10">
-                        <div className="flex flex-col space-y-4 items-start justify-start sticky top-10">
-                            <Typography
-                                as="h1"
-                                titleName={definicion.nombre || 'Formulario'}
-                            />
-                            {definicion.descripcion && (
-                                <Typography
-                                    as="h3"
-                                    className="text-[#191919] font-garetregular"
-                                    titleName={definicion.descripcion}
-                                />
-                            )}
+                        <div className="flex flex-col space-y-2 items-start justify-start sticky top-10">
+                            <div>
+                                <Typography as="h1" className="!mb-0" titleName={nombre || 'Formulario'} />
+                                {descripcion && (
+                                    <Typography
+                                        as="h3"
+                                        className="text-[#191919] font-garetregular mt-2"
+                                        titleName={descripcion}
+                                    />
+                                )}
+                            </div>
                             <StepIndicator
                                 steps={steps}
                                 currentStep={currentStep}
@@ -179,6 +178,9 @@ const FormularioContent = () => {
                         bg-white shadow-xl-[#03222708] px-2 pb-2 md:px-10 md:pb-10 text-black
                     "
                 >
+                    <div className="xl:hidden w-full pt-4 md:pt-6 pb-3 border-b border-[#E2E2E2]">
+                        <Typography as="h2" titleName={nombre || 'Formulario'} />
+                    </div>
                     <FormRenderer
                         definicion={definicion}
                         envio={envio}

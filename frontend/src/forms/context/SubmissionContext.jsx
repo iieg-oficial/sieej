@@ -12,6 +12,8 @@ export const SubmissionContext = createContext(null);
 export const SubmissionProvider = ({ slug, children }) => {
     const { onFetch } = useAuth();
     const [definicion, setDefinicion] = useState(null);
+    const [nombre, setNombre] = useState('');
+    const [descripcion, setDescripcion] = useState('');
     const [envio, setEnvio] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -23,6 +25,8 @@ export const SubmissionProvider = ({ slug, children }) => {
         try {
             const detalle = await getFormularioDetalle(onFetch, slug);
             setDefinicion(detalle.definicion);
+            setNombre(detalle.nombre || '');
+            setDescripcion(detalle.descripcion || '');
             if (detalle.envio) {
                 setEnvio(detalle.envio);
             } else {
@@ -77,7 +81,7 @@ export const SubmissionProvider = ({ slug, children }) => {
 
     return (
         <SubmissionContext.Provider value={{
-            definicion, envio, loading, error, saving,
+            definicion, nombre, descripcion, envio, loading, error, saving,
             guardar, enviar, subirArchivo, recargar: cargar,
         }}>
             {children}
