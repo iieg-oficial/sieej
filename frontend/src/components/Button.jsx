@@ -16,6 +16,7 @@ const Button = ({
     onSufClick = () => {},  
     onHoverIcon = null,     // React component
     fullWidth = false,      // true | false
+    fit = false,            // ancho segun contenido en vez de fijo
     isActive = false,       // true | false
     isVisited = false,      // true | false
     className = '',  
@@ -37,7 +38,8 @@ const Button = ({
     const isLabel = variant === 'label';
 
     const baseStyles = `
-        flex items-center justify-center w-[240px] md:w-[260px] h-[40px] rounded-[20px] grow
+        flex items-center justify-center h-[40px] rounded-[20px]
+        ${fit ? 'w-auto px-6' : 'w-[240px] md:w-[260px] grow'}
         ${fullWidth && 'w-full'}
     `;
 
@@ -85,7 +87,7 @@ const Button = ({
     };
 
     return (
-        <DynamicDiv colSpan={colSpan} wDiv={wDiv} center={center}>
+        <DynamicDiv colSpan={colSpan} wDiv={wDiv} center={center} inline={fit}>
             <Tooltip text={tooltip} showIcon={false} size="small">
                 <button
                     type={type}

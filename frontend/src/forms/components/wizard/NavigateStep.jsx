@@ -5,14 +5,23 @@ import rigthDarkIcon from '@icons/ico_rigth_arrow_dark.svg';
 import saveIcon from '@icons/ico_guardar_avance.svg';
 import Typography from '@components/Typography';
 import Button from '@components/Button';
+import useGlobal from '@context/useGlobal';
 
 const NavigateStep = ({
-    step, isFirst, isLast, isLastTab, isMobile = false,
+    step, isFirst, isLast, isLastTab,
     nextDisabled = false, nextTooltip = null, saveDisabled = false,
     onPrev, onSubmit, onSave,
 }) => {
-    const nextLabel = isLast ? 'Confirmar y enviar' : (isLastTab ? 'Siguiente sección' : 'Siguiente');
+    const { screenSize } = useGlobal();
+    const isSmall = screenSize.sm;
+    const isFull = screenSize.xxl;
+
     const nextIcon = nextDisabled ? rigthDarkIcon : rigthIcon;
+    const prevLabel = isFull ? 'Anterior sección' : 'Anterior';
+    const nextLabel = isLast
+        ? (isFull ? 'Confirmar y enviar' : 'Enviar')
+        : (isLastTab && isFull ? 'Siguiente sección' : 'Siguiente');
+
     return (
         <div
             className="
@@ -20,29 +29,35 @@ const NavigateStep = ({
                 md:pt-10 md:pb-5 md:flex-row md:justify-between md:items-center
             "
         >
-            <Typography as="h2" titleName={step?.title || ''} icon={!isMobile && step?.icon} />
-            <div className="flex flex-row items-center justify-end space-x-3 md:space-x-4">
+            <div className="min-w-0">
+                <Typography
+                    as="h2"
+                    titleName={step?.title || ''}
+                    icon={!isSmall && step?.icon}
+                    className="md:text-[26px] lg:text-[30px]"
+                />
+            </div>
+            <div className="flex flex-row items-center justify-center md:justify-end space-x-3 md:space-x-4 shrink-0">
                 <Button
-                    label={isMobile ? undefined : 'Anterior'}
+                    label={prevLabel}
                     variant="secondary"
                     onClick={async () => {
                         if (onSave) await onSave(true);
                         onPrev?.();
                     }}
-                    icon={isMobile ? undefined : leftIcon}
-                    iconButton={isMobile ? leftIcon : undefined}
-                    tooltip={isMobile ? 'Anterior' : null}
+                    icon={leftIcon}
                     colSpan={isFirst ? 0 : undefined}
+                    fit
                     center
                 />
                 <Button
-                    label={isMobile ? undefined : nextLabel}
+                    label={nextLabel}
                     variant="primary"
                     onClick={onSubmit}
                     disabled={nextDisabled}
-                    tooltip={nextDisabled ? nextTooltip : (isMobile ? nextLabel : null)}
-                    sufIcon={isMobile ? undefined : nextIcon}
-                    iconButton={isMobile ? nextIcon : undefined}
+                    tooltip={nextDisabled ? nextTooltip : null}
+                    sufIcon={nextIcon}
+                    fit
                     center
                 />
                 <Button
@@ -52,6 +67,7 @@ const NavigateStep = ({
                     tooltip={saveDisabled ? 'Sin cambios por guardar' : 'Guardar avance'}
                     iconButton={saveIcon}
                     colSpan={isLast ? 0 : undefined}
+                    fit
                     center
                 />
             </div>
