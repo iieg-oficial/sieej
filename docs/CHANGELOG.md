@@ -8,6 +8,14 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.25.2] - 2026-07-13
+
+### Corregido
+
+- **`frontend/src/pages/FormPage.jsx`**: se reduce el espacio entre el nombre del formulario y el `StepIndicator` en el sider de ~24px a ~8px. El `space-y-4` del contenedor baja a `space-y-2` y el `Typography as="h1"` recibe `!mb-0` para neutralizar el `mb-4` de la variante.
+
+---
+
 ## [1.25.1] - 2026-07-13
 
 ### Cambiado
