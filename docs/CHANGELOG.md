@@ -8,6 +8,14 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.25.1] - 2026-07-13
+
+### Cambiado
+
+- **`frontend/src/pages/FormPage.jsx`**: se elimina el rótulo genérico «Formulario» del eyebrow en el sider (≥1280px) y en el encabezado compacto (<1280px). El nombre del formulario queda como único título sin texto redundante.
+
+---
+
 ## [1.25.0] - 2026-07-13
 
 ### Agregado
