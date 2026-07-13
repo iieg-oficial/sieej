@@ -1,58 +1,20 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import ErrorsRequired from '@helpers/ErrorsRequired';
 import DynamicDiv from '@helpers/DynamicDiv';
-import Label from './Label';
 import Typography from './Typography';
 
-const Radio = ({ 
-    name, options, label, required, description, tooltip, colSpan = 1, 
-    wDiv, _labelInput, methods, _other, ...rest
+const Radio = ({
+    name, options, label, required, description, tooltip, colSpan = 1,
+    wDiv, methods, ...rest
 }) => {
-    const { register, formState: { errors }, setValue, watch } = methods;
-    const [additionalInputType, setAdditionalInputType] = useState(null);
-    const watchedRadioValue = watch(name);
-
-    const updateAdditionalInput = useCallback((selectedValue) => {
-        if (selectedValue === 'true' || selectedValue === true) {
-            setAdditionalInputType('regular');
-        } else if (selectedValue === 'Otro') {
-            setAdditionalInputType('Otro');
-        } else {
-            setAdditionalInputType(null);
-        }
-
-        if (selectedValue !== 'true' && selectedValue !== true) {
-            setValue(`desc_${name}`, '');
-            if (name === '') setValue(`archivo_${name}`, null);
-            if (name === '') {
-                setValue(`nombre_${name}`, '');
-                setValue(`url_${name}`, '');
-            }
-        }
-
-        if (selectedValue !== 'Otro') {
-            setValue(`desc_${name}`, '');
-        }
-    }, [name, setValue]);
-
-    const handleRadioChange = (event) => {
-        const selectedValue = event.target.value;
-        updateAdditionalInput(selectedValue);
-        setValue(name, selectedValue);
-    };
-
-    useEffect(() => {
-        if (watchedRadioValue !== undefined) {
-            updateAdditionalInput(watchedRadioValue);
-        }
-    }, [watchedRadioValue, updateAdditionalInput]);
+    const { register, formState: { errors } } = methods;
 
     return (
-        <DynamicDiv colSpan={additionalInputType ? 2: colSpan} wDiv={wDiv} className="mt-[15px]">
+        <DynamicDiv colSpan={colSpan} wDiv={wDiv} className="mt-[15px]">
             <Typography
                 as="label"
-                titleName={label} 
-                tooltip={tooltip} 
+                titleName={label}
+                tooltip={tooltip}
                 name={name}
                 required={required}
             />
@@ -68,12 +30,11 @@ const Radio = ({
                             {...rest}
                             {...register(name, { required: required ? 'Este campo es obligatorio' : false })}
                             className={`
-                                h-[20px] w-[20px] border-[#5C2472] border cursor-pointer rounded-full appearance-none 
+                                h-[20px] w-[20px] border-[#5C2472] border cursor-pointer rounded-full appearance-none
                                 checked:bg-[#5C2472] checked:border-[#5C2472] checked:before:flex checked:before:items-center
                                 checked:before:justify-center checked:before:h-full hover:bg-[#5C2472]
                                  ${errors[name] ? 'border border-[#EA4336] placeholder-[#EA4336] bg-white' : ''}
                             `}
-                            onChange={handleRadioChange}
                         />
                         <label htmlFor={`${name}-${option.value}`} className="ml-[12px] text-xs text-[#191919] font-garetmedium cursor-pointer">
                             {option.label}

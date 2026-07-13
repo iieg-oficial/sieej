@@ -75,7 +75,7 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
     });
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 pt-1">
             <div className="flex items-start gap-2">
                 <div className="flex-1 min-w-0">
                     <Tabs
@@ -125,7 +125,7 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-6 grid-flow-row-dense gap-4">
                 {visibleFields.map((field) => {
                     const fullName = `${step.id}.${currentIndex}.${field.name}`;
                     return (
