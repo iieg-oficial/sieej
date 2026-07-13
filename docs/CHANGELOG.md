@@ -8,6 +8,14 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.23.3] - 2026-07-13
+
+### Cambiado
+
+- **`frontend/src/forms/renderer/FieldRenderer.jsx`**: se elimina el envoltorio del badge "Condicionado" en la vista de contestación. Los campos condicionales ahora renderizan directamente como cualquier otro campo, conservando su `col-span` vía `DynamicDiv`. El badge solo aplicaba en el preview del admin (mariachi).
+
+---
+
 ## [1.23.2] - 2026-07-13
 
 ### Corregido
