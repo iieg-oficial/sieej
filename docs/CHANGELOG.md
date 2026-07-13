@@ -8,6 +8,48 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.26.1] - 2026-07-13
+
+### Agregado
+
+- **`frontend/knip.json`**: detección de dead code con knip 6. Scripts `check:dead-code` y `check:dead-code:strict` en `package.json`.
+- **`frontend/eslint.config.js`**: plugin `eslint-plugin-jsx-a11y` con reglas recomendadas. Reglas `react-hooks` (exhaustive-deps warn, set-state-in-effect/refs/immutability/preserve-manual-memoization off). Bloqueo de imports PNG. Globals Node para archivos de test.
+
+### Cambiado
+
+- **`frontend/src/components/Modal.jsx`**: backdrop con `role="presentation"`; dialog con `onKeyDown`.
+- **`frontend/src/components/SelectMultiple.jsx`**: dropdown con `role="combobox"` + `aria-controls`/`aria-expanded` + `onKeyDown`. Tag de remove con `role="button"` + `aria-label` + `onKeyDown`.
+- **`frontend/src/components/Tooltip.jsx`**: iconos convertidos en `<button>` accesibles. Overlay full con `role="presentation"` + `onKeyDown`.
+
+### Eliminado
+
+- 6 helpers binarios sin uso: `booleanToString`, `cleanObject`, `compareObjects`, `objectsToStrings`, `objectToFormData`, `stringToBoolean`.
+- Constante `yesOrNot` en `CatalogosContext.jsx`.
+- Componente `FieldWidth` en `FieldLayout.jsx`.
+- Función `getFormularioSchema` en `formulariosServices.js`.
+- Dependencias `@testing-library/react` y `@testing-library/user-event` (sin uso con vitest globals).
+
+---
+
+## [1.26.0] - 2026-07-13
+
+### Agregado
+
+- **`frontend/src/services/formulariosServices.js`**: `actualizarVersionEnvio(slug)` → `POST /formularios/{slug}/envio/actualizar-version`. `putEnvio` acepta `cambios_vistos` y lo envía al backend.
+- **`frontend/src/forms/context/SubmissionContext.jsx`**: expone `actualizarVersion()` (llama al endpoint y recarga envio) y `marcarVisto(key)` (acumula claves en ref para el siguiente guardado). `guardar` y `enviar` mandan `cambios_vistos` acumulados al backend antes de limpiarlos.
+- **`frontend/src/forms/components/wizard/UpdateBanner.jsx`**: banner informativo cuando `envio.actualizacion_disponible`. Muestra "El formulario se actualizó", botón **Ver qué cambió** (lista de cambios por paso/campo con tipo nuevo/eliminado/modificado, resolviendo títulos desde la definición) y botón **Actualizar**.
+- **`frontend/src/forms/renderer/FormRenderer.jsx`**: monta `UpdateBanner` arriba del wizard si `envio.actualizacion_disponible`. Calcula `cambiosPorStep` y `labelMap` para propagar a StepRenderer.
+- **`frontend/src/forms/components/wizard/StepIndicator.jsx`**: recibe `cambiosAplicados` y muestra un badge naranja con el conteo de cambios por paso en el sider.
+- **`frontend/src/forms/renderer/FormStep.jsx`**: chip "Actualizado" en el encabezado si el step tiene cambios. Pasa `cambioField` y `onInteract` a `FieldRenderer` para marcar visto.
+- **`frontend/src/forms/renderer/FieldRenderer.jsx`**: recibe `cambioField` y muestra badge "Nuevo"/"Cambió" junto al label. Al enfocar/editar llama a `onInteract` que registra el campo como visto.
+- **`frontend/src/forms/renderer/RepeaterStep.jsx`**: mismas marcas visuales que FormStep (chip + badges en campos).
+
+### Dependencias del backend
+
+- Requiere mariachi-api ≥1.55.0 (endpoint `actualizar-version`, campos `actualizacion_disponible`/`cambios_preview`/`cambios_aplicados` en `EnvioResponse`).
+
+---
+
 ## [1.25.2] - 2026-07-13
 
 ### Corregido
