@@ -8,6 +8,16 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.24.0] - 2026-07-13
+
+### Agregado
+
+- **`frontend/src/forms/components/wizard/NavigateStep.jsx`**: navegación responsiva con 3 breakpoints usando `screenSize`. Título de sección escala 22→26→30px. Labels completos («Anterior sección»/«Siguiente sección») solo en ≥1536px, cortos en 768–1535px. En <768px los labels van en fila centrada propia.
+- **`frontend/src/components/Button.jsx`**: nuevo prop `fit` para ancho según contenido con `px-6` sin `grow`.
+- **`frontend/src/helpers/DynamicDiv.jsx`**: modo inline (wrapper que abraza el botón sin grid, preservando el ocultado por `colSpan={0}`).
+
+---
+
 ## [1.23.4] - 2026-07-13
 
 ### Corregido
