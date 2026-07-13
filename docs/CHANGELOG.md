@@ -8,6 +8,15 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.25.0] - 2026-07-13
+
+### Agregado
+
+- **`frontend/src/forms/context/SubmissionContext.jsx`**: ahora expone `nombre` y `descripcion` del detalle del formulario (columnas `formulario.nombre` / `formulario.descripcion`), no solo del `definicion` JSON.
+- **`frontend/src/pages/FormPage.jsx`**: el sider (≥1280px) y un encabezado compacto (<1280px con `border-b`) muestran el nombre del formulario como título principal, consultándolo del contexto en lugar del `definicion.nombre`.
+
+---
+
 ## [1.24.0] - 2026-07-13
 
 ### Agregado
