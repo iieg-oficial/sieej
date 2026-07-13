@@ -54,7 +54,7 @@ export default [
             'template-curly-spacing': ['error', 'never'],
             'react-refresh/only-export-components': [
                 'warn',
-                { allowConstantExport: true },
+                { allowConstantExport: true, allowExportNames: ['CatalogosContext', 'FormsContext', 'SubmissionContext', 'WizardContext', 'yesOrNot'] },
             ],
             'no-restricted-imports': ['error', {
                 patterns: [{
