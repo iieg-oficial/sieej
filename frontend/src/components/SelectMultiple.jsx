@@ -63,6 +63,16 @@ const SelectMultiple = ({
             <div
                 id={name}
                 name={name}
+                role="combobox"
+                tabIndex={0}
+                aria-controls={`${name}-listbox`}
+                aria-expanded={showDropdown}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setShowDropdown((prev) => !prev);
+                    }
+                }}
                 className={`
                     mt-[12px] block w-full min-h-[40px] px-3 py-2 flex items-center justify-between 
                     ${showDropdown ? 'rounded-t-lg' : 'rounded-lg '}
@@ -93,13 +103,21 @@ const SelectMultiple = ({
                                     <span className="flex items-center">
                                         {optionLabel}
                                     </span>
-                                    <span 
+                                    <span
+                                        role="button"
+                                        tabIndex={0}
+                                        aria-label={`Eliminar ${optionLabel}`}
                                         className="text-[10px] cursor-pointer flex items-center"
-                                        onClick={(e => {
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                handleRemoveTag(value);
+                                            }
+                                        }}
+                                        onClick={(e) => {
                                             e.stopPropagation();
                                             handleRemoveTag(value);
-                                        }
-                                        )}
+                                        }}
                                     >
                                         &#120;
                                     </span>

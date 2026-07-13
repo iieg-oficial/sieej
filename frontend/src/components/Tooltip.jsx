@@ -43,7 +43,11 @@ const Tooltip = ({ text, showIcon = true, size = 'normal', children }) => {
                     setIsHovered(false);
                 }}
             >
-                {showIcon && <img src={IcoQuestion} alt="tooltip" onClick={() => setIsHovered(true)} className="w-5 h-5"/>}
+                {showIcon && (
+                    <button type="button" onClick={() => setIsHovered(true)} className="w-5 h-5 bg-transparent border-0 p-0 cursor-pointer" aria-label="Mostrar información">
+                        <img src={IcoQuestion} alt="tooltip" className="w-5 h-5"/>
+                    </button>
+                )}
                 {isHovered && typeTooltip === 'normal' && (
                     <div 
                         className="
@@ -68,21 +72,26 @@ const Tooltip = ({ text, showIcon = true, size = 'normal', children }) => {
                     </div>
                 )}
                 {isHovered && typeTooltip === 'full' && (
-                    <div 
+                    <div
                         className="fixed inset-0 flex items-center justify-center z-20 overflow-auto"
                         onClick={() => setIsHovered(false)}
+                        onKeyDown={(e) => { if (e.key === 'Escape') setIsHovered(false); }}
+                        role="presentation"
                     >
-                        <div 
+                        <div
                             className="
-                                max-w-lg w-full shadow-[0px_3px_12px_#4615524D] bg-[#F8F8F8] rounded-[10px] 
+                                max-w-lg w-full shadow-[0px_3px_12px_#4615524D] bg-[#F8F8F8] rounded-[10px]
                                 p-4 md:py-4 md:px-7 text-start font-garetmedium text-xs/[21px] text-[#191919]
                                 max-h-dvh overflow-y-auto grid grid-flow-col
                             "
                             onClick={(e) => e.stopPropagation()}
+                            role="presentation"
                         >
                             <div className="w-5 h-full space-y-4 mr-4">
                                 <img src={IcoQuestion} alt="tooltip"/>
-                                <img src={IcoX} onClick={() => setIsHovered(false)} alt="tooltip" className="cursor-pointer hover:shadow-[0px_3px_12px_#4615524D] rounded-full"/>
+                                <button type="button" onClick={() => setIsHovered(false)} className="cursor-pointer hover:shadow-[0px_3px_12px_#4615524D] rounded-full bg-transparent border-0 p-0" aria-label="Cerrar">
+                                    <img src={IcoX} alt="tooltip"/>
+                                </button>
                             </div>
                             {text}
                         </div>

@@ -4,11 +4,6 @@ import useGlobal from '@context/useGlobal';
 
 export const CatalogosContext = createContext(null);
 
-export const yesOrNot = [
-    { label: 'Sí', value: true },
-    { label: 'No', value: false },
-];
-
 export const CatalogosProvider = ({ children }) => {
     const { hostBackend } = useGlobal();
     const { isAuthenticated, onFetch } = useAuth();

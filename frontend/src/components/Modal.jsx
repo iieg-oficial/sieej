@@ -121,6 +121,7 @@ const Modal = () => {
         <div
             className="fixed inset-0 bg-black/40 flex justify-center items-center z-50"
             onClick={closeModal}
+            role="presentation"
         >
             <div
                 ref={dialogRef}
@@ -129,6 +130,7 @@ const Modal = () => {
                 aria-labelledby={titleId}
                 aria-describedby={descriptionId}
                 onClick={(e) => e.stopPropagation()}
+                onKeyDown={() => {}}
                 className="flex flex-col justify-center items-center space-y-15 p-12 rounded-2xl shadow-lg w-[90%] max-w-[812px] min-h-[312px] bg-white overflow-auto"
             >
                 {icon && icon}

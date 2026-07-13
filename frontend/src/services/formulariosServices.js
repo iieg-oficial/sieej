@@ -44,20 +44,22 @@ export const getFormularioDetalle = async (onFetch, slug) => {
     return parseJson(r);
 };
 
-export const getFormularioSchema = async (onFetch, slug) => {
-    const r = await onFetch(buildUrl(`/formularios/${encodeURIComponent(slug)}/schema`));
-    return parseJson(r);
-};
-
 export const getEnvio = async (onFetch, slug) => {
     const r = await onFetch(buildUrl(`/formularios/${encodeURIComponent(slug)}/envio`));
     return parseJson(r);
 };
 
-export const putEnvio = async (onFetch, slug, { datos, paso_actual = 0, enviar = false }) => {
+export const putEnvio = async (onFetch, slug, { datos, paso_actual = 0, enviar = false, cambios_vistos = [] }) => {
     const r = await onFetch(buildUrl(`/formularios/${encodeURIComponent(slug)}/envio`), {
         method: 'PUT',
-        body: { datos, paso_actual, enviar },
+        body: { datos, paso_actual, enviar, cambios_vistos },
+    });
+    return parseJson(r);
+};
+
+export const actualizarVersionEnvio = async (onFetch, slug) => {
+    const r = await onFetch(buildUrl(`/formularios/${encodeURIComponent(slug)}/envio/actualizar-version`), {
+        method: 'POST',
     });
     return parseJson(r);
 };

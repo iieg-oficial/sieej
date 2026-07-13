@@ -17,8 +17,4 @@ const FieldGrid = ({ col = 4, align = 'center', children }) => {
     )
 };
 
-const FieldWidth = ({ children }) => (
-    <div className="w-full flex space-x-5">{children}</div>
-);
-
-export { FieldGrid, FieldWidth };
+export default FieldGrid;

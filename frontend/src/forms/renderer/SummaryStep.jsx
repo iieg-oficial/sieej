@@ -3,7 +3,7 @@ import { useWatch } from 'react-hook-form';
 import Text from '@components/Text';
 import Typography from '@components/Typography';
 import Divide from '@components/Divide';
-import { FieldGrid } from '@helpers/FieldLayout';
+import FieldGrid from '@helpers/FieldLayout';
 import { resolveOptions } from './catalogResolver';
 import SummaryPdfButton from './pdf/SummaryPdfButton';
 

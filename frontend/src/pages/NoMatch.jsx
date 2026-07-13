@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import useGlobal from '@context/useGlobal';
+// eslint-disable-next-line no-restricted-imports
 import logo404 from '@assets/png/404.png';
 import Typography from '@components/Typography';
 import Button from '@components/Button';
