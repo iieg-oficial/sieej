@@ -8,6 +8,14 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.27.1] - 2026-07-14
+
+### Corregido
+
+- **`frontend/src/forms/components/wizard/StepIndicator.jsx`**: el sider marcaba como **Completada** cualquier etapa anterior a la actual (`idx < currentStep`), sin mirar los datos. Al saltar del paso 1 al 5, los pasos intermedios aparecían con palomita verde aunque estuvieran vacíos. El estado ahora sale siempre del `stepsCompleteness` real: **Completada** / **Datos incompletos** / **No iniciada**, y solo el paso actual es **En proceso**.
+
+---
+
 ## [1.27.0] - 2026-07-14
 
 ### Agregado

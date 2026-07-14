@@ -19,7 +19,6 @@ const CIRCLE_STYLE = {
 
 const computeStatus = (idx, currentStep, completeness) => {
     if (idx === currentStep) return 'En proceso';
-    if (idx < currentStep) return 'Completada';
     if (completeness === 'completo') return 'Completada';
     if (completeness === 'incompleto') return 'Datos incompletos';
     return 'No iniciada';
