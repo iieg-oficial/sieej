@@ -8,6 +8,30 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.27.0] - 2026-07-14
+
+### Agregado
+
+- **`frontend/src/components/BackLink.jsx`**: enlace "Mis formularios" con flecha, reutilizado por `FormPage` (sider y encabezado compacto) y `EnvioDetalle`, que antes traía su propio botón.
+- **`frontend/src/components/icons/DownloadIcon.jsx`**: ícono compartido por `FormList` y `SummaryPdfButton`.
+- **`frontend/src/pages/FormPage.jsx`**: el paso actual se refleja en la URL (`?paso=N`) y se restaura al recargar o al abrir un enlace compartido. `WizardProvider` acepta `initialStep` y marca como visitados los pasos previos.
+- **`frontend/src/pages/FormList.jsx`**: etiqueta **Actualización** en las tarjetas con `actualizacion_disponible`, y el botón de contactar al administrador queda disponible en cualquier estado (antes solo en los enviados).
+- **`frontend/src/forms/components/wizard/StepIndicator.jsx`**: punto morado en los pasos con cambios que aún no se revisan; se apaga al visitar el paso.
+
+### Cambiado
+
+- **`frontend/src/Routes.jsx`**: `ProtectedRoute` espera a que `AuthContext` resuelva la sesión (`isAuthLoading`) antes de decidir; antes parpadeaba hacia `/inicio-sesion` en cada recarga.
+- **`frontend/src/helpers/DynamicDiv.jsx`** y **`FieldRenderer.jsx`**: el `colSpan` de los campos aplica desde `md:`. En móvil todos los campos ocupan el ancho completo en vez de partirse en columnas ilegibles.
+- **`frontend/src/forms/renderer/pdf/SummaryPdfButton.jsx`**: botón icónico (solo ícono en móvil, ícono + texto en escritorio) con spinner mientras genera.
+- **`frontend/src/components/Dragger.jsx`**: la etiqueta usa `Typography as="label"`, con soporte de `required` y `tooltip` como el resto de los campos.
+- **`frontend/src/forms/renderer/RepeaterStep.jsx`**: al cambiar de paso se vuelve al primer item y al primer tab; estilos de las pestañas internas homologados.
+
+### Corregido
+
+- **`frontend/src/forms/renderer/conditional.js`**: `showWhen` sobre un campo `select_multiple` ahora se cumple si el valor seleccionado **está incluido** en el arreglo. Antes se comparaba el arreglo completo como string, así que la condición nunca se cumplía y el campo dependiente no aparecía.
+
+---
+
 ## [1.26.1] - 2026-07-13
 
 ### Agregado

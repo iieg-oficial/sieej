@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import Button from '@components/Button';
 import Tooltip from '@components/Tooltip';
@@ -10,7 +10,7 @@ import FieldRenderer from './FieldRenderer';
 import { evaluarShowWhen } from './conditional';
 import { buildRepeaterItems } from './repeaterItems';
 
-const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
+const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcarVisto }) => {
     const { append, remove } = useFieldArray({ control: methods.control, name: step.id });
     const { activeTab, visitedTabs, onActiveTab, onSizeTab } = useWizard();
     const { isMobile } = useGlobal();
@@ -23,6 +23,32 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
     const list = methods.watch(step.id);
     const count = Array.isArray(list) ? list.length : 0;
 
+    const cambioPorField = useMemo(() => {
+        const map = new Map();
+        cambiosStep.forEach((c) => {
+            if (c.field_name) map.set(c.field_name, c);
+        });
+        return map;
+    }, [cambiosStep]);
+
+    const tabsConCambios = useMemo(() => {
+        const set = new Set();
+        if (!tabs) return set;
+        step.fields.forEach((field) => {
+            if (field.tab && cambioPorField.has(field.name)) set.add(field.tab);
+        });
+        return set;
+    }, [tabs, step.fields, cambioPorField]);
+
+    const [subTabsVistas, setSubTabsVistas] = React.useState(
+        () => new Set(tabs?.[0]?.id ? [tabs[0].id] : []),
+    );
+
+    const verSubTab = (id) => {
+        setActiveSubTab(id);
+        setSubTabsVistas((v) => new Set(v).add(id));
+    };
+
     useEffect(() => {
         onSizeTab?.(count);
     }, [count, onSizeTab]);
@@ -32,6 +58,12 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
             onActiveTab?.(0);
         }
     }, [count, activeTab, onActiveTab]);
+
+    useEffect(() => {
+        onActiveTab?.(0);
+        setActiveSubTab(tabs?.[0]?.id);
+        setSubTabsVistas(new Set(tabs?.[0]?.id ? [tabs[0].id] : []));
+    }, [step.id, tabs, onActiveTab]);
 
     const handleAdd = () => {
         append({});
@@ -76,7 +108,7 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
 
     return (
         <div className="space-y-4 pt-1">
-            <div className="flex items-start gap-2">
+            <div className="flex items-center gap-2 mb-0">
                 <div className="flex-1 min-w-0">
                     <Tabs
                         show
@@ -107,19 +139,27 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
             </div>
 
             {tabs && (
-                <div className="flex gap-2 border-b border-neutral-200">
+                <div className="flex gap-2 mb-0">
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
                             type="button"
-                            onClick={() => setActiveSubTab(tab.id)}
-                            className={`px-4 py-2 text-sm transition ${
+                            onClick={() => verSubTab(tab.id)}
+                            className={`px-4 py-2 text-sm border-b-2! transition ${
                                 activeSubTab === tab.id
-                                    ? 'border-b-2 border-[#5C2473] text-[#5C2473] font-garetbold'
-                                    : 'text-neutral-500 hover:text-neutral-700'
+                                    ? 'border-b-[#5C2472]! text-[#5C2472] font-garetbold!'
+                                    : 'border-b-transparent! text-[#7C7C7C] font-garetregular! hover:text-[#5C2472]'
                             }`}
                         >
-                            {tab.title}
+                            <span className="relative inline-block">
+                                {tab.title}
+                                {tabsConCambios.has(tab.id) && !subTabsVistas.has(tab.id) && (
+                                    <span
+                                        aria-label="Tiene cambios sin revisar"
+                                        className="absolute -top-0.5 -right-2 w-1.5 h-1.5 rounded-full bg-[#5C2472]"
+                                    />
+                                )}
+                            </span>
                         </button>
                     ))}
                 </div>
@@ -128,6 +168,7 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
             <div className="grid grid-cols-1 md:grid-cols-6 grid-flow-row-dense gap-4">
                 {visibleFields.map((field) => {
                     const fullName = `${step.id}.${currentIndex}.${field.name}`;
+                    const cambio = cambioPorField.get(field.name);
                     return (
                         <FieldRenderer
                             key={fullName}
@@ -135,6 +176,8 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload }) => {
                             methods={methods}
                             catalogos={catalogos}
                             onUpload={(_n, file) => onUpload?.(`${step.id}[${currentIndex}].${field.name}`, file)}
+                            cambioField={cambio}
+                            onInteract={marcarVisto ? () => marcarVisto(`${step.id}.${field.name}`) : undefined}
                         />
                     );
                 })}

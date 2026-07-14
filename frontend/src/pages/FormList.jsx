@@ -6,6 +6,7 @@ import { downloadEnvioPdf } from '@services/formulariosServices';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
 import AccessDenied from '@components/AccessDenied';
+import DownloadIcon from '@components/icons/DownloadIcon';
 
 const ESTADO_LABEL = {
     no_iniciado: 'Sin iniciar',
@@ -28,12 +29,15 @@ const SearchIcon = () => (
     </svg>
 );
 
-const DownloadIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-);
-
 const MessageIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 7h.01" />
+        <path d="M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20" />
+        <path d="m20 7 2 .5-2 .5" />
+        <path d="M10 18v3" />
+        <path d="M14 17.75V21" />
+        <path d="M7 18a6 6 0 0 0 3.84-10.61" />
+    </svg>
 );
 
 const SearchBox = ({ q, onQ }) => {
@@ -63,28 +67,35 @@ const SearchBox = ({ q, onQ }) => {
     );
 };
 
-const actionBtn = 'p-0.5 rounded transition text-[#7C7C7C] hover:text-[#5C2473] hover:bg-[#F0E2F5] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C2473]/40';
+const actionBtn = 'inline-flex shrink-0 items-center justify-center h-8 w-8 p-0! rounded-full transition text-[#7C7C7C] hover:text-[#5C2473] hover:bg-[#F0E2F5] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C2473]/40';
 
 const FormCard = ({ formulario, onClick, onDownloadPdf, onContactAdmin }) => {
     const isEnviado = formulario.estado_envio === 'enviado';
 
     return (
         <div className="rounded-[16px] border border-[#E2E2E2] bg-white shadow-sm hover:shadow-lg hover:border-[#5C2473] hover:-translate-y-px transition duration-200 flex flex-col overflow-hidden">
-            <button type="button" onClick={onClick} className="text-left p-5 pb-3 flex-1">
+            <button type="button" onClick={onClick} className="text-left p-5 pb-5 flex-1">
                 <Typography as="h2" className="!text-[#5C2473]" titleName={formulario.nombre} />
                 {formulario.descripcion && <Typography as="p" className="text-[#7C7C7C] font-garetregular mt-1" titleName={formulario.descripcion} />}
                 {formulario.vigencia_fin && <p className="text-xs text-[#7C7C7C] mt-2">Vigencia hasta {new Date(formulario.vigencia_fin).toLocaleDateString()}</p>}
             </button>
-            <div className="flex items-center justify-between px-5 pb-4 pt-0">
-                <span className={`text-xs font-garetbold px-3 py-1 rounded-full ${ESTADO_COLOR[formulario.estado_envio] || ESTADO_COLOR.no_iniciado}`}>
-                    {ESTADO_LABEL[formulario.estado_envio] || formulario.estado_envio}
-                </span>
-                {isEnviado && (
-                    <div className="flex items-center gap-0.5">
+            <div className="flex items-center justify-between p-5">
+                <div className="flex items-center gap-2">
+                    <span className={`text-xs font-garetbold px-3 py-1 rounded-full ${ESTADO_COLOR[formulario.estado_envio] || ESTADO_COLOR.no_iniciado}`}>
+                        {ESTADO_LABEL[formulario.estado_envio] || formulario.estado_envio}
+                    </span>
+                    {formulario.actualizacion_disponible && (
+                        <span className="text-xs font-garetbold px-3 py-1 rounded-full bg-[#FEDAB2] text-[#FF8300]">
+                            Actualización
+                        </span>
+                    )}
+                </div>
+                <div className="flex items-center gap-1 justify-end">
+                    {isEnviado && (
                         <button type="button" onClick={(e) => { e.stopPropagation(); onDownloadPdf(formulario); }} className={actionBtn} aria-label="Descargar PDF" title="Descargar PDF"><DownloadIcon /></button>
-                        <button type="button" onClick={(e) => { e.stopPropagation(); onContactAdmin(formulario); }} className={actionBtn} aria-label="Solicitar reapertura" title="Solicitar reapertura"><MessageIcon /></button>
-                    </div>
-                )}
+                    )}
+                    <button type="button" onClick={(e) => { e.stopPropagation(); onContactAdmin(formulario); }} className={actionBtn} aria-label="Contactar al administrador" title="Contactar al administrador"><MessageIcon /></button>
+                </div>
             </div>
         </div>
     );

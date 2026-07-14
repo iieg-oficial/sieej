@@ -14,9 +14,12 @@ const FormPage = lazy(() => import('./pages/FormPage'));
 const EnvioDetalle = lazy(() => import('./pages/EnvioDetalle'));
 
 const ProtectedRoute = () => {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, isAuthLoading, user } = useAuth();
     const location = useLocation();
 
+    if (isAuthLoading) {
+        return <div className="flex items-center justify-center min-h-dvh"><Loading /></div>;
+    }
     if (!isAuthenticated) {
         return <Navigate to="/inicio-sesion" replace state={{ from: location }} />;
     }

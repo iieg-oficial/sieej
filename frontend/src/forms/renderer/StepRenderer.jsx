@@ -3,12 +3,30 @@ import FormStep from './FormStep';
 import RepeaterStep from './RepeaterStep';
 import SummaryStep from './SummaryStep';
 
-const StepRenderer = ({ step, methods, catalogos, onUpload }) => {
+const StepRenderer = ({ step, methods, catalogos, onUpload, cambiosStep, marcarVisto }) => {
     switch (step.type) {
     case 'form':
-        return <FormStep step={step} methods={methods} catalogos={catalogos} onUpload={onUpload} />;
+        return (
+            <FormStep
+                step={step}
+                methods={methods}
+                catalogos={catalogos}
+                onUpload={onUpload}
+                cambiosStep={cambiosStep}
+                marcarVisto={marcarVisto}
+            />
+        );
     case 'repeater':
-        return <RepeaterStep step={step} methods={methods} catalogos={catalogos} onUpload={onUpload} />;
+        return (
+            <RepeaterStep
+                step={step}
+                methods={methods}
+                catalogos={catalogos}
+                onUpload={onUpload}
+                cambiosStep={cambiosStep}
+                marcarVisto={marcarVisto}
+            />
+        );
     case 'summary':
         return (
             <SummaryStep

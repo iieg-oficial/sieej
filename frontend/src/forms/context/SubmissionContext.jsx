@@ -1,10 +1,11 @@
-import React, { createContext, useCallback, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useRef, useState } from 'react';
 import useAuth from '@context/useAuth';
 import {
     getEnvio,
     getFormularioDetalle,
     putEnvio,
     uploadArchivo,
+    actualizarVersionEnvio,
 } from '@services/formulariosServices';
 
 export const SubmissionContext = createContext(null);
@@ -18,6 +19,7 @@ export const SubmissionProvider = ({ slug, children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [saving, setSaving] = useState(false);
+    const cambiosVistosRef = useRef([]);
 
     const cargar = useCallback(async () => {
         setLoading(true);
@@ -33,6 +35,7 @@ export const SubmissionProvider = ({ slug, children }) => {
                 const e = await getEnvio(onFetch, slug);
                 setEnvio(e);
             }
+            cambiosVistosRef.current = [];
         } catch (e) {
             setError(e.message);
         } finally {
@@ -47,10 +50,13 @@ export const SubmissionProvider = ({ slug, children }) => {
     const guardar = useCallback(async (datos, pasoActual) => {
         setSaving(true);
         try {
+            const vistos = cambiosVistosRef.current;
+            cambiosVistosRef.current = [];
             const e = await putEnvio(onFetch, slug, {
                 datos,
                 paso_actual: pasoActual ?? 0,
                 enviar: false,
+                cambios_vistos: vistos,
             });
             setEnvio(e);
             return e;
@@ -63,10 +69,13 @@ export const SubmissionProvider = ({ slug, children }) => {
         setSaving(true);
         try {
             const lastStep = (definicion?.steps?.length ?? 1) - 1;
+            const vistos = cambiosVistosRef.current;
+            cambiosVistosRef.current = [];
             const e = await putEnvio(onFetch, slug, {
                 datos,
                 paso_actual: lastStep,
                 enviar: true,
+                cambios_vistos: vistos,
             });
             setEnvio(e);
             return e;
@@ -79,10 +88,28 @@ export const SubmissionProvider = ({ slug, children }) => {
         return uploadArchivo(onFetch, slug, fieldPath, file);
     }, [onFetch, slug]);
 
+    const actualizarVersion = useCallback(async () => {
+        setSaving(true);
+        try {
+            const e = await actualizarVersionEnvio(onFetch, slug);
+            setEnvio(e);
+            cambiosVistosRef.current = [];
+            await cargar();
+            return e;
+        } finally {
+            setSaving(false);
+        }
+    }, [onFetch, slug, cargar]);
+
+    const marcarVisto = useCallback((key) => {
+        cambiosVistosRef.current = [...cambiosVistosRef.current, key];
+    }, []);
+
     return (
         <SubmissionContext.Provider value={{
             definicion, nombre, descripcion, envio, loading, error, saving,
             guardar, enviar, subirArchivo, recargar: cargar,
+            actualizarVersion, marcarVisto,
         }}>
             {children}
         </SubmissionContext.Provider>

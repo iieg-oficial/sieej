@@ -29,7 +29,23 @@ const StepIndicator = ({
     steps, currentStep, visited, onStepClick,
     repeaterItems, activeTab, visitedTabs,
     onTabClick, onTabRemove, stepsCompleteness,
+    cambiosAplicados,
 }) => {
+    const cambiosPorStepId = React.useMemo(() => {
+        const map = new Map();
+        (cambiosAplicados ?? []).forEach((c) => {
+            const count = map.get(c.step_id) || 0;
+            map.set(c.step_id, count + 1);
+        });
+        return map;
+    }, [cambiosAplicados]);
+
+    const [stepsVistos, setStepsVistos] = React.useState(() => new Set([currentStep]));
+
+    React.useEffect(() => {
+        setStepsVistos((v) => (v.has(currentStep) ? v : new Set(v).add(currentStep)));
+    }, [currentStep]);
+
     const isShowTabs = (index) =>
         index === currentStep && Array.isArray(repeaterItems) && repeaterItems.length > 0;
 
@@ -43,6 +59,7 @@ const StepIndicator = ({
                 const isLastStep = index === steps.length - 1;
                 const showTabs = isShowTabs(index);
                 const hasBody = !isLastStep || showTabs;
+                const numCambios = cambiosPorStepId.get(step.id) ?? 0;
                 return (
                     <div key={step.id || index} className="flex flex-col">
                         <div
@@ -66,7 +83,15 @@ const StepIndicator = ({
                                     : index + 1}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <Typography as="p" titleName={step.title} className="break-words" />
+                                <div className="flex items-start gap-1.5">
+                                    <Typography as="p" titleName={step.title} className="break-words" />
+                                    {numCambios > 0 && !stepsVistos.has(index) && (
+                                        <span
+                                            aria-label="Tiene actualizaciones sin revisar"
+                                            className="mt-1 w-1.5 h-1.5 rounded-full bg-[#5C2472] shrink-0"
+                                        />
+                                    )}
+                                </div>
                                 <p className={`text-xs font-garetbold ${COLOR_TEXT[status] || COLOR_TEXT.default}`}>
                                     {status}
                                 </p>

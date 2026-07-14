@@ -5,7 +5,7 @@ import DynamicDiv from '@helpers/DynamicDiv';
 import ErrorsRequired from '@helpers/ErrorsRequired';
 import extractFileName from '@helpers/extractFileName';
 import useGlobal from '@context/useGlobal';
-import Label from './Label';
+import Typography from './Typography';
 
 const Dragger = ({
     idItem, name, label, multiple, accept = 'image/*', maxSizeMB = 2,
@@ -78,7 +78,7 @@ const Dragger = ({
 
     return (
         <DynamicDiv colSpan={colSpan} wDiv={wDiv}>
-            <Label labelName={label} tooltip={tooltip}/>
+            <Typography as="label" titleName={label} tooltip={tooltip} name={name} required={required} />
             <Controller
                 name={name}
                 control={control}

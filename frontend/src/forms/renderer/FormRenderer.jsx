@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import Typography from '@components/Typography';
 import StepRenderer from './StepRenderer';
 import NavigateStep from '@forms/components/wizard/NavigateStep';
 import useWizard from '@forms/context/useWizard';
+import useSubmission from '@forms/context/useSubmission';
 import useGlobal from '@context/useGlobal';
 import { requisitosPendientes, stepIncompleto } from './completeness';
 
@@ -19,6 +20,7 @@ const FormRenderer = ({
     const { handleSubmit, reset, getValues, formState: { isDirty } } = methods;
     const { currentStep, goNext, goPrev, activeTab } = useWizard();
     const { openModal, closeModal } = useGlobal();
+    const { marcarVisto } = useSubmission();
 
     useEffect(() => {
         if (envio?.datos) reset(envio.datos);
@@ -33,6 +35,16 @@ const FormRenderer = ({
     const isFirst = currentStep === 0;
     const isLast = currentStep >= steps.length - 1;
     const isReadOnly = envio?.estado === 'enviado' || envio?.estado === 'expirado';
+
+    const cambiosPorStep = useMemo(() => {
+        const map = new Map();
+        (envio?.cambios_aplicados ?? []).forEach((c) => {
+            const items = map.get(c.step_id) || [];
+            items.push(c);
+            map.set(c.step_id, items);
+        });
+        return map;
+    }, [envio?.cambios_aplicados]);
 
     const pendienteMsg = !isReadOnly && step
         ? requisitosPendientes(step, { [step.id]: methods.watch(step.id) })
@@ -112,6 +124,8 @@ const FormRenderer = ({
                 methods={methods}
                 catalogos={catalogos}
                 onUpload={onUpload}
+                cambiosStep={cambiosPorStep.get(step.id) ?? []}
+                marcarVisto={marcarVisto}
             />
         </div>
     );

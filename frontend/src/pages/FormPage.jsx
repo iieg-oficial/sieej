@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { SubmissionProvider } from '@forms/context/SubmissionContext';
 import useSubmission from '@forms/context/useSubmission';
 import { WizardProvider } from '@forms/context/WizardContext';
 import useWizard from '@forms/context/useWizard';
 import FormRenderer from '@forms/renderer/FormRenderer';
 import StepIndicator from '@forms/components/wizard/StepIndicator';
+import UpdateBanner from '@forms/components/wizard/UpdateBanner';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
+import BackLink from '@components/BackLink';
 import Button from '@components/Button';
 import Modal from '@components/Modal';
 import useGlobal from '@context/useGlobal';
@@ -57,12 +59,23 @@ const formatearErrores = (errores, definicion) => {
 };
 
 const FormularioContent = () => {
-    const { definicion, nombre, descripcion, envio, loading, error, guardar, enviar, subirArchivo } = useSubmission();
+    const { definicion, nombre, descripcion, envio, loading, error, guardar, enviar, subirArchivo, actualizarVersion } = useSubmission();
     const { currentStep, visited, goTo, activeTab, visitedTabs, sizeTabs, onActiveTab } = useWizard();
     const { onMessage, isMobile, openModal } = useGlobal();
     const { catalogos } = useCatalogos();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [methods, setMethods] = useState(null);
+
+    useEffect(() => {
+        const actual = searchParams.get('paso');
+        const deseado = currentStep > 0 ? String(currentStep) : null;
+        if (actual === deseado) return;
+        const next = new URLSearchParams(searchParams);
+        if (deseado) next.set('paso', deseado);
+        else next.delete('paso');
+        setSearchParams(next, { replace: true });
+    }, [currentStep, searchParams, setSearchParams]);
 
     if (loading) return <div className="flex justify-center py-10"><Loading /></div>;
     if (error) {
@@ -144,9 +157,10 @@ const FormularioContent = () => {
         <React.Fragment>
             <div className="flex space-x-2 md:space-x-5">
                 {showSidePanel && (
-                    <div className="hidden xl:block w-[513px] rounded-[20px] bg-white p-7 sx:hidden lg:w-[670px] lg:p-10">
-                        <div className="flex flex-col space-y-2 items-start justify-start sticky top-10">
+                    <div className="hidden xl:block w-[513px] rounded-[20px] bg-white p-7 sx:hidden lg:w-[670px] lg:p-10 lg:pt-[22px]">
+                        <div className="flex flex-col space-y-2 items-start justify-start sticky top-[22px]">
                             <div>
+                                <BackLink to="/" />
                                 <Typography as="h1" className="!mb-0" titleName={nombre || 'Formulario'} />
                                 {descripcion && (
                                     <Typography
@@ -156,6 +170,13 @@ const FormularioContent = () => {
                                     />
                                 )}
                             </div>
+                            {envio?.actualizacion_disponible && (
+                                <UpdateBanner
+                                    cambiosPreview={envio.cambios_preview}
+                                    definicion={definicion}
+                                    onActualizar={actualizarVersion}
+                                />
+                            )}
                             <StepIndicator
                                 steps={steps}
                                 currentStep={currentStep}
@@ -168,6 +189,7 @@ const FormularioContent = () => {
                                 onTabClick={onActiveTab}
                                 onTabRemove={handleTabRemove}
                                 stepsCompleteness={stepsCompleteness}
+                                cambiosAplicados={envio?.cambios_aplicados}
                             />
                         </div>
                     </div>
@@ -178,8 +200,18 @@ const FormularioContent = () => {
                         bg-white shadow-xl-[#03222708] px-2 pb-2 md:px-10 md:pb-10 text-black
                     "
                 >
-                    <div className="xl:hidden w-full pt-4 md:pt-6 pb-3 border-b border-[#E2E2E2]">
-                        <Typography as="h2" titleName={nombre || 'Formulario'} />
+                    <div className="xl:hidden w-full pt-4 md:pt-6 pb-3">
+                        <BackLink to="/" />
+                        <Typography as="h2" className="mt-1" titleName={nombre || 'Formulario'} />
+                        {envio?.actualizacion_disponible && (
+                            <div className="mt-3">
+                                <UpdateBanner
+                                    cambiosPreview={envio.cambios_preview}
+                                    definicion={definicion}
+                                    onActualizar={actualizarVersion}
+                                />
+                            </div>
+                        )}
                     </div>
                     <FormRenderer
                         definicion={definicion}
@@ -208,10 +240,16 @@ const stepHasData = (step, datos) => {
 
 const FormSizer = () => {
     const { definicion, envio, loading } = useSubmission();
+    const [searchParams] = useSearchParams();
     if (loading || !definicion) return <div className="flex justify-center py-10"><Loading /></div>;
 
     const steps = definicion.steps ?? [];
+    const pasoParam = Number.parseInt(searchParams.get('paso'), 10);
+    const initialStep = Number.isInteger(pasoParam) && pasoParam > 0 && pasoParam < steps.length
+        ? pasoParam
+        : 0;
     const initialVisited = new Set([0]);
+    for (let i = 1; i <= initialStep; i++) initialVisited.add(i);
     steps.forEach((step, idx) => {
         if (idx > 0 && stepHasData(step, envio?.datos)) {
             initialVisited.add(idx);
@@ -231,7 +269,7 @@ const FormSizer = () => {
     })();
 
     return (
-        <WizardProvider totalSteps={steps.length} initialVisited={initialVisited} initialVisitedTabs={initialVisitedTabs}>
+        <WizardProvider totalSteps={steps.length} initialStep={initialStep} initialVisited={initialVisited} initialVisitedTabs={initialVisitedTabs}>
             <FormularioContent />
         </WizardProvider>
     );

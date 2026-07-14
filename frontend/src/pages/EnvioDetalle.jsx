@@ -12,6 +12,7 @@ import EnvioAdjuntos from '@forms/components/EnvioAdjuntos';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
 import Button from '@components/Button';
+import BackLink from '@components/BackLink';
 
 const ESTADO_LABEL = {
     en_proceso: 'En proceso',
@@ -40,10 +41,8 @@ const MOBILE_TABS = [
 
 const EnvioDetalleContent = ({ envio }) => {
     const { catalogos } = useCatalogos();
-    const navigate = useNavigate();
     const methods = useForm({ defaultValues: envio.datos || {} });
     const [activeTab, setActiveTab] = useState(0);
-    const backLabel = 'Volver a mis formularios';
 
     const definicion = envio.definicion_snapshot || {};
     const summaryStep = (definicion.steps || []).find((s) => s.type === 'summary') || null;
@@ -58,16 +57,8 @@ const EnvioDetalleContent = ({ envio }) => {
             <div className="flex flex-col xl:flex-row gap-5 pb-5">
                 <main className="flex-1 min-w-0 rounded-[20px] bg-white px-2 pb-2 md:px-10 md:pb-10 md:pt-10">
                     <div className="sticky top-0 z-10 bg-white pb-4 space-y-4">
-                        <div className="flex items-center justify-between gap-3">
-                            <button
-                                type="button"
-                                onClick={() => navigate('/')}
-                                className="text-[12px] text-[#7C7C7C] hover:text-[#5C2472] font-garetmedium flex items-center gap-1"
-                                aria-label={backLabel}
-                            >
-                                ← <span className="md:hidden">Volver</span>
-                                <span className="hidden md:inline">{backLabel}</span>
-                            </button>
+                        <div className="flex items-center justify-between gap-3 mt-2 md:mt-0">
+                            <BackLink to="/" />
                             {summaryStep && (
                                 <div className="shrink-0">
                                     <SummaryPdfButton
@@ -77,7 +68,7 @@ const EnvioDetalleContent = ({ envio }) => {
                                 </div>
                             )}
                         </div>
-                        <div className="flex items-start justify-between gap-3">
+                        <div className="flex flex-col items-start md:flex-row md:justify-between gap-3">
                             <div className="min-w-0">
                                 <Typography as="h1" titleName={envio.formulario.nombre} />
                                 {envio.formulario.descripcion && (
