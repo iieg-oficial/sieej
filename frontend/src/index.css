@@ -53,6 +53,20 @@ button {
     --font-garetbook: "GaretBook", "sans-serif";
     --font-garetbook--font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     --font-garetbook--font-variation-settings: "opsz" 32;
+
+    --animate-pulse-soft: pulse-soft 2.4s ease-in-out infinite;
+
+    @keyframes pulse-soft {
+        0% {
+            opacity: 1;
+        }
+        75% {
+            opacity: 0.15;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
 }
 
 @-moz-document url-prefix() {

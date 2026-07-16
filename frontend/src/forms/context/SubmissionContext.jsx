@@ -29,12 +29,11 @@ export const SubmissionProvider = ({ slug, children }) => {
             setDefinicion(detalle.definicion);
             setNombre(detalle.nombre || '');
             setDescripcion(detalle.descripcion || '');
-            if (detalle.envio) {
-                setEnvio(detalle.envio);
-            } else {
-                const e = await getEnvio(onFetch, slug);
-                setEnvio(e);
+            let e = detalle.envio ?? await getEnvio(onFetch, slug);
+            if (e?.actualizacion_disponible) {
+                e = await actualizarVersionEnvio(onFetch, slug).catch(() => e);
             }
+            setEnvio(e);
             cambiosVistosRef.current = [];
         } catch (e) {
             setError(e.message);
@@ -58,12 +57,17 @@ export const SubmissionProvider = ({ slug, children }) => {
                 enviar: false,
                 cambios_vistos: vistos,
             });
+            if (e?.actualizacion_disponible) {
+                await actualizarVersionEnvio(onFetch, slug).catch(() => null);
+                await cargar();
+                return e;
+            }
             setEnvio(e);
             return e;
         } finally {
             setSaving(false);
         }
-    }, [onFetch, slug]);
+    }, [onFetch, slug, cargar]);
 
     const enviar = useCallback(async (datos) => {
         setSaving(true);
@@ -88,19 +92,6 @@ export const SubmissionProvider = ({ slug, children }) => {
         return uploadArchivo(onFetch, slug, fieldPath, file);
     }, [onFetch, slug]);
 
-    const actualizarVersion = useCallback(async () => {
-        setSaving(true);
-        try {
-            const e = await actualizarVersionEnvio(onFetch, slug);
-            setEnvio(e);
-            cambiosVistosRef.current = [];
-            await cargar();
-            return e;
-        } finally {
-            setSaving(false);
-        }
-    }, [onFetch, slug, cargar]);
-
     const marcarVisto = useCallback((key) => {
         cambiosVistosRef.current = [...cambiosVistosRef.current, key];
     }, []);
@@ -109,7 +100,7 @@ export const SubmissionProvider = ({ slug, children }) => {
         <SubmissionContext.Provider value={{
             definicion, nombre, descripcion, envio, loading, error, saving,
             guardar, enviar, subirArchivo, recargar: cargar,
-            actualizarVersion, marcarVisto,
+            marcarVisto,
         }}>
             {children}
         </SubmissionContext.Provider>

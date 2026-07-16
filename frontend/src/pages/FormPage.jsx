@@ -59,13 +59,14 @@ const formatearErrores = (errores, definicion) => {
 };
 
 const FormularioContent = () => {
-    const { definicion, nombre, descripcion, envio, loading, error, guardar, enviar, subirArchivo, actualizarVersion } = useSubmission();
+    const { definicion, nombre, descripcion, envio, loading, error, guardar, enviar, subirArchivo, marcarVisto } = useSubmission();
     const { currentStep, visited, goTo, activeTab, visitedTabs, sizeTabs, onActiveTab } = useWizard();
     const { onMessage, isMobile, openModal } = useGlobal();
     const { catalogos } = useCatalogos();
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [methods, setMethods] = useState(null);
+    const [avisoOculto, setAvisoOculto] = useState(false);
 
     useEffect(() => {
         const actual = searchParams.get('paso');
@@ -153,6 +154,15 @@ const FormularioContent = () => {
         onActiveTab?.(newActive);
     };
 
+    const cambiosAplicados = envio?.cambios_aplicados ?? [];
+    const showAviso = !avisoOculto && cambiosAplicados.length > 0 && envio?.estado === 'en_proceso';
+
+    const handleAvisoEntendido = () => {
+        setAvisoOculto(true);
+        [...new Set(cambiosAplicados.map((c) => c.step_id))].forEach(marcarVisto);
+        if (methods) handleSave(methods.getValues(), currentStep, true);
+    };
+
     return (
         <React.Fragment>
             <div className="flex space-x-2 md:space-x-5">
@@ -170,11 +180,11 @@ const FormularioContent = () => {
                                     />
                                 )}
                             </div>
-                            {envio?.actualizacion_disponible && (
+                            {showAviso && (
                                 <UpdateBanner
-                                    cambiosPreview={envio.cambios_preview}
+                                    cambios={cambiosAplicados}
                                     definicion={definicion}
-                                    onActualizar={actualizarVersion}
+                                    onEntendido={handleAvisoEntendido}
                                 />
                             )}
                             <StepIndicator
@@ -203,12 +213,12 @@ const FormularioContent = () => {
                     <div className="xl:hidden w-full pt-4 md:pt-6 pb-3">
                         <BackLink to="/" />
                         <Typography as="h2" className="mt-1" titleName={nombre || 'Formulario'} />
-                        {envio?.actualizacion_disponible && (
+                        {showAviso && (
                             <div className="mt-3">
                                 <UpdateBanner
-                                    cambiosPreview={envio.cambios_preview}
+                                    cambios={cambiosAplicados}
                                     definicion={definicion}
-                                    onActualizar={actualizarVersion}
+                                    onEntendido={handleAvisoEntendido}
                                 />
                             </div>
                         )}

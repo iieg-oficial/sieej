@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import arrowDown from '@assets/icons/ico_down_arrow.svg';
 
 const TIPO_BADGE = {
     nuevo: 'bg-[#EAF6ED] text-[#34A853]',
@@ -19,68 +20,87 @@ const buildLabelMap = (definicion) => {
     return map;
 };
 
-const UpdateBanner = ({ cambiosPreview, definicion, onActualizar }) => {
+const Badge = ({ tipo }) => (
+    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-garetbold ${TIPO_BADGE[tipo] || 'bg-[#F0E2F5] text-[#5C2472]'}`}>
+        {TIPO_LABEL[tipo] || tipo}
+    </span>
+);
+
+const UpdateBanner = ({ cambios, definicion, onEntendido }) => {
     const [mostrando, setMostrando] = useState(false);
-    const [actualizando, setActualizando] = useState(false);
 
     const labelMap = useMemo(() => buildLabelMap(definicion), [definicion]);
 
-    const handleActualizar = async () => {
-        setActualizando(true);
-        try {
-            await onActualizar?.();
-        } finally {
-            setActualizando(false);
-        }
-    };
+    const grupos = useMemo(() => {
+        const porStep = new Map();
+        (cambios ?? []).forEach((c) => {
+            const grupo = porStep.get(c.step_id) || { stepCambio: null, items: [] };
+            if (c.field_name) grupo.items.push(c);
+            else grupo.stepCambio = c;
+            porStep.set(c.step_id, grupo);
+        });
+        return [...porStep.entries()].map(([stepId, grupo]) => ({ stepId, ...grupo }));
+    }, [cambios]);
+
+    if (!cambios?.length) return null;
 
     return (
-        <div className="mt-4">
-            <div className="flex items-center gap-1 flex-wrap">
-                <button
-                    type="button"
-                    onClick={handleActualizar}
-                    disabled={actualizando}
-                    title="Actualiza tu envío a la versión más reciente del formulario. Tus respuestas se conservan."
-                    className="flex items-center justify-center h-[40px] rounded-[20px] px-6 bg-[#FEDAB2] text-[#FF8300] border border-[#FF8300] font-garetbold text-sm hover:shadow-[0px_8px_16px_#6E6E6E29] disabled:bg-[#CBCBCB] disabled:text-[#5B6670] disabled:border-[#CBCBCB] disabled:cursor-not-allowed cursor-pointer"
-                >
-                    {actualizando ? (
-                        <span className="inline-block w-4 h-4 border-2 border-[#FF8300] border-t-transparent rounded-full animate-spin mr-2" />
-                    ) : null}
-                    Actualizar formulario
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setMostrando((v) => !v)}
-                    className="flex items-center gap-1 text-sm text-[#5C2472] hover:underline cursor-pointer bg-transparent border-none p-0 font-garetregular"
-                >
-                    {mostrando ? 'Ocultar cambios' : 'Ver cambios'}
-                </button>
-            </div>
+        <div className="mt-4 w-full rounded-[20px] border border-[#5C2472]">
+            <button
+                type="button"
+                aria-expanded={mostrando}
+                onClick={() => setMostrando((v) => !v)}
+                className="w-full flex items-center gap-2 px-2.5 py-1.5 cursor-pointer bg-transparent border-none text-left"
+            >
+                <img
+                    src={arrowDown}
+                    alt=""
+                    className={`w-3 h-3 transition-transform shrink-0 ${mostrando ? 'rotate-180' : ''}`}
+                />
+                <span className="ml-1 text-sm font-garetbold text-[#5C2472] flex-1 min-w-0">
+                    El formulario se actualizó
+                </span>
+                <span aria-hidden="true" className="w-2 h-2 mr-2 rounded-full bg-[#5C2472] animate-pulse-soft shrink-0" />
+            </button>
 
-            {mostrando && cambiosPreview && cambiosPreview.length > 0 && (
-                <ul className="mt-2 space-y-1.5 text-xs pl-6">
-                    {cambiosPreview.map((c, i) => {
-                        const stepLabel = labelMap[c.step_id] || c.step_id;
-                        const fieldLabel = c.field_name
-                            ? labelMap[`${c.step_id}.${c.field_name}`] || c.field_name
-                            : null;
-                        return (
-                            <li key={i} className="flex items-center gap-1.5 break-words">
-                                <span className="font-garetbold shrink-0">{stepLabel}</span>
-                                {fieldLabel && (
-                                    <>
-                                        <span className="text-[#CBCBCB] shrink-0 font-garetregular">·</span>
-                                        <span className="shrink-0 font-garetregular">{fieldLabel}</span>
-                                    </>
+            {mostrando && (
+                <>
+                    <div className="mx-2 p-3 rounded-[12px] bg-[#F8F8F8] max-h-48 overflow-y-auto space-y-2">
+                        {grupos.map(({ stepId, stepCambio, items }) => (
+                            <div key={stepId}>
+                                <div className="flex items-center gap-1.5">
+                                    <span className={`text-xs font-garetbold text-[#191919] ${stepCambio?.tipo === 'eliminado' ? 'line-through text-[#7C7C7C]' : ''}`}>
+                                        {labelMap[stepId] || stepId}
+                                    </span>
+                                    {stepCambio && <Badge tipo={stepCambio.tipo} />}
+                                </div>
+                                {items.length > 0 && (
+                                    <ul className="mt-1 space-y-1 pl-3">
+                                        {items.map((c, i) => (
+                                            <li key={i} className="flex items-center gap-1.5 break-words">
+                                                <span className={`text-xs font-garetregular ${c.tipo === 'eliminado' ? 'line-through text-[#7C7C7C]' : 'text-[#191919]'}`}>
+                                                    {labelMap[`${stepId}.${c.field_name}`] || c.field_name}
+                                                </span>
+                                                <Badge tipo={c.tipo} />
+                                            </li>
+                                        ))}
+                                    </ul>
                                 )}
-                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-garetbold ml-1 ${TIPO_BADGE[c.tipo] || 'bg-[#F0E2F5] text-[#5C2472]'}`}>
-                                    {TIPO_LABEL[c.tipo] || c.tipo}
-                                </span>
-                            </li>
-                        );
-                    })}
-                </ul>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="mx-2 my-0.5 flex justify-end gap-2">
+                        {onEntendido && (
+                            <button
+                                type="button"
+                                onClick={onEntendido}
+                                className="cursor-pointer border-none text-xs font-garetbold px-3 py-1 rounded-full bg-transparent text-[#34A853]"
+                            >
+                                Entendido
+                            </button>
+                        )}
+                    </div>
+                </>
             )}
         </div>
     );
