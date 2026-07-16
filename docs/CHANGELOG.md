@@ -8,6 +8,24 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.28.0] - 2026-07-16
+
+### La actualización de formularios se aplica sola
+
+El botón **Actualizar formulario** desaparece: cuando el admin publica un cambio que rompe, el respondent ya no decide si migra — al abrir el formulario el frontend aplica la actualización automáticamente y solo se le avisa qué cambió. Las respuestas capturadas se conservan (el backend nunca poda `datos`).
+
+### Cambiado
+
+- **`frontend/src/forms/context/SubmissionContext.jsx`**: al cargar el formulario, si el envío trae `actualizacion_disponible`, se llama `POST /formularios/{slug}/envio/actualizar-version` y se continúa con el envío ya migrado. Lo mismo si la respuesta de un guardado detecta que el admin publicó a media sesión (se aplica y se recarga la definición vigente). Se retira `actualizarVersion` del contexto.
+- **`frontend/src/forms/components/wizard/UpdateBanner.jsx`**: pasa de acción a aviso colapsable homologado al diseño de SIEEJ: contenedor pill (`rounded-[20px]`, borde morado 1px, sin sombra) cuyo header completo es clickeable — chevron (`ico_down_arrow`, rota al abrir) + "El formulario se actualizó" en garetbold `#5C2472` + punto pulsante morado (animación `pulse-soft` en `index.css`: se apaga lento, prende rápido). La lista despliega agrupada por paso sobre un bloque gris tipo input (`bg-[#F8F8F8]`, campos indentados, eliminados con tachado, `max-h` con scroll; ahora sobre `cambios_aplicados` en lugar de `cambios_preview`). Al pie, **Entendido** en texto verde `#34A853` sin fondo: marca todos los cambios como vistos mandando los `step_id` como `cambios_vistos` en un guardado silencioso y retira el aviso completo.
+- **`frontend/src/pages/FormPage.jsx`**: el aviso se muestra mientras el envío `en_proceso` tenga `cambios_aplicados` sin revisar (antes dependía de `actualizacion_disponible`, que ahora se resuelve solo). Los badges por paso/campo siguen apagándose al interactuar con cada campo.
+
+### Dependencias del backend
+
+- Sin cambios de contrato: mismos endpoints de mariachi-api ≥1.55.0. Desde mariachi-api 1.57.0, cada cambio `rompe` archiva además la definición previa en `sieej.formulario_version` (historial para interpretar los valores de campos eliminados que permanecen en `datos`).
+
+---
+
 ## [1.27.1] - 2026-07-14
 
 ### Corregido

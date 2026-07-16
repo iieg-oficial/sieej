@@ -1,7 +1,7 @@
 # SIEEJ frontend — Contexto del proyecto
 
-**Version:** 1.24.0
-**Fecha de este documento:** 2026-07-13
+**Version:** 1.28.0
+**Fecha de este documento:** 2026-07-16
 **Repo:** https://github.com/iieg-oficial/sieej
 
 Referencia general del proyecto SIEEJ. Para detalles de arquitectura
@@ -102,6 +102,29 @@ viven en `mariachi`.
   nombre de archivo del PDF usan `definicion.nombre` en lugar del titulo
   generico legacy ("Registro de enlaces para el Sistema de Informacion
   Estrategica del Estado de Jalisco").
+- **Versionado de envios (requiere mariachi-api >= 1.55.0).** Cada envio
+  guarda `formulario_version` y `definicion_snapshot`. Al editar la
+  definicion de un formulario con envios, el backend clasifica el cambio
+  (`mariachi/api/app/services/sieej/cambio_classifier.py`): un cambio
+  `menor` se propaga en silencio al snapshot de los envios en proceso;
+  un cambio que `rompe` sube `formulario.version`, reabre los envios ya
+  enviados y activa `actualizacion_disponible`. Desde 1.28.0 la
+  actualizacion se aplica sola: al cargar el formulario (o al detectar
+  en un guardado que el admin publico a media sesion) el frontend llama
+  `POST /formularios/{slug}/envio/actualizar-version` y sigue con el
+  envio migrado. El respondent solo ve avisos: etiqueta "Actualizacion"
+  en la tarjeta (`FormList`), panel informativo `UpdateBanner` ("Ver
+  cambios" + "Entendido") y distintivos por paso/campo
+  (`cambios_aplicados`: punto en el sider, badges "Nuevo"/"Cambio") que
+  se apagan al interactuar con el campo o al dar Entendido
+  (`cambios_vistos` viaja en el PUT del envio). Los valores de campos
+  eliminados permanecen en el JSONB `datos` (ningun paso los poda);
+  dejan de renderizarse y de salir en el PDF. Cada cambio `rompe`
+  archiva la definicion previa en `sieej.formulario_version`
+  (mariachi >= 1.57.0); el export admin (Excel o CSV,
+  `?formato=csv|xlsx`) une esas definiciones historicas con la vigente,
+  asi que los campos eliminados si salen, marcados "(eliminado)" y con
+  la columna "Version" de cada envio.
 
 ## Arquitectura
 
