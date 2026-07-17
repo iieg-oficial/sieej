@@ -22,7 +22,7 @@ PDF genericos.
 
 ## Modelo de datos (mariachi/api, schema `sieej`)
 
-8 tablas + 3 enums Postgres + 8 catalogos preexistentes:
+8 tablas + 3 enums Postgres + catalogos globales genericos:
 
 ```
 sieej.formulario
@@ -54,9 +54,13 @@ sieej.envio_evento                     auditoria append-only
 Enums: `sieej_formulario_estado`, `sieej_envio_estado`,
 `sieej_evento_tipo`.
 
-Catalogos (sin cambios): `catalogo_unidad_admin`, `categoria_datos`,
-`herramientas_gestion`, `calidad_datos`, `periodicidad`,
-`objetivo_uso`, `usuarios_datos`, `ejes_estrategicos`.
+Catalogos: par generico `sieej.catalogo` (`clave` UNIQUE + `label`) +
+`sieej.catalogo_opcion` (`value` UNIQUE por catalogo). CRUD completo
+desde el admin (crear/renombrar/eliminar catalogos y opciones;
+requiere la migracion `d4e5f6a7b8c9` de mariachi). Las claves historicas
+(`unidades_admin`, `categoria_datos`, `herramientas_gestion`,
+`calidad_datos`, `periodicidad`, `objetivo_uso`, `usuarios_datos`,
+`ejes_estrategicos`) se conservaron al migrar las 8 tablas fijas.
 
 ## Schema JSONB de la `definicion`
 
@@ -69,17 +73,18 @@ Catalogos (sin cambios): `catalogo_unidad_admin`, `categoria_datos`,
       "type": "form" | "repeater" | "summary",
       "title": "...",
       "icon": "<opcional>",
+      "tooltip": "<opcional, icono de ayuda junto al titulo del paso>",
       "fields": [
         {
           "name": "razon_social",
           "label": "Razon social",
-          "type": "text|textarea|number|email|tel|date|select|select_multiple|radio|checkbox|file|info",
+          "type": "text|textarea|number|email|tel|date|date_range|select|select_multiple|radio|checkbox|file|info",
           "required": true,
           "placeholder": "...",
           "tooltip": "...",
           "tab": "<id-tab>",                          // si el step es repeater con tabs
           "options": [{"value":"true","label":"Si"}], // o "catalog": "unidades_admin"
-          "showWhen": {"field":"otro","equals":"true"},
+          "showWhen": {"field":"otro","equals":"true"},   // equals string o lista (OR): ["a","b"]
           "validation": {"minLength":1,"maxLength":255,"pattern":"^...$","min":0,"max":100},
           "bucket": "sieej",                          // type=file
           "accept": [".pdf",".csv"],                  // type=file
@@ -116,7 +121,7 @@ catalogos del wizard original.
 | POST | `/formularios/:slug/envio/upload` | Multipart con `field_path` + `file` |
 | GET | `/formularios/mis-envios` | Listado paginado del histórico del usuario (filtros `estado`, `q`, `page`, `page_size`, `sort`). Item ligero sin `datos` ni `definicion_snapshot`. |
 | GET | `/formularios/mis-envios/:id` | Detalle del envio: `definicion_snapshot` + `datos` + `archivos[]` + `eventos[]`. 404 si no existe; 403 si pertenece a otro usuario. No expone `actor_usuario_id`. |
-| GET | `/formularios/catalogos` | 8 catalogos SIEEJ (sin cambios) |
+| GET | `/formularios/catalogos` | Bundle dinamico `{clave: [{id, value}]}` con todos los catalogos |
 
 #### Upload de archivos por campo (`POST /formularios/:slug/envio/upload`)
 
@@ -284,6 +289,35 @@ descarga cuando el usuario hace click en "Descargar PDF".
 
 Sidebar: grupo SIEEJ con items "Formularios" y "Grupos" (habilitado
 desde mariachi 0.40.2).
+
+## Calendario propio y campo date_range (1.31.0)
+
+Los campos `type=date` y `type=date_range` usan un calendario hecho en
+React (`components/Calendar.jsx`) en lugar de `<input type=date>` nativo.
+Motivacion: el input nativo no se puede estilizar de forma cross-browser
+y no armoniza con el design system de SIEEJ.
+
+- **`Calendar.jsx`**: grilla de dias con navegacion por chevrons SVG
+  (`stroke=#5C2472` fijo), selector rapido de mes/año mediante chips,
+  y vista de años con scroll automatico al año actual. Soporta `min`
+  y `max` (los valores fuera de rango aparecen deshabilitados). El dia
+  actual se marca con borde morado; el dia seleccionado, con fondo solido.
+
+- **Comportamiento responsive**: en desktop, el calendario se abre como
+  dropdown absoluto bajo el input. En mobile (<768px), se despliega como
+  **bottom-sheet** de ancho completo con overlay semi-transparente y
+  bloqueo de scroll del body.
+
+- **`DateRangePicker.jsx`**: renderiza dos `DatePicker` en grilla
+  responsive. Los sub-inputs no tienen label: usan `placeholder` fijos
+  `Fecha inicial` / `Fecha final`, no personalizables desde la
+  definicion. La validacion cruzada exige ambos extremos cuando
+  `required: true`.
+
+- **CSS reset workaround**: el reset global `button { padding: 0.6em 1.2em }`
+  en `index.css` aplasta los iconos SVG dentro de botones, por lo que
+  todos los botones del calendario usan `!p-0` para anular ese reset y
+  preservar el area clickable de los iconos.
 
 ## Decisiones cerradas
 

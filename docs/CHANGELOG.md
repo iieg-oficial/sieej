@@ -8,6 +8,26 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.31.0] - 2026-07-17
+
+### Campo date_range con calendario propio
+
+#### Agregado
+
+- **`components/Calendar.jsx`**: componente de calendario 100% propio que reemplaza `<input type=date>` nativo. Panel desplegable en desktop (absoluto bajo el input) y bottom-sheet de ancho completo en mobile (<768px). Selector rapido de mes/año mediante chips, navegacion por flechas (chevrons SVG con color fijo `#5C2472`), y scroll automático al año actual en la vista de años. Respeta `min`/`max`, marca el dia actual con borde morado, y dias seleccionados con fondo morado sólido.
+
+- **`components/DateRangePicker.jsx`**: campo compuesto `date_range` que renderiza dos `DatePicker` en grilla de 1 o 2 columnas (segun viewport). Los sub-inputs no llevan label: usan placeholders fijos `Fecha inicial` / `Fecha final`. Validacion cruzada: si el rango es `required`, ambos extremos son obligatorios; si la fecha final ya tiene valor, la inicial tambien se exige.
+
+- **`helpers/dateFormat.js`**: funciones puras `toISO`, `parseISO`, `formatDisplay`, `todayISO`, `buildDays` para manejo de fechas en YYYY-MM-DD. Calendario empieza en lunes (semana ISO).
+
+- **`helpers/formErrors.js`**: `getErrorMessage` centraliza la resolucion de mensajes de error para campos anidados (incluye soporte para paths con punto como `rango.start` / `rango.end`), reemplazando logica dispersa en `ErrorsRequired.jsx`.
+
+#### Corregido
+
+- **`components/DatePicker.jsx`**, **`components/Calendar.jsx`**: el reset global `button { padding: 0.6em 1.2em }` en `index.css` aplastaba los iconos SVG dentro de botones del calendario (chevrons, cierre). Se fuerza `!p-0` en los botones del calendario para anular el reset del navegador.
+
+---
+
 ## [1.30.0] - 2026-07-17
 
 ### Visibilidad condicional con varios valores disparadores

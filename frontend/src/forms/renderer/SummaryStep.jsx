@@ -22,6 +22,12 @@ const formatValue = (field, value, catalogos) => {
             .map((v) => opts.find((o) => String(o.value) === String(v))?.label || String(v))
             .join(', ');
     }
+    if (field.type === 'date_range') {
+        if (typeof value !== 'object' || value === null) return '';
+        const start = value.start || '';
+        const end = value.end || '';
+        return start || end ? `${start} – ${end}` : '';
+    }
     if (field.type === 'file') {
         if (typeof value === 'object' && value !== null) {
             return value.filename_original || value.url_publica || '';

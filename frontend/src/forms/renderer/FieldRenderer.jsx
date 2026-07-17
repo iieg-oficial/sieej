@@ -5,6 +5,7 @@ import SelectMultiple from '@components/SelectMultiple';
 import Radio from '@components/Radio';
 import Checkbox from '@components/Checkbox';
 import DatePicker from '@components/DatePicker';
+import DateRangePicker from '@components/DateRangePicker';
 import Typography from '@components/Typography';
 import Dragger from '@components/Dragger';
 import { resolveOptions } from './catalogResolver';
@@ -125,6 +126,13 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload, cambioField, onInt
         return (
             <DatePicker {...baseProps}
                 label={labelWithBadge || label}
+                onFocus={notifyInteract} />
+        );
+    case 'date_range':
+        return (
+            <DateRangePicker {...baseProps}
+                label={labelWithBadge || label}
+                disabled={field.disabled}
                 onFocus={notifyInteract} />
         );
     case 'select':

@@ -8,16 +8,23 @@ const sinValor = (valor) => (
     || (Array.isArray(valor) && valor.length === 0)
 );
 
+const sinValorField = (field, valor) => {
+    if (field.type === 'date_range') {
+        return !valor || (!valor.start && !valor.end);
+    }
+    return sinValor(valor);
+};
+
 const faltanRequeridos = (fields, item) => (fields ?? []).some((field) => {
     if (field.type === 'info' || !field.required) return false;
     if (!evaluarShowWhen(field.showWhen, item)) return false;
-    return sinValor(item?.[field.name]);
+    return sinValorField(field, item?.[field.name]);
 });
 
 const faltanCampos = (fields, item) => (fields ?? []).some((field) => {
     if (field.type === 'info') return false;
     if (!evaluarShowWhen(field.showWhen, item)) return false;
-    return sinValor(item?.[field.name]);
+    return sinValorField(field, item?.[field.name]);
 });
 
 export const stepCompleteness = (step, datos) => {
@@ -65,6 +72,6 @@ export const stepIncompleto = (step, values) => {
     return items.some((item) => fields.some((field) => {
         if (field.type === 'info') return false;
         if (!evaluarShowWhen(field.showWhen, item)) return false;
-        return sinValor(item?.[field.name]);
+        return sinValorField(field, item?.[field.name]);
     }));
 };
