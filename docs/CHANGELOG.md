@@ -18,6 +18,20 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.29.0] - 2026-07-17
+
+### Tooltips de ayuda en los pasos del wizard
+
+#### Agregado
+
+- **`components/Tooltip.jsx`, `components/Typography.jsx`, `forms/components/wizard/NavigateStep.jsx`**: cada paso del wizard puede definir un `tooltip` que se muestra como icono de ayuda junto al título, igual que en los campos. `Tooltip` acepta `placement` ('top' por defecto; 'bottom' en el header del paso para que el mensaje caiga hacia abajo y no lo tape el header sticky ni la barra superior) y `Typography` lo propaga vía `tooltipPlacement`. El popup sube a `z-50`.
+
+#### Corregido
+
+- **`components/Tooltip.jsx`**: el icono de ayuda no se renderizaba con Tailwind v4. El reset global `button {}` de `index.css` vive fuera de `@layer`, así que ganaba sobre las utilities (`p-0`, `border-0`) que en v4 están en `@layer utilities`; el botón tomaba el padding del reset y aplastaba el `<img>` a ancho 0. Se fuerza `!p-0 !border-0` en los botones del Tooltip.
+
+---
+
 ## [1.28.0] - 2026-07-16
 
 ### La actualización de formularios se aplica sola
