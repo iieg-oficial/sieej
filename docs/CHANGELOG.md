@@ -8,6 +8,16 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.30.0] - 2026-07-17
+
+### Visibilidad condicional con varios valores disparadores
+
+#### Cambiado
+
+- **`frontend/src/forms/renderer/conditional.js`**: `evaluarShowWhen` acepta `showWhen.equals` como lista además de string. Un campo condicional se muestra cuando el campo del que depende coincide con **cualquiera** de los valores (OR); si el disparador es de multiselección, el cruce es por intersección. Retrocompatible con las condiciones de un solo valor ya guardadas. El editor que produce estas listas vive en el admin (mariachi).
+
+---
+
 ## [1.28.0] - 2026-07-16
 
 ### La actualización de formularios se aplica sola
