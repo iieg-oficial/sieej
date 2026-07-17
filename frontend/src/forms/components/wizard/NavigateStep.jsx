@@ -34,6 +34,8 @@ const NavigateStep = ({
                     as="h2"
                     titleName={step?.title || ''}
                     icon={!isSmall && step?.icon}
+                    tooltip={step?.tooltip}
+                    tooltipPlacement="bottom"
                     className="md:text-[26px] lg:text-[30px]"
                 />
             </div>

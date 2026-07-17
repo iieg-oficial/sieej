@@ -21,6 +21,7 @@ const Typography = ({
     colSpan,
     tooltip,
     tooltipModal,
+    tooltipPlacement = 'top',
     required,
     children,
 }) => {
@@ -35,7 +36,7 @@ const Typography = ({
                 {content}
                 {required && <span className="text-[#5C2472] ml-1">*</span>}
             </Tag>
-            {tooltip && <Tooltip text={tooltip} size={tooltipModal && 'full'}/>}
+            {tooltip && <Tooltip text={tooltip} size={tooltipModal && 'full'} placement={tooltipPlacement}/>}
         </div>
     );
 };

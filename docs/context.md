@@ -125,6 +125,14 @@ viven en `mariachi`.
   `?formato=csv|xlsx`) une esas definiciones historicas con la vigente,
   asi que los campos eliminados si salen, marcados "(eliminado)" y con
   la columna "Version" de cada envio.
+- **Tooltip en pasos.** Ademas de los campos, cada paso admite un
+  `tooltip` (icono de ayuda junto al titulo, en `NavigateStep`). En el
+  header sticky del wizard el mensaje se despliega hacia abajo
+  (`Tooltip placement="bottom"`) para que ni el header ni la barra
+  superior lo tapen. El icono del tooltip (comun a campos y pasos)
+  requirio forzar `!p-0 !border-0` en su boton: el reset global
+  `button {}` de `index.css` esta fuera de `@layer` y en Tailwind v4
+  ganaba sobre las utilities, aplastando el `<img>` a ancho 0.
 
 ## Arquitectura
 

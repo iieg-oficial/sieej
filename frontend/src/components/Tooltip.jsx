@@ -3,7 +3,7 @@ import useGlobal from '@context/useGlobal';
 import IcoQuestion from '@assets/icons/ico_tooltip.svg';
 import IcoX from '@assets/icons/ico_x_slow.svg';
 
-const Tooltip = ({ text, showIcon = true, size = 'normal', children }) => {
+const Tooltip = ({ text, showIcon = true, size = 'normal', placement = 'top', children }) => {
     const { isDesktop } = useGlobal();
     const [isHovered, setIsHovered] = useState(false);
     const typeTooltip = isDesktop ? size : 'full';
@@ -49,12 +49,13 @@ const Tooltip = ({ text, showIcon = true, size = 'normal', children }) => {
                     </button>
                 )}
                 {isHovered && typeTooltip === 'normal' && (
-                    <div 
-                        className="
-                            absolute inline-flex bottom-full left-1/2 transform -translate-x-1/2 mb-1 
-                            text-xs/[21px] text-[#191919] bg-[#F8F8F8] rounded-[10px] py-4 px-7 z-20
+                    <div
+                        className={`
+                            absolute inline-flex left-1/2 transform -translate-x-1/2
+                            ${placement === 'bottom' ? 'top-full mt-1' : 'bottom-full mb-1'}
+                            text-xs/[21px] text-[#191919] bg-[#F8F8F8] rounded-[10px] py-4 px-7 z-50
                             w-[406px] text-start whitespace-normal font-garetmedium shadow-[0px_3px_12px_#4615524D]
-                        "
+                        `}
                     >
                         <img src={IcoQuestion} alt="tooltip" className="w-5 h-5 mr-6"/>
                         {text}
