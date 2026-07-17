@@ -44,7 +44,7 @@ const Tooltip = ({ text, showIcon = true, size = 'normal', children }) => {
                 }}
             >
                 {showIcon && (
-                    <button type="button" onClick={() => setIsHovered(true)} className="w-5 h-5 bg-transparent border-0 p-0 cursor-pointer" aria-label="Mostrar información">
+                    <button type="button" onClick={() => setIsHovered(true)} className="w-5 h-5 bg-transparent !border-0 !p-0 cursor-pointer" aria-label="Mostrar información">
                         <img src={IcoQuestion} alt="tooltip" className="w-5 h-5"/>
                     </button>
                 )}
@@ -89,7 +89,7 @@ const Tooltip = ({ text, showIcon = true, size = 'normal', children }) => {
                         >
                             <div className="w-5 h-full space-y-4 mr-4">
                                 <img src={IcoQuestion} alt="tooltip"/>
-                                <button type="button" onClick={() => setIsHovered(false)} className="cursor-pointer hover:shadow-[0px_3px_12px_#4615524D] rounded-full bg-transparent border-0 p-0" aria-label="Cerrar">
+                                <button type="button" onClick={() => setIsHovered(false)} className="cursor-pointer hover:shadow-[0px_3px_12px_#4615524D] rounded-full bg-transparent !border-0 !p-0" aria-label="Cerrar">
                                     <img src={IcoX} alt="tooltip"/>
                                 </button>
                             </div>
