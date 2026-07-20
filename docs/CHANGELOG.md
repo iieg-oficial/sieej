@@ -8,6 +8,34 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.32.0] - 2026-07-20
+
+### Fechas abiertas en el campo date_range
+
+Cuando la definicion marca un extremo como abierto (`openStart` / `openEnd`, configurable desde el CMS), ese extremo acepta una opcion de catalogo en vez de una fecha: `10/02/1992 – NO DETERMINADO`. Requiere mariachi api 1.60.0.
+
+#### Agregado
+
+- **`components/CalendarOptions.jsx`** (nuevo): selector de estatus **dentro** del panel del calendario. Trigger de una linea al pie que despliega la lista hacia arriba, superpuesta sobre la grilla de dias — hacia arriba a proposito, porque el panel ya puede estar cerca del borde inferior de la pantalla. Cuando hay una opcion activa el menu ofrece "Usar una fecha del calendario", que la quita y deja el panel abierto para elegir el dia enseguida.
+
+- **`components/DatePicker.jsx`**: props `options` / `optionValue` / `onSelectOption`. El trigger muestra el texto de la opcion elegida (en morado, como valor seleccionado); elegir un dia limpia la opcion y elegir una opcion limpia la fecha, de modo que el campo siempre tiene una cosa u otra.
+
+- **`forms/renderer/catalogResolver.js`**: `openRangeOptions(field, catalogos)` resuelve las opciones desde `field.openCatalog`, con fallback al catalogo del sistema `estatus_fecha`. Reutiliza `resolveOptions`.
+
+#### Cambiado
+
+- **`components/DateRangePicker.jsx`**: el extremo abierto ya no monta un `Select` aparte debajo del campo — todo ocurre en el calendario. El valor se persiste en `${name}.startOption` / `${name}.endOption` mediante un `<input type="hidden">` registrado, para que react-hook-form lo incluya en el envio sin depender de un componente visible. La obligatoriedad la resuelve el `validate` del campo (que da por satisfecho el extremo si hay opcion), no el `required` de react-hook-form.
+
+- **`forms/renderer/SummaryStep.jsx`**, **`completeness.js`**: el resumen muestra la opcion en lugar de la fecha, y un extremo resuelto con opcion cuenta como capturado para el calculo de completitud del paso.
+
+#### Corregido
+
+- **`components/Calendar.jsx`**: en desktop el panel se abria siempre hacia abajo (`top-full`), asi que cerca del borde inferior de la pantalla quedaba cortado y habia que hacer scroll para verlo completo. Ahora mide el espacio disponible y se ancla hacia arriba (`bottom-full`) cuando no cabe abajo, re-midiendo en `scroll`, `resize` y al cambiar entre vista de dias/meses/años.
+
+- **`index.css`**: los botones perdian la fuente Garet y caian a Inter. El reset `button { font-family: inherit }` vive **fuera** de las cascade layers, y en CSS las reglas sin capa ganan sobre cualquier `@layer` sin importar la especificidad, de modo que le ganaba a las utilidades `font-garet*` (que Tailwind 4 emite en `@layer utilities`). Afectaba a todos los botones de la app; se notaba sobre todo en los numeros y letras del calendario. Se movio **solo** esa declaracion a `@layer base`: el resto del reset (`padding`, `border`, `font-size`, `font-weight`) permanece fuera de capas con la prioridad que tenia, para no alterar el tamaño de los botones en el resto de la aplicacion.
+
+---
+
 ## [1.31.0] - 2026-07-17
 
 ### Campo date_range con calendario propio

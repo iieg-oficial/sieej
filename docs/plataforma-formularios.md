@@ -319,6 +319,44 @@ y no armoniza con el design system de SIEEJ.
   todos los botones del calendario usan `!p-0` para anular ese reset y
   preservar el area clickable de los iconos.
 
+- **Apertura dentro del viewport** (1.32.0): en desktop el panel mide el
+  espacio real bajo el input (`useLayoutEffect` + `getBoundingClientRect`
+  del wrapper posicionado) y se ancla con `bottom-full` cuando no cabe
+  abajo y hay mas espacio arriba. Re-mide en `scroll`, `resize` y al
+  cambiar de vista dias/meses/años, porque la altura del panel cambia.
+
+### Fechas abiertas (1.32.0)
+
+Cuando la definicion marca un extremo del `date_range` como abierto
+(`openStart` / `openEnd`), ese extremo acepta una opcion de catalogo en
+vez de una fecha: `10/02/1992 – NO DETERMINADO`. Las opciones salen de
+`openCatalog` o, si no se especifica, del catalogo del sistema
+`estatus_fecha` (`catalogResolver.js::openRangeOptions`).
+
+- **El selector vive dentro del calendario** (`CalendarOptions.jsx`), no
+  como control aparte: un trigger de una linea al pie del panel que
+  despliega la lista **hacia arriba**, superpuesta sobre la grilla de
+  dias. Se abre hacia arriba a proposito — el panel ya puede estar cerca
+  del borde inferior, y un menu hacia abajo reintroduciria el problema de
+  scroll que resuelve la apertura dentro del viewport.
+
+- **Un solo control**: elegir una opcion limpia la fecha de ese extremo y
+  cierra el calendario; el input muestra el texto de la opcion en morado.
+  Elegir un dia limpia la opcion. Cuando hay opcion activa, el menu
+  ofrece "Usar una fecha del calendario", que la quita y **deja el panel
+  abierto** para elegir el dia enseguida.
+
+- **Persistencia**: el valor se guarda en `${name}.startOption` /
+  `${name}.endOption` (hermanas de `.start` / `.end`), que es el contrato
+  que valida mariachi-api. El extremo abierto registra un
+  `<input type="hidden">` para que react-hook-form lo incluya en el envio
+  sin depender de un componente visible; no afecta el grid porque los
+  hidden traen `display:none` del navegador.
+
+- **Obligatoriedad**: la resuelve el `validate` del `DateRangePicker`
+  (que da por satisfecho el extremo si hay opcion), no el `required` de
+  react-hook-form, que exigiria la fecha aunque haya estatus elegido.
+
 ## Decisiones cerradas
 
 - **Editor JSON como source of truth**: el visual transforma JSON, no
