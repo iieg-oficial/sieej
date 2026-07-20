@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import useGlobal from '@context/useGlobal';
 import icoClose from '@assets/icons/ico_x_slow.svg';
 import { buildDays, parseISO, toISO, todayISO } from '@helpers/dateFormat';
@@ -66,7 +66,9 @@ const Calendar = ({ value, onSelect, onClose, min, max }) => {
         return { year: now.getFullYear(), month: now.getMonth() };
     });
     const [mode, setMode] = useState('days');
+    const [dropUp, setDropUp] = useState(false);
     const yearRef = useRef(null);
+    const panelRef = useRef(null);
 
     const currentYear = new Date().getFullYear();
     const minYear = parseISO(min)?.year ?? currentYear - YEAR_SPAN_BACK;
@@ -86,6 +88,26 @@ const Calendar = ({ value, onSelect, onClose, min, max }) => {
         document.body.style.overflow = 'hidden';
         return () => { document.body.style.overflow = previous; };
     }, [fullscreen]);
+
+    useLayoutEffect(() => {
+        if (fullscreen) return undefined;
+        const ajustarPosicion = () => {
+            const panel = panelRef.current;
+            const anchor = panel?.offsetParent?.getBoundingClientRect?.();
+            if (!panel || !anchor) return;
+            const espacioAbajo = window.innerHeight - anchor.bottom;
+            const espacioArriba = anchor.top;
+            const alto = panel.offsetHeight + 8;
+            setDropUp(espacioAbajo < alto && espacioArriba > espacioAbajo);
+        };
+        ajustarPosicion();
+        window.addEventListener('resize', ajustarPosicion);
+        window.addEventListener('scroll', ajustarPosicion, true);
+        return () => {
+            window.removeEventListener('resize', ajustarPosicion);
+            window.removeEventListener('scroll', ajustarPosicion, true);
+        };
+    }, [fullscreen, mode]);
 
     const goPrev = () => setView(({ year, month }) => {
         if (mode === 'months') return { year: year - 1, month };
@@ -263,10 +285,12 @@ const Calendar = ({ value, onSelect, onClose, min, max }) => {
 
     return (
         <div
+            ref={panelRef}
             role="dialog"
             aria-label="Selecciona una fecha"
-            className="absolute left-0 top-full z-20 mt-2 w-[288px] p-3 bg-white rounded-[12px]
-                border border-[#5C2472] shadow-[0px_2px_24px_#B6A6BC98]"
+            className={`absolute left-0 z-20 w-[288px] p-3 bg-white rounded-[12px]
+                border border-[#5C2472] shadow-[0px_2px_24px_#B6A6BC98]
+                ${dropUp ? 'bottom-full mb-2' : 'top-full mt-2'}`}
         >
             {body}
         </div>
