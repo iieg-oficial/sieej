@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import useGlobal from '@context/useGlobal';
 import icoClose from '@assets/icons/ico_x_slow.svg';
 import { buildDays, parseISO, toISO, todayISO } from '@helpers/dateFormat';
+import CalendarOptions from './CalendarOptions';
 
 const WEEKDAYS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'];
 const MONTHS = [
@@ -56,7 +57,10 @@ const headerButtonClassName = (active) => {
     return active ? `${base}bg-[#F0E2F5]` : `${base}hover:bg-[#F0E2F5]`;
 };
 
-const Calendar = ({ value, onSelect, onClose, min, max }) => {
+const Calendar = ({
+    value, onSelect, onClose, min, max,
+    options = [], optionValue, onSelectOption,
+}) => {
     const { screenSize } = useGlobal();
     const fullscreen = screenSize.sm;
     const selected = parseISO(value);
@@ -243,6 +247,12 @@ const Calendar = ({ value, onSelect, onClose, min, max }) => {
                     ))}
                 </div>
             )}
+
+            <CalendarOptions
+                options={options}
+                optionValue={optionValue}
+                onSelectOption={onSelectOption}
+            />
         </>
     );
 

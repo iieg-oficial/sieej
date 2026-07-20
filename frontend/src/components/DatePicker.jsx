@@ -11,7 +11,8 @@ import Calendar from './Calendar';
 const DatePicker = ({
     name, label, required,
     minDate, maxDate, placeholder, tooltip,
-    colSpan, wDiv, methods, inline, validate, deps, onFocus, disabled, ...rest
+    colSpan, wDiv, methods, inline, validate, deps, onFocus, disabled,
+    options = [], optionValue, onSelectOption, ...rest
 }) => {
     const { register, setValue, watch, control } = methods;
     const { errors } = useFormState({ control, name });
@@ -31,6 +32,14 @@ const DatePicker = ({
 
     const handleSelect = (iso) => {
         setValue(name, iso, { shouldValidate: true, shouldDirty: true });
+        onSelectOption?.('');
+        setOpen(false);
+    };
+
+    const handleSelectOption = (option) => {
+        onSelectOption?.(option);
+        if (!option) return;
+        setValue(name, '', { shouldValidate: true, shouldDirty: true });
         setOpen(false);
     };
 
@@ -49,9 +58,13 @@ const DatePicker = ({
         !disabled && hasError ? 'border border-[#EA4336] bg-white' : '',
     ].join(' ');
 
+    const optionLabel = optionValue
+        ? (options.find((o) => o.value === optionValue)?.label ?? optionValue)
+        : '';
+
     const valueClass = disabled
         ? 'text-[#CBCBCB]'
-        : (value ? 'text-[#5C2472]' : 'text-[#8E8E8E] font-garetregular');
+        : ((value || optionLabel) ? 'text-[#5C2472]' : 'text-[#8E8E8E] font-garetregular');
 
     return (
         <DynamicDiv inline={inline} colSpan={colSpan} wDiv={wDiv} className={inline ? '' : 'mt-4'}>
@@ -90,7 +103,9 @@ const DatePicker = ({
                     className={triggerClass}
                 >
                     <span className={valueClass}>
-                        {value ? formatDisplay(value) : (placeholder || 'Selecciona una fecha...')}
+                        {optionLabel || (value
+                            ? formatDisplay(value)
+                            : (placeholder || 'Selecciona una fecha...'))}
                     </span>
                     <img
                         src={icoArrow}
@@ -104,6 +119,9 @@ const DatePicker = ({
                         value={value}
                         min={minDate}
                         max={maxDate}
+                        options={options}
+                        optionValue={optionValue}
+                        onSelectOption={handleSelectOption}
                         onSelect={handleSelect}
                         onClose={() => setOpen(false)}
                     />

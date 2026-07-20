@@ -10,7 +10,10 @@ const sinValor = (valor) => (
 
 const sinValorField = (field, valor) => {
     if (field.type === 'date_range') {
-        return !valor || (!valor.start && !valor.end);
+        if (!valor) return true;
+        const inicio = valor.startOption || valor.start;
+        const fin = valor.endOption || valor.end;
+        return !inicio && !fin;
     }
     return sinValor(valor);
 };

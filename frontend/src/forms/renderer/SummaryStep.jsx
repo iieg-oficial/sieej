@@ -24,8 +24,8 @@ const formatValue = (field, value, catalogos) => {
     }
     if (field.type === 'date_range') {
         if (typeof value !== 'object' || value === null) return '';
-        const start = value.start || '';
-        const end = value.end || '';
+        const start = value.startOption || value.start || '';
+        const end = value.endOption || value.end || '';
         return start || end ? `${start} – ${end}` : '';
     }
     if (field.type === 'file') {

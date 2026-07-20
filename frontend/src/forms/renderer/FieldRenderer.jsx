@@ -8,7 +8,7 @@ import DatePicker from '@components/DatePicker';
 import DateRangePicker from '@components/DateRangePicker';
 import Typography from '@components/Typography';
 import Dragger from '@components/Dragger';
-import { resolveOptions } from './catalogResolver';
+import { openRangeOptions, resolveOptions } from './catalogResolver';
 
 const toRegExp = (raw) => {
     if (!raw) return undefined;
@@ -132,6 +132,8 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload, cambioField, onInt
         return (
             <DateRangePicker {...baseProps}
                 label={labelWithBadge || label}
+                field={field}
+                opciones={openRangeOptions(field, catalogos)}
                 disabled={field.disabled}
                 onFocus={notifyInteract} />
         );

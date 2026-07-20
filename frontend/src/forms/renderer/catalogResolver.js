@@ -1,3 +1,5 @@
+export const DEFAULT_OPEN_RANGE_CATALOG = 'estatus_fecha';
+
 export const resolveOptions = (field, catalogos) => {
     if (Array.isArray(field.options) && field.options.length > 0) {
         return field.options.map((o) => ({ value: o.value, label: o.label }));
@@ -18,3 +20,8 @@ export const resolveOptions = (field, catalogos) => {
     }
     return [];
 };
+
+export const openRangeOptions = (field, catalogos) => resolveOptions(
+    { catalog: field?.openCatalog || DEFAULT_OPEN_RANGE_CATALOG },
+    catalogos,
+);
