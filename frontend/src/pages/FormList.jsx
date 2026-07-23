@@ -69,21 +69,38 @@ const SearchBox = ({ q, onQ }) => {
 
 const actionBtn = 'inline-flex shrink-0 items-center justify-center h-8 w-8 p-0! rounded-full transition text-[#7C7C7C] hover:text-[#5C2473] hover:bg-[#F0E2F5] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C2473]/40';
 
+const fmtDate = (iso) => (iso
+    ? new Date(iso).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
+    : '');
+
 const FormCard = ({ formulario, onClick, onDownloadPdf, onContactAdmin }) => {
     const isEnviado = formulario.estado_envio === 'enviado';
+    const periodicoCerrado = formulario.periodico && !formulario.abierto;
 
     return (
         <div className="rounded-[16px] border border-[#E2E2E2] bg-white shadow-sm hover:shadow-lg hover:border-[#5C2473] hover:-translate-y-px transition duration-200 flex flex-col overflow-hidden">
             <button type="button" onClick={onClick} className="text-left p-5 pb-5 flex-1">
                 <Typography as="h2" className="!text-[#5C2473]" titleName={formulario.nombre} />
                 {formulario.descripcion && <Typography as="p" className="text-[#7C7C7C] font-garetregular mt-1" titleName={formulario.descripcion} />}
-                {formulario.vigencia_fin && <p className="text-xs text-[#7C7C7C] mt-2">Vigencia hasta {new Date(formulario.vigencia_fin).toLocaleDateString()}</p>}
+                {formulario.periodico ? (
+                    formulario.abierto
+                        ? <p className="text-xs text-emerald-700 mt-2">Abierto hasta {fmtDate(formulario.ventana_cierre)}</p>
+                        : <p className="text-xs text-[#7C7C7C] mt-2">Cerrado · próxima apertura {fmtDate(formulario.proxima_apertura)}</p>
+                ) : (
+                    formulario.vigencia_fin && <p className="text-xs text-[#7C7C7C] mt-2">Vigencia hasta {new Date(formulario.vigencia_fin).toLocaleDateString()}</p>
+                )}
             </button>
             <div className="flex items-center justify-between p-5">
                 <div className="flex items-center gap-2">
-                    <span className={`text-xs font-garetbold px-3 py-1 rounded-full ${ESTADO_COLOR[formulario.estado_envio] || ESTADO_COLOR.no_iniciado}`}>
-                        {ESTADO_LABEL[formulario.estado_envio] || formulario.estado_envio}
-                    </span>
+                    {periodicoCerrado ? (
+                        <span className="text-xs font-garetbold px-3 py-1 rounded-full bg-neutral-100 text-neutral-700">
+                            Cerrado
+                        </span>
+                    ) : (
+                        <span className={`text-xs font-garetbold px-3 py-1 rounded-full ${ESTADO_COLOR[formulario.estado_envio] || ESTADO_COLOR.no_iniciado}`}>
+                            {ESTADO_LABEL[formulario.estado_envio] || formulario.estado_envio}
+                        </span>
+                    )}
                     {formulario.actualizacion_disponible && (
                         <span className="text-xs font-garetbold px-3 py-1 rounded-full bg-[#FEDAB2] text-[#FF8300]">
                             Actualización
