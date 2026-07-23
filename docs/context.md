@@ -133,6 +133,17 @@ viven en `mariachi`.
   requirio forzar `!p-0 !border-0` en su boton: el reset global
   `button {}` de `index.css` esta fuera de `@layer` y en Tailwind v4
   ganaba sobre las utilities, aplastando el `<img>` a ancho 0.
+- **Actualizacion ligera de campos post-envio.** Un campo puede marcarse
+  `editableAfterSubmit` en la definicion (toggle en el CMS). Los envios ya
+  `enviado` exponen una pantalla dedicada (`/mis-envios/:id/actualizar`,
+  `pages/EnvioActualizar.jsx`) que renderiza solo esos campos y hace
+  `PUT /formularios/mis-envios/:id/actualizar-campos`. No reabre el envio (el
+  estado sigue en `enviado`) ni pasa por la solicitud de reapertura via
+  Colibri. El backend valida contra el `definicion_snapshot` que cada campo
+  enviado este realmente marcado, hace merge parcial de `datos` (no reemplazo)
+  y guarda cada cambio en un historial append-only para el reporte de auditoria
+  del admin. En esta version solo aplica a campos de pasos `form` (repeaters y
+  `file` quedan fuera). Requiere mariachi api >= 1.75.0.
 
 ## Arquitectura
 

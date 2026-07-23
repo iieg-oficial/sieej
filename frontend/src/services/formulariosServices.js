@@ -81,6 +81,19 @@ export const getMiEnvioDetalle = async (onFetch, envioId) => {
     return parseJson(r);
 };
 
+export const actualizarCamposEnvio = async (onFetch, envioId, campos) => {
+    const r = await onFetch(buildUrl(`/formularios/mis-envios/${envioId}/actualizar-campos`), {
+        method: 'PUT',
+        body: { campos },
+    });
+    return parseJson(r);
+};
+
+export const getMiEnvioHistorial = async (onFetch, envioId) => {
+    const r = await onFetch(buildUrl(`/formularios/mis-envios/${envioId}/historial`));
+    return parseJson(r);
+};
+
 export const downloadEnvioPdf = async (envioId) => {
     const url = buildUrl(`/formularios/mis-envios/${envioId}/pdf`);
     const response = await fetch(url, { credentials: 'include' });

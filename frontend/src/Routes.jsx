@@ -12,6 +12,7 @@ const ErrorPage = lazy(() => import('./pages/ErrorPage'));
 const FormList = lazy(() => import('./pages/FormList'));
 const FormPage = lazy(() => import('./pages/FormPage'));
 const EnvioDetalle = lazy(() => import('./pages/EnvioDetalle'));
+const EnvioActualizar = lazy(() => import('./pages/EnvioActualizar'));
 
 const ProtectedRoute = () => {
     const { isAuthenticated, isAuthLoading, user } = useAuth();
@@ -51,6 +52,7 @@ const Routes = () => (
             <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<FormList />} />
                 <Route path="mis-envios/:id" element={<EnvioDetalle />} />
+                <Route path="mis-envios/:id/actualizar" element={<EnvioActualizar />} />
                 <Route path=":slug" element={<FormPage />} />
             </Route>
             <Route path="error" element={<ErrorPage />} />

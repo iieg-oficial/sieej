@@ -8,6 +8,30 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.33.0] - 2026-07-23
+
+### Actualizacion ligera de campos post-envio
+
+Los campos marcados como **editables tras el envio** (`editableAfterSubmit` en la
+definicion, configurable desde el CMS) pueden corregirse sin reabrir todo el
+formulario ni pasar por la solicitud de reapertura via Colibri. El envio
+permanece en estado `enviado`. Cada cambio queda registrado en un historial de
+auditoria (valor anterior/nuevo, quien y cuando) que el admin exporta. Requiere
+mariachi api >= 1.75.0.
+
+#### Agregado
+
+- **`pages/EnvioActualizar.jsx`** (nuevo) + ruta `/mis-envios/:id/actualizar`:
+  pantalla dedicada que muestra solo los campos editables del envio,
+  precargados, y hace `PUT /formularios/mis-envios/:id/actualizar-campos`. Solo
+  campos de pasos `form` (repeaters y `file` quedan fuera en esta version).
+- **`pages/EnvioDetalle.jsx`**: boton "Actualizar informacion" en el header,
+  visible solo si el envio esta `enviado` y su snapshot tiene campos editables.
+- **`services/formulariosServices.js`**: `actualizarCamposEnvio` y
+  `getMiEnvioHistorial`.
+
+---
+
 ## [1.32.0] - 2026-07-20
 
 ### Fechas abiertas en el campo date_range

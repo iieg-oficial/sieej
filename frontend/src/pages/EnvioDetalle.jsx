@@ -39,13 +39,22 @@ const MOBILE_TABS = [
     { id: 'actividad', label: 'Actividad' },
 ];
 
+const tieneCamposEditables = (definicion) => (definicion.steps || []).some(
+    (s) => s.type !== 'summary' && s.type !== 'repeater'
+        && (s.fields || []).some(
+            (f) => f.editableAfterSubmit && f.type !== 'info' && f.type !== 'file',
+        ),
+);
+
 const EnvioDetalleContent = ({ envio }) => {
     const { catalogos } = useCatalogos();
+    const navigate = useNavigate();
     const methods = useForm({ defaultValues: envio.datos || {} });
     const [activeTab, setActiveTab] = useState(0);
 
     const definicion = envio.definicion_snapshot || {};
     const summaryStep = (definicion.steps || []).find((s) => s.type === 'summary') || null;
+    const puedeActualizar = envio.estado === 'enviado' && tieneCamposEditables(definicion);
     const summaryDefinicion = {
         steps: definicion.steps || [],
         nombre: envio.formulario.nombre,
@@ -59,14 +68,22 @@ const EnvioDetalleContent = ({ envio }) => {
                     <div className="sticky top-0 z-10 bg-white pb-4 space-y-4">
                         <div className="flex items-center justify-between gap-3 mt-2 md:mt-0">
                             <BackLink to="/" />
-                            {summaryStep && (
-                                <div className="shrink-0">
+                            <div className="flex items-center gap-2 shrink-0">
+                                {puedeActualizar && (
+                                    <Button
+                                        label="Actualizar información"
+                                        variant="inline"
+                                        fit
+                                        onClick={() => navigate(`/mis-envios/${envio.id}/actualizar`)}
+                                    />
+                                )}
+                                {summaryStep && (
                                     <SummaryPdfButton
                                         step={summaryStep}
                                         envioId={envio.id}
                                     />
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
                         <div className="flex flex-col items-start md:flex-row md:justify-between gap-3">
                             <div className="min-w-0">
