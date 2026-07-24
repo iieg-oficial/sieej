@@ -9,7 +9,7 @@ import Typography from './Typography';
 
 const Dragger = ({
     idItem, name, label, multiple, accept = 'image/*', maxSizeMB = 2,
-    required, tooltip, colSpan, wDiv, clean, methods, onFile, ...rest
+    required, tooltip, colSpan, newRow, wDiv, clean, methods, onFile, ...rest
 }) => {
     const { control, setValue, getValues } = methods;
     const { errors } = useFormState({ control, name });
@@ -77,7 +77,7 @@ const Dragger = ({
     }, [getValues, name]);
 
     return (
-        <DynamicDiv colSpan={colSpan} wDiv={wDiv}>
+        <DynamicDiv colSpan={colSpan} newRow={newRow} wDiv={wDiv}>
             <Typography as="label" titleName={label} tooltip={tooltip} name={name} required={required} />
             <Controller
                 name={name}

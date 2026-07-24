@@ -1,7 +1,7 @@
 import React from 'react';
 
 const DynamicDiv = React.forwardRef(function DynamicDiv(
-    { colSpan = 1, wDiv, colSpanCondicional, center, inline, className, children },
+    { colSpan = 1, wDiv, colSpanCondicional, center, inline, newRow, className, children },
     ref
 ) {
     if (inline) {
@@ -19,14 +19,15 @@ const DynamicDiv = React.forwardRef(function DynamicDiv(
         0: 'hidden'
     };
 
-    const colClass = colSpanCondicional 
-        ? colSpanClasses[2] 
+    const colClass = colSpanCondicional
+        ? colSpanClasses[2]
         : colSpanClasses[colSpan] || '';
 
+    const startClass = newRow ? 'md:col-start-1' : '';
     const wClass = wDiv ? `w-${wDiv}` : '';
-    const isCenter = center 
+    const isCenter = center
         ? `${className} flex justify-center items-center w-full h-full`
-        : `${className} relative mb-4 ${colClass} ${wClass}`;
+        : `${className} relative mb-4 ${colClass} ${startClass} ${wClass}`;
 
     return (
         <div ref={ref} className={isCenter}>

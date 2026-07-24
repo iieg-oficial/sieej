@@ -11,7 +11,7 @@ import Calendar from './Calendar';
 const DatePicker = ({
     name, label, required,
     minDate, maxDate, placeholder, tooltip,
-    colSpan, wDiv, methods, inline, validate, deps, onFocus, disabled,
+    colSpan, newRow, wDiv, methods, inline, validate, deps, onFocus, disabled,
     options = [], optionValue, onSelectOption, ...rest
 }) => {
     const { register, setValue, watch, control } = methods;
@@ -67,7 +67,7 @@ const DatePicker = ({
         : ((value || optionLabel) ? 'text-[#5C2472]' : 'text-[#8E8E8E] font-garetregular');
 
     return (
-        <DynamicDiv inline={inline} colSpan={colSpan} wDiv={wDiv} className={inline ? '' : 'mt-4'}>
+        <DynamicDiv inline={inline} colSpan={colSpan} newRow={newRow} wDiv={wDiv} className={inline ? '' : 'mt-4'}>
             <Typography
                 as="label"
                 titleName={label}

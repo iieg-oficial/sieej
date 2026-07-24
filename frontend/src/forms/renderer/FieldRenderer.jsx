@@ -40,7 +40,8 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload, cambioField, onInt
         return 6;
     })();
 
-    const spanClass = SPAN_CLASS[gridSpan] || 'md:col-span-6';
+    const newRow = !!layout?.newRow;
+    const spanClass = `${SPAN_CLASS[gridSpan] || 'md:col-span-6'}${newRow ? ' md:col-start-1' : ''}`;
 
     const interactRef = React.useRef(null);
     const notifyInteract = useCallback(() => {
@@ -66,7 +67,7 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload, cambioField, onInt
     }
 
     const baseProps = {
-        name, label, required, placeholder, tooltip, methods, colSpan: gridSpan,
+        name, label, required, placeholder, tooltip, methods, colSpan: gridSpan, newRow,
     };
 
     const patternProps = {

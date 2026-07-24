@@ -18,7 +18,7 @@ const FormStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcar
     }, [cambiosStep]);
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-6 grid-flow-row-dense gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             {tieneCambiosStep && (
                 <div className="md:col-span-6">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-garetbold bg-[#F0E2F5] text-[#5C2472]">

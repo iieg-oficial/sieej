@@ -9,7 +9,7 @@ import DynamicDiv from '@helpers/DynamicDiv';
 import Typography from './Typography';
 
 const Input = ({
-    name, type, pattern, patternMessage, placeholder, label, required, colSpan,
+    name, type, pattern, patternMessage, placeholder, label, required, colSpan, newRow,
     wDiv, tooltip, methods, _inside, clean, className, normalize = 'normal',
     filled, maxLength, ...rest
 }) => {
@@ -47,7 +47,7 @@ const Input = ({
     };
 
     return (
-        <DynamicDiv colSpan={colSpan} wDiv={wDiv} className="mt-4">
+        <DynamicDiv colSpan={colSpan} newRow={newRow} wDiv={wDiv} className="mt-4">
             <Typography
                 as="label"
                 titleName={label} 

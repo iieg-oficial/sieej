@@ -4,6 +4,22 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.38.0] - 2026-07-24
+
+### Ordenamiento del grid: fin de `grid-flow-row-dense` + `layout.newRow`
+
+El grid de 6 columnas dejaba de respetar el orden de la definicion por usar
+`grid-flow-row-dense`, que reacomodaba campos hacia atras para rellenar huecos y
+rompia tanto el orden visual como el del tab. Se retiro de `FormStep`,
+`RepeaterStep` y `EnvioActualizar`; los campos se colocan en orden estricto (si
+uno no cabe en la fila, baja y deja el hueco).
+
+Nuevo `layout.newRow`: cuando es `true`, el campo abre una fila nueva
+(`md:col-start-1`). Sustituye al hack de campos `info` con label vacio usados
+como espaciadores. Requiere mariachi api >= 1.84.0.
+
+---
+
 ## [No publicado]
 
 ---

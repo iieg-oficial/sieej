@@ -82,10 +82,11 @@ requiere la migracion `d4e5f6a7b8c9` de mariachi). Las claves historicas
           "required": true,
           "placeholder": "...",
           "tooltip": "...",
-          "tab": "<id-tab>",                          // si el step es repeater con tabs
+          "tab": "<id-tab>",                          // obligatorio si el step es repeater con tabs
           "options": [{"value":"true","label":"Si"}], // o "catalog": "unidades_admin"
           "showWhen": {"field":"otro","equals":"true"},   // equals string o lista (OR): ["a","b"]
           "validation": {"minLength":1,"maxLength":255,"pattern":"^...$","patternMessage":"...","min":0,"max":100},
+          "layout": {"colSpan": 1, "newRow": false},   // 1=fila completa, 2=mitad, 3=un tercio
           "bucket": "sieej",                          // type=file
           "accept": [".pdf",".csv"],                  // type=file
           "maxSizeMB": 10                             // type=file (cap absoluto 100)
@@ -96,6 +97,9 @@ requiere la migracion `d4e5f6a7b8c9` de mariachi). Las claves historicas
       "maxItems": null,
       "itemLabel": "Item {{index}}",
       "tabs": [{"id":"datos","title":"Datos"}],
+      // Con `tabs`, cada field pertenece a exactamente una pestaña: el backend
+      // rechaza un field sin `tab`, y el renderer manda a la primera pestaña
+      // los de las definiciones anteriores que no lo traen.
 
       // Solo summary:
       "exportPdf": true,
@@ -104,6 +108,23 @@ requiere la migracion `d4e5f6a7b8c9` de mariachi). Las claves historicas
   ]
 }
 ```
+
+### Layout del grid
+
+Cada step se renderiza en un grid de **6 columnas** (`FormStep` / `RepeaterStep`).
+`layout.colSpan` mapea a columnas: `1` -> 6/6, `2` -> 3/6, `3` -> 2/6. En mobile
+el grid colapsa a una sola columna y el `colSpan` se ignora.
+
+Los campos se colocan **en orden estricto**: si uno no cabe en lo que resta de la
+fila, baja a la siguiente y deja el hueco. El grid ya **no** usa
+`grid-flow-row-dense`: esa opcion rellenaba huecos con campos definidos despues,
+de modo que el orden visual dejaba de coincidir con el de la definicion (y con el
+orden del tab), volviendo el layout impredecible.
+
+`layout.newRow: true` fuerza que el campo abra una fila (`md:col-start-1`, no-op
+si ya estaba al inicio). Es la forma soportada de dejar espacio libre al final de
+una fila; antes se lograba metiendo campos `info` con label vacio como
+espaciadores, que ademas ensuciaban `datos`, el export y el PDF.
 
 ## Endpoints
 

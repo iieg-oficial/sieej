@@ -165,7 +165,7 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], ma
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-6 grid-flow-row-dense gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                 {visibleFields.map((field) => {
                     const fullName = `${step.id}.${currentIndex}.${field.name}`;
                     const cambio = cambioPorField.get(field.name);

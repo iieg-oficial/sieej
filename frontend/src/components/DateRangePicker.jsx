@@ -40,7 +40,7 @@ const RangeExtremo = ({
 const DateRangePicker = ({
     name, label, required,
     minDate, maxDate, tooltip, disabled,
-    colSpan, wDiv, methods, field, opciones = [],
+    colSpan, newRow, wDiv, methods, field, opciones = [],
     placeholder: _placeholder, ...rest
 }) => {
     const { getValues } = methods;
@@ -79,7 +79,7 @@ const DateRangePicker = ({
     };
 
     return (
-        <DynamicDiv colSpan={colSpan} wDiv={wDiv} className="mt-4">
+        <DynamicDiv colSpan={colSpan} newRow={newRow} wDiv={wDiv} className="mt-4">
             <Typography
                 as="label"
                 titleName={label}
