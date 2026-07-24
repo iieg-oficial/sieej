@@ -8,6 +8,22 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.37.0] - 2026-07-24
+
+### Boton redondo para actualizar campos post-envio
+
+El acceso a la pantalla de actualizacion ligera (`/mis-envios/:id/actualizar`) pasa de un boton de texto a un **boton redondo** con una flecha gruesa hacia arriba y tooltip "Actualizar informacion", junto al boton de descarga de PDF en el header del detalle del envio. Sigue apareciendo solo cuando el envio esta `enviado` y su snapshot tiene algun campo `editableAfterSubmit`.
+
+#### Agregado
+
+- **`components/icons/UpdateIcon.jsx`** (nuevo): flecha gruesa hacia arriba.
+
+#### Cambiado
+
+- **`pages/EnvioDetalle.jsx`**: el boton "Actualizar informacion" es ahora un icono redondo con `Tooltip`, ubicado a un lado del de descarga.
+
+---
+
 ## [1.35.0] - 2026-07-24
 
 ### Apertura periódica de formularios
