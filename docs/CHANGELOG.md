@@ -4,6 +4,30 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.39.0] - 2026-07-24
+
+### Cambiado: en una lista repetible con pestañas, cada campo vive en una sola
+
+Los campos que no declaraban `tab` se pintaban **repetidos en todas las
+pestañas** del elemento, mezclados con los de la pestaña activa. `RepeaterStep`
+ahora resuelve la pestaña de cada campo con un fallback a la primera cuando el
+`tab` falta o apunta a una pestaña que ya no existe, así que:
+
+- cada campo aparece una sola vez, en una sola pestaña;
+- un `tab` inexistente deja de hacer que el campo **desaparezca por completo**
+  del formulario (antes no coincidía con ninguna pestaña y no se renderizaba
+  nunca, aunque fuera obligatorio);
+- los envíos con `definicion_snapshot` histórico se siguen viendo completos sin
+  migrarlos.
+
+El indicador de cambios sin revisar en las pestañas usa la misma resolución, de
+modo que un campo modificado siempre marca la pestaña donde realmente está.
+
+Del lado del CMS (mariachi 1.83.0) desaparece la pestaña «Comunes» del
+constructor y `tab` pasa a ser obligatorio en los pasos con pestañas.
+
+---
+
 ## [1.38.0] - 2026-07-24
 
 ### Ordenamiento del grid: fin de `grid-flow-row-dense` + `layout.newRow`

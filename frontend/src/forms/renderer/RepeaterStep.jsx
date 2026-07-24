@@ -8,7 +8,7 @@ import useWizard from '@forms/context/useWizard';
 import useGlobal from '@context/useGlobal';
 import FieldRenderer from './FieldRenderer';
 import { evaluarShowWhen } from './conditional';
-import { buildRepeaterItems } from './repeaterItems';
+import { buildRepeaterItems, resolverTabDeCampo } from './repeaterItems';
 
 const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcarVisto }) => {
     const { append, remove } = useFieldArray({ control: methods.control, name: step.id });
@@ -35,7 +35,9 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], ma
         const set = new Set();
         if (!tabs) return set;
         step.fields.forEach((field) => {
-            if (field.tab && cambioPorField.has(field.name)) set.add(field.tab);
+            if (!cambioPorField.has(field.name)) return;
+            const tabId = resolverTabDeCampo(field, tabs);
+            if (tabId) set.add(tabId);
         });
         return set;
     }, [tabs, step.fields, cambioPorField]);
@@ -102,7 +104,7 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], ma
 
     const visibleFields = step.fields.filter((field) => {
         if (!evaluarShowWhen(field.showWhen, itemValues)) return false;
-        if (tabs && field.tab && field.tab !== activeSubTab) return false;
+        if (tabs && resolverTabDeCampo(field, tabs) !== activeSubTab) return false;
         return true;
     });
 

@@ -1,7 +1,7 @@
 # SIEEJ frontend — Contexto del proyecto
 
-**Version:** 1.29.0
-**Fecha de este documento:** 2026-07-17
+**Version:** 1.39.0
+**Fecha de este documento:** 2026-07-24
 **Repo:** https://github.com/iieg-oficial/sieej
 
 Referencia general del proyecto SIEEJ. Para detalles de arquitectura
@@ -44,8 +44,13 @@ viven en `mariachi`.
   cualquier ingress nginx con un dist puro.
 - **Sin upstream `sieej` en el gateway.** No hace falta porque
   gateway-hub sirve los archivos directamente sin proxy. Las llamadas
-  a `/api/administrador/formularios/...` siguen yendo al upstream
+  a `/api/mariachi/formularios/...` siguen yendo al upstream
   `portal` (= mariachi-api).
+- **Prefijo del API: `/api/mariachi`.** El `admin_prefix` de mariachi-api
+  cambio de `/api/administrador` a `/api/mariachi`; el prefijo viejo sigue
+  montado por compatibilidad, pero `VITE_BACKEND_API_HOST` ya apunta al
+  nuevo en `.env.development` y `.env.example`. Si se despliega contra un
+  mariachi anterior al cambio, hay que revertir la variable.
 - **Auth con cookie HttpOnly + CSRF.** Migrado de localStorage+Bearer a
   el patron oficial de mariachi (cookie + `X-CSRF-Token` header).
 - **Catalogos expuestos por keys del backend.** Desde 1.9.0 el
@@ -144,6 +149,12 @@ viven en `mariachi`.
   y guarda cada cambio en un historial append-only para el reporte de auditoria
   del admin. En esta version solo aplica a campos de pasos `form` (repeaters y
   `file` quedan fuera). Requiere mariachi api >= 1.75.0.
+- **Un campo, una pestaña en las listas repetibles (1.39.0).** En un step
+  `repeater` con `tabs`, cada campo pertenece a exactamente una pestaña.
+  `RepeaterStep` resuelve la pestaña con fallback a la primera cuando el `tab`
+  falta o apunta a una que ya no existe: antes un campo sin `tab` se repetia en
+  todas las pestañas y uno con `tab` invalido no se renderizaba en ninguna.
+  El CMS (mariachi >= 1.85.0) elimino la pestaña «Comunes» y exige `tab`.
 - **Apertura periodica de formularios (1.35.0).** Un formulario puede abrir una
   ventana recurrente (`mensual`/`trimestral`/`semestral`/`anual`, con dia de
   apertura y duracion en dias) en vez de una vigencia unica, y **cada periodo
@@ -169,7 +180,7 @@ Vite Dev Server (:5174)
    |
    |-- /assets, index.html              (servidos con HMR)
    |
-   `-- /api/administrador/* --proxy--> http://host.docker.internal:8000
+   `-- /api/mariachi/*      --proxy--> http://host.docker.internal:8000
                                               |
                                               v
                                     mariachi-api (FastAPI)
@@ -201,15 +212,20 @@ gateway-hub (Nginx :443, TLSv1.2/1.3, HSTS)
 - **Modelos**: `mariachi/api/app/models/sieej/`.
 - **Schemas**: `mariachi/api/app/schemas/sieej/`.
 - **Services**: `mariachi/api/app/services/sieej/`.
-- **Routes**: `mariachi/api/app/api/routes/formularios/__init__.py`:
-  - `GET /catalogos`
-  - `GET|POST|PUT|DELETE /general[/{id}]`
-  - `GET|POST|PUT|DELETE /enlaces[/{id}]`
-  - `GET|POST|PUT|DELETE /bases-datos[/{id}]`
-  - `POST /bases-datos/{id}/diccionario` (upload via Acervo)
+- **Routes respondent**: `mariachi/api/app/api/routes/formularios/`:
+  - `GET /formularios/catalogos` — bundle `{clave: [{id, value}]}`
+  - `GET /formularios/` · `GET /formularios/{slug}` · `GET /formularios/{slug}/schema`
+  - `GET|PUT /formularios/{slug}/envio` · `POST /formularios/{slug}/envio/upload`
+  - `POST /formularios/{slug}/envio/actualizar-version`
+  - `GET|DELETE /formularios/mis-envios/{envio_id}`
+  - `PUT /formularios/mis-envios/{envio_id}/actualizar-campos` · `GET .../historial`
 - Todos protegidos por `Depends(require_project_access('sieej'))`.
-- Migration: `alembic/versions/mariachi/e7f8a9b0c1d2_init_sieej_schema.py`
-  (rama mariachi, NO dataengine).
+- Las rutas del CMS (`/sieej/*`: formularios, grupos, catalogos, envios,
+  periodos, notificaciones) las consume mariachi-admin, no este frontend.
+- Migraciones en `alembic/versions/mariachi/` (rama mariachi, NO dataengine).
+  Las tablas del wizard estatico original (`general`, `enlace`, `bases_datos`,
+  `bd_ejes_estrategicos`) se eliminaron en `c6d7e8f9ab01`; hoy todo pasa por
+  `formulario` + `envio_*` con la definicion en JSONB.
 
 ## Auth flow (frontend)
 
@@ -239,7 +255,7 @@ gateway-hub (Nginx :443, TLSv1.2/1.3, HSTS)
 | Variable | Rol |
 |----------|-----|
 | `VITE_BASE_PATH` | `/` en dev, `/sieej/` en staging/prod. |
-| `VITE_BACKEND_API_HOST` | Prefijo del API. Siempre `/api/administrador`. |
+| `VITE_BACKEND_API_HOST` | Prefijo del API. `/api/mariachi` (antes `/api/administrador`, aun aceptado por el backend). |
 | `VITE_PORT`, `FRONTEND_PORT` | Puerto Vite (default 5174). |
 | `VITE_DISABLED_EDITION` | Si truthy, MainLayout muestra ClosePage. |
 | `VITE_APP_ENV` | `dev`/`beta`/`prod`. Usado por `EnvBadge`. |
