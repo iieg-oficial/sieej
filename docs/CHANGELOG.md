@@ -4,6 +4,26 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [No publicado]
+
+---
+
+## [1.38.0] - 2026-07-24
+
+### Ordenamiento del grid: fin de `grid-flow-row-dense` + `layout.newRow`
+
+El grid de 6 columnas dejaba de respetar el orden de la definicion por usar
+`grid-flow-row-dense`, que reacomodaba campos hacia atras para rellenar huecos y
+rompia tanto el orden visual como el del tab. Se retiro de `FormStep`,
+`RepeaterStep` y `EnvioActualizar`; los campos se colocan en orden estricto (si
+uno no cabe en la fila, baja y deja el hueco).
+
+Nuevo `layout.newRow`: cuando es `true`, el campo abre una fila nueva
+(`md:col-start-1`). Sustituye al hack de campos `info` con label vacio usados
+como espaciadores. Requiere mariachi api >= 1.84.0.
+
+---
+
 ## [1.39.0] - 2026-07-24
 
 ### Cambiado: en una lista repetible con pestañas, cada campo vive en una sola
@@ -25,42 +45,6 @@ modo que un campo modificado siempre marca la pestaña donde realmente está.
 
 Del lado del CMS (mariachi 1.83.0) desaparece la pestaña «Comunes» del
 constructor y `tab` pasa a ser obligatorio en los pasos con pestañas.
-
----
-
-## [1.38.0] - 2026-07-24
-
-### Ordenamiento del grid: fin de `grid-flow-row-dense` + `layout.newRow`
-
-El grid de 6 columnas dejaba de respetar el orden de la definicion por usar
-`grid-flow-row-dense`, que reacomodaba campos hacia atras para rellenar huecos y
-rompia tanto el orden visual como el del tab. Se retiro de `FormStep`,
-`RepeaterStep` y `EnvioActualizar`; los campos se colocan en orden estricto (si
-uno no cabe en la fila, baja y deja el hueco).
-
-Nuevo `layout.newRow`: cuando es `true`, el campo abre una fila nueva
-(`md:col-start-1`). Sustituye al hack de campos `info` con label vacio usados
-como espaciadores. Requiere mariachi api >= 1.84.0.
-
----
-
-## [No publicado]
-
----
-
-## [1.37.0] - 2026-07-24
-
-### Boton redondo para actualizar campos post-envio
-
-El acceso a la pantalla de actualizacion ligera (`/mis-envios/:id/actualizar`) pasa de un boton de texto a un **boton redondo** con una flecha gruesa hacia arriba y tooltip "Actualizar informacion", junto al boton de descarga de PDF en el header del detalle del envio. Sigue apareciendo solo cuando el envio esta `enviado` y su snapshot tiene algun campo `editableAfterSubmit`.
-
-#### Agregado
-
-- **`components/icons/UpdateIcon.jsx`** (nuevo): flecha gruesa hacia arriba.
-
-#### Cambiado
-
-- **`pages/EnvioDetalle.jsx`**: el boton "Actualizar informacion" es ahora un icono redondo con `Tooltip`, ubicado a un lado del de descarga.
 
 ---
 
