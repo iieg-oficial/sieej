@@ -8,6 +8,27 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.34.0] - 2026-07-24
+
+### Tipos de campo `email` y `tel` absorbidos en `text` + regex
+
+El renderer deja de tratar `email` y `tel` como tipos propios: ahora se definen
+como `text` con `validation.pattern`, elegido desde el catálogo de regex del CMS
+(correo, teléfono de 10 dígitos, CURP, RFC, código postal, CLABE, etc.) o escrito
+a mano. Se eliminaron los `case 'email'` y `case 'tel'` de `FieldRenderer`.
+
+A cambio de tener un solo tipo de texto validado por patrón se pierden dos
+detalles menores del input nativo: el filtrado de dígitos en vivo del teléfono
+(`normalize="number"`) y el teclado optimizado de correo en móvil
+(`type="email"`).
+
+Los formularios existentes se migran del lado backend (migración
+`a5b6c7d8e9f1`), que reescribe los campos `email`/`tel` a `text` + `pattern` en
+la definición, los snapshots de envío y el historial de versiones. Requiere
+mariachi api >= 1.79.0.
+
+---
+
 ## [1.33.0] - 2026-07-23
 
 ### Actualizacion ligera de campos post-envio

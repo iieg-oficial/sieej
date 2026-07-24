@@ -97,31 +97,6 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload, cambioField, onInt
             <Input {...baseProps} type="number"
                 label={labelWithBadge || label} onFocus={notifyInteract} />
         );
-    case 'email':
-        return (
-            <Input
-                {...baseProps}
-                type="email"
-                maxLength={validation?.maxLength}
-                pattern={toRegExp(validation?.pattern) || /^[^@\s]+@[^@\s]+\.[^@\s]+$/}
-                patternMessage={patternProps.patternMessage || 'Ingresa un correo electrónico válido'}
-                label={labelWithBadge || label}
-                onFocus={notifyInteract}
-            />
-        );
-    case 'tel':
-        return (
-            <Input
-                {...baseProps}
-                type="tel"
-                normalize="number"
-                maxLength={validation?.maxLength ?? 10}
-                pattern={toRegExp(validation?.pattern) || /^\d{10}$/}
-                patternMessage={patternProps.patternMessage || 'Ingresa un teléfono válido de 10 dígitos'}
-                label={labelWithBadge || label}
-                onFocus={notifyInteract}
-            />
-        );
     case 'date':
         return (
             <DatePicker {...baseProps}

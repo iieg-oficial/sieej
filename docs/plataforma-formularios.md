@@ -78,14 +78,14 @@ requiere la migracion `d4e5f6a7b8c9` de mariachi). Las claves historicas
         {
           "name": "razon_social",
           "label": "Razon social",
-          "type": "text|textarea|number|email|tel|date|date_range|select|select_multiple|radio|checkbox|file|info",
+          "type": "text|textarea|number|date|date_range|select|select_multiple|radio|checkbox|file|info",
           "required": true,
           "placeholder": "...",
           "tooltip": "...",
           "tab": "<id-tab>",                          // si el step es repeater con tabs
           "options": [{"value":"true","label":"Si"}], // o "catalog": "unidades_admin"
           "showWhen": {"field":"otro","equals":"true"},   // equals string o lista (OR): ["a","b"]
-          "validation": {"minLength":1,"maxLength":255,"pattern":"^...$","min":0,"max":100},
+          "validation": {"minLength":1,"maxLength":255,"pattern":"^...$","patternMessage":"...","min":0,"max":100},
           "bucket": "sieej",                          // type=file
           "accept": [".pdf",".csv"],                  // type=file
           "maxSizeMB": 10                             // type=file (cap absoluto 100)
