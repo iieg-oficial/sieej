@@ -357,6 +357,47 @@ vez de una fecha: `10/02/1992 – NO DETERMINADO`. Las opciones salen de
   (que da por satisfecho el extremo si hay opcion), no el `required` de
   react-hook-form, que exigiria la fecha aunque haya estatus elegido.
 
+## Apertura periodica (1.35.0)
+
+Un formulario puede abrir una **ventana de captura recurrente** en vez de tener
+una vigencia unica. La config vive en `formulario.periodicidad` (JSONB;
+`null` = formulario no periodico):
+
+```jsonc
+{
+  "frecuencia": "mensual" | "trimestral" | "semestral" | "anual",
+  "dia_inicio": 1,        // dia del primer mes del periodo en que abre (1..28)
+  "duracion_dias": 7,     // largo de la ventana
+  "ancla": "2026-01-01"   // opcional: no abre ventanas antes de esta fecha
+}
+```
+
+- **Un envio por periodo.** Cada ventana genera un envio nuevo
+  (`envio_formulario.periodo_id` -> `sieej.formulario_periodo`), de modo que el
+  historico por periodo no se sobreescribe. El `UNIQUE (formulario, usuario)` se
+  partio en dos indices unicos parciales para que los formularios no periodicos
+  conserven su invariante (migracion `f9a0b1c2d3e4` en mariachi).
+- **"Abierto" se computa de la config**, no de un estado guardado: el gating es
+  correcto aunque el cron no haya corrido. Fuera de ventana las escrituras
+  responden 409, y un envio en proceso expira al `cierre` de **su** periodo.
+- **Listado del respondent.** `GET /formularios/` agrega `periodico`, `abierto`,
+  `ventana_apertura`, `ventana_cierre` y `proxima_apertura`. Los formularios
+  periodicos siguen visibles con la ventana cerrada (para poder anunciar cuando
+  vuelve a abrir): `FormList` muestra "Abierto hasta {fecha}" o el distintivo
+  "Cerrado · proxima apertura {fecha}".
+- **Avisos.** Al abrir se notifica al creador del formulario; el respondent se
+  entera in-app (lo ve abierto en su lista). Al cerrar se reportan los
+  **faltantes** solo al creador y a los administradores. Cada aviso queda en
+  `sieej.notificacion` y sale best-effort por el webhook de Discord de SIEEJ; la
+  bitacora se exporta a CSV/XLSX desde la pestaña "Periodos" del CMS. No hay
+  correo: el stack no tiene SMTP.
+- **Motor.** `PeriodosService.tick()` (idempotente) materializa las ventanas,
+  abre, cierra, expira y avisa. Lo corre el sidecar `cron-sieej`
+  (`scripts/sieej_periodos_tick.py`); `POST /sieej/periodos/tick` lo dispara a
+  mano — es la via de prueba en dev, que no levanta el cron.
+
+Detalle backend en `mariachi/docs/sieej.md`, seccion "Apertura periodica".
+
 ## Decisiones cerradas
 
 - **Editor JSON como source of truth**: el visual transforma JSON, no

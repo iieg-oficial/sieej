@@ -8,6 +8,32 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.35.0] - 2026-07-24
+
+### Apertura periódica de formularios
+
+Un formulario puede abrir una ventana de captura recurrente (mensual,
+trimestral, semestral o anual) en lugar de tener una vigencia única, y **cada
+periodo genera un envío nuevo**, así que el histórico de cada periodo deja de
+sobrescribirse.
+
+En la lista, `FormCard` distingue los formularios periódicos: muestra
+«Abierto hasta {fecha}» mientras la ventana está abierta y el distintivo
+«Cerrado · próxima apertura {fecha}» cuando no lo está. Los periódicos siguen
+visibles con la ventana cerrada, precisamente para poder anunciar cuándo vuelven
+a abrir. Consume los campos nuevos `periodico`, `abierto`, `ventana_apertura`,
+`ventana_cierre` y `proxima_apertura` de `GET /formularios/`.
+
+El aviso al respondent es esa visibilidad in-app: no hay correo porque el stack
+no tiene SMTP. Los avisos de apertura y el reporte de faltantes al cierre van al
+creador del formulario y a los administradores por webhook, con bitácora
+exportable a CSV/XLSX desde el CMS.
+
+Requiere el backend con apertura periódica (migración `f9a0b1c2d3e4` de
+mariachi).
+
+---
+
 ## [1.34.0] - 2026-07-24
 
 ### Tipos de campo `email` y `tel` absorbidos en `text` + regex

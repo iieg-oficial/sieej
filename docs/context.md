@@ -144,6 +144,18 @@ viven en `mariachi`.
   y guarda cada cambio en un historial append-only para el reporte de auditoria
   del admin. En esta version solo aplica a campos de pasos `form` (repeaters y
   `file` quedan fuera). Requiere mariachi api >= 1.75.0.
+- **Apertura periodica de formularios (1.35.0).** Un formulario puede abrir una
+  ventana recurrente (`mensual`/`trimestral`/`semestral`/`anual`, con dia de
+  apertura y duracion en dias) en vez de una vigencia unica, y **cada periodo
+  genera un envio nuevo**, de modo que el historico por periodo no se
+  sobreescribe. El estado "abierto" se computa de la configuracion y no de un
+  estado guardado, asi que el gating es correcto aunque el cron no haya corrido.
+  `FormList` distingue "Abierto hasta {fecha}" de "Cerrado · proxima apertura
+  {fecha}". Los avisos (apertura al creador; faltantes al creador y a los
+  administradores) salen por el webhook de Discord de SIEEJ y quedan en una
+  bitacora exportable a CSV/XLSX desde la pestaña "Periodos" del CMS; no hay
+  correo porque el stack no tiene SMTP. Requiere la migracion `f9a0b1c2d3e4`
+  de mariachi.
 
 ## Arquitectura
 
