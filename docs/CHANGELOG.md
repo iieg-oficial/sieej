@@ -8,6 +8,32 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.45.0] - 2026-07-27
+
+### Corregido: el ícono del botón de historial era invisible por el CSS global de `button`
+
+`index.css` aplica `padding: .6em 1.2em` y `border: 1px solid transparent` a
+**todo** `button`, fuera de `@layer`, así que gana a las utilidades de Tailwind
+(que sí están en capas). Con `w-7 h-7` fijos, ese padding no dejaba caja para el
+SVG y el ícono no se veía. Va con `p-0!` y `border-0!`, como el resto de los
+botones-ícono del proyecto. Los tests en jsdom no lo detectaban porque no
+aplican layout: `test/campoConHistorial.test.jsx` cubre ahora que el botón y su
+`<svg>` existen y que el historial se despliega al pulsarlo.
+
+### Cambiado: historial más compacto y encabezado más limpio
+
+- Cada entrada del historial es **una fila**: `valor anterior → valor nuevo` a la
+  izquierda y la fecha a la derecha. Se retira el nombre del campo de cada
+  entrada (ya no hace falta: el historial cuelga de su propio campo) y el
+  bloque de fecha que iba arriba. En mobile la fila se apila en columna.
+- Se retira el botón «Listo»: cuando lo único editable son archivos no hay nada
+  que guardar (se aplican al subirlos), así que el botón no aparece. «Guardar
+  cambios» sigue para los campos de valor.
+- El ícono del tooltip del título usa el soporte nativo de `Typography`
+  (`tooltip=`), que lo alinea verticalmente con el título y lo separa más.
+
+---
+
 ## [1.44.0] - 2026-07-27
 
 ### Cambiado: historial por campo, tooltip en portal y ajustes de mobile

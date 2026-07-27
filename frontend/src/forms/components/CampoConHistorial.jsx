@@ -18,11 +18,13 @@ const CampoConHistorial = ({ field, fullName, methods, catalogos, onUpload, hist
                                 onClick={() => setAbierto((v) => !v)}
                                 aria-label="Ver historial de este campo"
                                 aria-expanded={abierto}
-                                className={`
-                                    inline-flex items-center justify-center w-6 h-6 rounded-full
-                                    transition cursor-pointer bg-transparent border-none p-0
-                                    ${abierto ? 'text-[#5C2473] bg-[#F0E2F5]' : 'text-[#7C7C7C] hover:text-[#5C2473]'}
-                                `}
+                                className={[
+                                    'inline-flex items-center justify-center w-7 h-7 rounded-full',
+                                    'transition cursor-pointer bg-transparent border-0! p-0!',
+                                    abierto
+                                        ? 'text-[#5C2473] bg-[#F0E2F5]!'
+                                        : 'text-[#7C7C7C] hover:text-[#5C2473] hover:bg-[#F0E2F5]!',
+                                ].join(' ')}
                             >
                                 <HistoryIcon />
                             </button>

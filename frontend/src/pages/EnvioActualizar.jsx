@@ -15,7 +15,6 @@ import { camposEditables } from '@forms/renderer/editableFields';
 import CampoConHistorial from '@forms/components/CampoConHistorial';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
-import Tooltip from '@components/Tooltip';
 import Button from '@components/Button';
 import BackLink from '@components/BackLink';
 
@@ -163,23 +162,23 @@ const EnvioActualizarContent = ({ envio }) => {
                         <BackLink to={`/mis-envios/${envio.id}`} />
                         <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                                <div className="flex items-start gap-1">
-                                    <Typography as="h1" titleName="Actualizar información" />
-                                    <span className="-mt-1">
-                                        <Tooltip text={AYUDA} />
-                                    </span>
-                                </div>
+                                <Typography
+                                    as="h1"
+                                    className="!mb-0"
+                                    titleName="Actualizar información"
+                                    tooltip={AYUDA}
+                                />
                                 <Typography
                                     as="p"
                                     className="text-[#7C7C7C] font-garetregular mt-1"
                                     titleName={envio.formulario.nombre}
                                 />
                             </div>
-                            {isDesktop && grupos.length > 0 && (
+                            {isDesktop && !soloArchivos && grupos.length > 0 && (
                                 <div className="shrink-0">
                                     <Button
                                         type="submit"
-                                        label={soloArchivos ? 'Listo' : 'Guardar cambios'}
+                                        label="Guardar cambios"
                                         variant="primary"
                                         loading={saving}
                                         fit

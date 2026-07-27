@@ -28,36 +28,25 @@ const formatValor = (valor) => {
     return String(valor);
 };
 
-const HistorialCampos = ({ items = [], loading = false }) => {
-    if (loading) {
-        return (
-            <Typography as="p" className="text-[#7C7C7C]" titleName="Cargando historial..." />
-        );
-    }
-
+const HistorialCampos = ({ items = [] }) => {
     if (!items.length) {
         return (
             <Typography
                 as="p"
-                className="text-[#7C7C7C]"
-                titleName="Todavía no has actualizado ningún campo."
+                className="text-[#7C7C7C] text-xs"
+                titleName="Sin cambios registrados."
             />
         );
     }
 
     return (
-        <ol className="space-y-3">
+        <ol className="border-l-2 border-[#F0E2F5] pl-3 divide-y divide-[#EFEFEF]">
             {items.map((item, idx) => (
-                <li key={idx} className="rounded-[12px] border border-[#E2E2E2] px-4 py-3">
-                    <div className="flex flex-wrap items-baseline justify-between gap-2">
-                        <p className="text-[13px] font-garetbold text-[#191919]">
-                            {item.field_label || item.field_path}
-                        </p>
-                        <span className="text-[11px] text-[#7C7C7C] font-garetregular">
-                            {formatFecha(item.cambiado_en)}
-                        </span>
-                    </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-[13px] font-garetregular">
+                <li
+                    key={idx}
+                    className="py-2 flex flex-col md:flex-row md:items-baseline md:justify-between gap-0.5 md:gap-4"
+                >
+                    <span className="flex flex-wrap items-baseline gap-2 text-[13px] font-garetregular min-w-0">
                         <span className="text-[#7C7C7C] line-through break-all">
                             {formatValor(item.valor_anterior)}
                         </span>
@@ -65,7 +54,10 @@ const HistorialCampos = ({ items = [], loading = false }) => {
                         <span className="text-[#191919] break-all">
                             {formatValor(item.valor_nuevo)}
                         </span>
-                    </div>
+                    </span>
+                    <span className="text-[11px] text-[#7C7C7C] font-garetregular shrink-0">
+                        {formatFecha(item.cambiado_en)}
+                    </span>
                 </li>
             ))}
         </ol>
