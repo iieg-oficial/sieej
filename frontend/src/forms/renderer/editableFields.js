@@ -1,7 +1,7 @@
 export const camposEditables = (definicion) => (definicion?.steps || [])
-    .filter((s) => s.type !== 'summary' && s.type !== 'repeater')
+    .filter((s) => s.type !== 'summary')
     .flatMap((s) => (s.fields || []).filter(
-        (f) => f.editableAfterSubmit && f.type !== 'info' && f.type !== 'file',
+        (f) => f.editableAfterSubmit && f.type !== 'info',
     ));
 
 export const tieneCamposEditables = (definicion) => camposEditables(definicion).length > 0;

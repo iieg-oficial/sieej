@@ -89,6 +89,18 @@ export const actualizarCamposEnvio = async (onFetch, envioId, campos) => {
     return parseJson(r);
 };
 
+export const actualizarArchivoEnvio = async (onFetch, envioId, fieldPath, file) => {
+    const formData = new FormData();
+    formData.append('field_path', fieldPath);
+    formData.append('file', file);
+
+    const r = await onFetch(buildUrl(`/formularios/mis-envios/${envioId}/actualizar-archivo`), {
+        method: 'POST',
+        body: formData,
+    });
+    return parseJson(r);
+};
+
 export const getMiEnvioHistorial = async (onFetch, envioId) => {
     const r = await onFetch(buildUrl(`/formularios/mis-envios/${envioId}/historial`));
     return parseJson(r);

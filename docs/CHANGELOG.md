@@ -8,6 +8,28 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.42.0] - 2026-07-27
+
+### Agregado: la pantalla de actualizar acepta archivos y campos de listas repetibles
+
+`EnvioActualizar` solo listaba campos de valor de pasos `form`: los marcados como
+editables que fueran archivos o vivieran en una lista repetible no aparecian, y
+la pantalla decia «No hay campos actualizables» aunque el formulario los tuviera.
+
+- Los campos de un **repeater** se listan por elemento, con el titulo del paso y
+  la etiqueta del item (`Bases de datos · Elemento 2`), y el nombre del campo es
+  el path con indice que espera el backend.
+- Los campos de **archivo** se rendean con el mismo Dragger del formulario y se
+  reemplazan al soltarlos (`actualizarArchivoEnvio`), sin esperar al boton: el
+  resto de los campos si se guardan con «Guardar cambios». Cuando lo unico
+  editable son archivos, el boton dice «Listo».
+- `editableFields.js` se alinea con el backend: excluye solo `info` y los pasos
+  de resumen.
+
+Requiere mariachi api >= 1.88.0.
+
+---
+
 ## [1.41.0] - 2026-07-27
 
 ### Agregado: acceso a «Actualizar información» desde la lista y desde el resumen

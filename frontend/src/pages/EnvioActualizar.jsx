@@ -4,41 +4,63 @@ import { useForm, FormProvider } from 'react-hook-form';
 import useAuth from '@context/useAuth';
 import useGlobal from '@context/useGlobal';
 import useCatalogos from '@forms/context/useCatalogos';
-import { actualizarCamposEnvio, getMiEnvioDetalle } from '@services/formulariosServices';
+import {
+    actualizarArchivoEnvio,
+    actualizarCamposEnvio,
+    getMiEnvioDetalle,
+} from '@services/formulariosServices';
 import FieldRenderer from '@forms/renderer/FieldRenderer';
 import { evaluarShowWhen } from '@forms/renderer/conditional';
+import { camposEditables } from '@forms/renderer/editableFields';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
 import Button from '@components/Button';
 import BackLink from '@components/BackLink';
 
-const collectEditableFields = (definicion) => {
+const itemLabel = (step, idx) => (step.itemLabel || `Elemento ${idx + 1}`)
+    .replace('{{index}}', String(idx + 1));
+
+const collectEditableFields = (definicion, datos) => {
     const grupos = [];
     (definicion?.steps || []).forEach((step) => {
-        if (step.type === 'summary' || step.type === 'repeater') return;
-        const fields = (step.fields || []).filter(
-            (f) => f.editableAfterSubmit && f.type !== 'info' && f.type !== 'file',
-        );
-        if (fields.length) grupos.push({ step, fields });
+        const fields = camposEditables({ steps: [step] });
+        if (!fields.length) return;
+        if (step.type !== 'repeater') {
+            grupos.push({ step, fields, prefix: step.id, title: step.title });
+            return;
+        }
+        const items = Array.isArray(datos?.[step.id]) ? datos[step.id] : [];
+        items.forEach((_, idx) => {
+            grupos.push({
+                step,
+                fields,
+                prefix: `${step.id}[${idx}]`,
+                title: `${step.title} · ${itemLabel(step, idx)}`,
+                itemIndex: idx,
+            });
+        });
     });
     return grupos;
 };
 
-const StepGrupo = ({ step, fields, methods, catalogos }) => {
-    const stepValues = methods.watch(step.id) || {};
+const StepGrupo = ({ step, fields, prefix, title, itemIndex, methods, catalogos, onUpload }) => {
+    const scopeValues = methods.watch(
+        itemIndex === undefined ? step.id : `${step.id}[${itemIndex}]`,
+    ) || {};
     return (
         <section className="space-y-4">
-            {step.title && <Typography as="h3" titleName={step.title} />}
+            {title && <Typography as="h3" titleName={title} />}
             <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                 {fields.map((field) => {
-                    if (!evaluarShowWhen(field.showWhen, stepValues)) return null;
-                    const fullName = `${step.id}.${field.name}`;
+                    if (!evaluarShowWhen(field.showWhen, scopeValues)) return null;
+                    const fullName = `${prefix}.${field.name}`;
                     return (
                         <FieldRenderer
                             key={fullName}
                             field={{ ...field, name: fullName }}
                             methods={methods}
                             catalogos={catalogos}
+                            onUpload={onUpload}
                         />
                     );
                 })}
@@ -56,20 +78,40 @@ const EnvioActualizarContent = ({ envio }) => {
     const [saving, setSaving] = useState(false);
 
     const grupos = useMemo(
-        () => collectEditableFields(envio.definicion_snapshot || {}),
-        [envio.definicion_snapshot],
+        () => collectEditableFields(envio.definicion_snapshot || {}, envio.datos || {}),
+        [envio.definicion_snapshot, envio.datos],
+    );
+
+    const soloArchivos = grupos.every(
+        ({ fields }) => fields.every((f) => f.type === 'file'),
     );
 
     const volver = () => navigate(`/mis-envios/${envio.id}`);
 
+    const handleUpload = async (fieldPath, file) => {
+        try {
+            const archivo = await actualizarArchivoEnvio(onFetch, envio.id, fieldPath, file);
+            onMessage?.(false, 'Archivo actualizado');
+            return archivo;
+        } catch (err) {
+            onMessage?.(true, err.message || 'No se pudo actualizar el archivo');
+            throw err;
+        }
+    };
+
     const onSubmit = methods.handleSubmit(async () => {
         const campos = {};
-        grupos.forEach(({ step, fields }) => {
+        grupos.forEach(({ fields, prefix }) => {
             fields.forEach((field) => {
-                const path = `${step.id}.${field.name}`;
+                if (field.type === 'file') return;
+                const path = `${prefix}.${field.name}`;
                 campos[path] = methods.getValues(path);
             });
         });
+        if (!Object.keys(campos).length) {
+            volver();
+            return;
+        }
         setSaving(true);
         try {
             await actualizarCamposEnvio(onFetch, envio.id, campos);
@@ -111,16 +153,21 @@ const EnvioActualizarContent = ({ envio }) => {
                         <>
                             <p className="text-[13px] text-[#7C7C7C] font-garetregular mb-6">
                                 Edita solo los campos habilitados. El resto del envío no cambia y
-                                cada modificación queda registrada en el historial.
+                                cada modificación queda registrada en el historial. Los archivos
+                                se reemplazan en cuanto los subes; el resto se guarda con el botón.
                             </p>
                             <div className="space-y-8">
-                                {grupos.map(({ step, fields }) => (
+                                {grupos.map(({ step, fields, prefix, title, itemIndex }) => (
                                     <StepGrupo
-                                        key={step.id}
+                                        key={prefix}
                                         step={step}
                                         fields={fields}
+                                        prefix={prefix}
+                                        title={title}
+                                        itemIndex={itemIndex}
                                         methods={methods}
                                         catalogos={catalogos}
+                                        onUpload={handleUpload}
                                     />
                                 ))}
                             </div>
@@ -134,7 +181,7 @@ const EnvioActualizarContent = ({ envio }) => {
                                 />
                                 <Button
                                     type="submit"
-                                    label="Guardar cambios"
+                                    label={soloArchivos ? 'Listo' : 'Guardar cambios'}
                                     variant="primary"
                                     loading={saving}
                                     fit
