@@ -7,8 +7,8 @@ import useCatalogos from '@forms/context/useCatalogos';
 import { getMiEnvioDetalle } from '@services/formulariosServices';
 import SummaryStep from '@forms/renderer/SummaryStep';
 import SummaryPdfButton from '@forms/renderer/pdf/SummaryPdfButton';
-import Tooltip from '@components/Tooltip';
-import UpdateIcon from '@components/icons/UpdateIcon';
+import UpdateFieldsButton from '@forms/components/UpdateFieldsButton';
+import { tieneCamposEditables } from '@forms/renderer/editableFields';
 import EventTimeline from '@forms/components/EventTimeline';
 import EnvioAdjuntos from '@forms/components/EnvioAdjuntos';
 import Loading from '@components/Loading';
@@ -41,16 +41,8 @@ const MOBILE_TABS = [
     { id: 'actividad', label: 'Actividad' },
 ];
 
-const tieneCamposEditables = (definicion) => (definicion.steps || []).some(
-    (s) => s.type !== 'summary' && s.type !== 'repeater'
-        && (s.fields || []).some(
-            (f) => f.editableAfterSubmit && f.type !== 'info' && f.type !== 'file',
-        ),
-);
-
 const EnvioDetalleContent = ({ envio }) => {
     const { catalogos } = useCatalogos();
-    const navigate = useNavigate();
     const methods = useForm({ defaultValues: envio.datos || {} });
     const [activeTab, setActiveTab] = useState(0);
 
@@ -71,19 +63,7 @@ const EnvioDetalleContent = ({ envio }) => {
                         <div className="flex items-center justify-between gap-3 mt-2 md:mt-0">
                             <BackLink to="/" />
                             <div className="flex items-center gap-2 shrink-0">
-                                {puedeActualizar && (
-                                    <Tooltip text="Actualizar información" showIcon={false} size="small">
-                                        <button
-                                            type="button"
-                                            onClick={() => navigate(`/mis-envios/${envio.id}/actualizar`)}
-                                            aria-label="Actualizar información"
-                                            className="inline-flex shrink-0 items-center justify-center w-10 h-10 rounded-full transition
-                                                bg-[#5C2472] text-white hover:shadow-[0px_8px_16px_#4615524D]"
-                                        >
-                                            <UpdateIcon />
-                                        </button>
-                                    </Tooltip>
-                                )}
+                                {puedeActualizar && <UpdateFieldsButton envioId={envio.id} />}
                                 {summaryStep && (
                                     <SummaryPdfButton
                                         step={summaryStep}

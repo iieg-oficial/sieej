@@ -3,7 +3,10 @@ import FormStep from './FormStep';
 import RepeaterStep from './RepeaterStep';
 import SummaryStep from './SummaryStep';
 
-const StepRenderer = ({ step, methods, catalogos, onUpload, cambiosStep, marcarVisto }) => {
+const StepRenderer = ({
+    step, methods, catalogos, onUpload, cambiosStep, marcarVisto,
+    envioId, puedeActualizar,
+}) => {
     switch (step.type) {
     case 'form':
         return (
@@ -34,6 +37,8 @@ const StepRenderer = ({ step, methods, catalogos, onUpload, cambiosStep, marcarV
                 methods={methods}
                 catalogos={catalogos}
                 summaryStep={step}
+                envioId={envioId}
+                puedeActualizar={puedeActualizar}
             />
         );
     default:

@@ -7,6 +7,7 @@ import Loading from '@components/Loading';
 import Typography from '@components/Typography';
 import AccessDenied from '@components/AccessDenied';
 import DownloadIcon from '@components/icons/DownloadIcon';
+import UpdateIcon from '@components/icons/UpdateIcon';
 
 const ESTADO_LABEL = {
     no_iniciado: 'Sin iniciar',
@@ -73,8 +74,9 @@ const fmtDate = (iso) => (iso
     ? new Date(iso).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
     : '');
 
-const FormCard = ({ formulario, onClick, onDownloadPdf, onContactAdmin }) => {
+const FormCard = ({ formulario, onClick, onDownloadPdf, onUpdateFields, onContactAdmin }) => {
     const isEnviado = formulario.estado_envio === 'enviado';
+    const puedeActualizar = isEnviado && formulario.tiene_campos_editables && formulario.envio_id;
     const periodicoCerrado = formulario.periodico && !formulario.abierto;
 
     return (
@@ -108,6 +110,9 @@ const FormCard = ({ formulario, onClick, onDownloadPdf, onContactAdmin }) => {
                     )}
                 </div>
                 <div className="flex items-center gap-1 justify-end">
+                    {puedeActualizar && (
+                        <button type="button" onClick={(e) => { e.stopPropagation(); onUpdateFields(formulario); }} className={actionBtn} aria-label="Actualizar información" title="Actualizar información"><UpdateIcon size={16} /></button>
+                    )}
                     {isEnviado && (
                         <button type="button" onClick={(e) => { e.stopPropagation(); onDownloadPdf(formulario); }} className={actionBtn} aria-label="Descargar PDF" title="Descargar PDF"><DownloadIcon /></button>
                     )}
@@ -145,6 +150,10 @@ const FormList = () => {
         } catch (e) {
             console.error('Error al descargar PDF:', e);
         }
+    };
+
+    const handleUpdateFields = (f) => {
+        navigate(`/mis-envios/${f.envio_id}/actualizar`);
     };
 
     const handleContactAdmin = (f) => {
@@ -219,6 +228,7 @@ const FormList = () => {
                             formulario={f}
                             onClick={() => openForm(f)}
                             onDownloadPdf={handleDownloadPdf}
+                            onUpdateFields={handleUpdateFields}
                             onContactAdmin={handleContactAdmin}
                         />
                     ))}

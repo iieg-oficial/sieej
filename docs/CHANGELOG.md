@@ -8,6 +8,27 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.41.0] - 2026-07-27
+
+### Agregado: acceso a «Actualizar información» desde la lista y desde el resumen
+
+Cuando un formulario enviado tiene campos marcados como editables tras el
+envio, el acceso a `/mis-envios/:id/actualizar` solo existia en el detalle del
+envio. Ahora aparece tambien:
+
+- en la **tarjeta de la lista**, a la izquierda del icono de descargar PDF
+  (usa `tiene_campos_editables` del listado — requiere mariachi api >= 1.87.0);
+- en el **paso Resumen**, a la izquierda de «Descargar PDF», cuando el envio ya
+  fue enviado.
+
+El boton vive en `UpdateFieldsButton` (variante icono y variante con etiqueta) y
+la deteccion de campos editables en `editableFields.js`, que reemplaza la copia
+local que tenia `EnvioDetalle`. De paso, el paso Resumen ya recibe el `envioId`
+del envio enviado, asi que el boton de PDF que estaba condicionado a ese dato
+tambien aparece ahi.
+
+---
+
 ## [1.40.0] - 2026-07-27
 
 ### Corregido: un tipo de campo desconocido ya no rompe el formulario

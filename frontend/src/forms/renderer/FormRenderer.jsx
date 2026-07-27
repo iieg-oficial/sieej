@@ -7,6 +7,7 @@ import useWizard from '@forms/context/useWizard';
 import useSubmission from '@forms/context/useSubmission';
 import useGlobal from '@context/useGlobal';
 import { requisitosPendientes, stepIncompleto } from './completeness';
+import { tieneCamposEditables } from './editableFields';
 
 const FormRenderer = ({
     definicion, envio, catalogos,
@@ -35,6 +36,8 @@ const FormRenderer = ({
     const isFirst = currentStep === 0;
     const isLast = currentStep >= steps.length - 1;
     const isReadOnly = envio?.estado === 'enviado' || envio?.estado === 'expirado';
+    const enviado = envio?.estado === 'enviado';
+    const puedeActualizar = enviado && tieneCamposEditables(definicion);
 
     const cambiosPorStep = useMemo(() => {
         const map = new Map();
@@ -126,6 +129,8 @@ const FormRenderer = ({
                 onUpload={onUpload}
                 cambiosStep={cambiosPorStep.get(step.id) ?? []}
                 marcarVisto={marcarVisto}
+                envioId={enviado ? envio?.id : undefined}
+                puedeActualizar={puedeActualizar}
             />
         </div>
     );

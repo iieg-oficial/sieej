@@ -6,6 +6,7 @@ import Divide from '@components/Divide';
 import FieldGrid from '@helpers/FieldLayout';
 import { resolveOptions } from './catalogResolver';
 import SummaryPdfButton from './pdf/SummaryPdfButton';
+import UpdateFieldsButton from '@forms/components/UpdateFieldsButton';
 
 const formatValue = (field, value, catalogos) => {
     if (value === null || value === undefined || value === '') return '';
@@ -93,10 +94,18 @@ const renderRepeaterStep = (step, datos, catalogos) => {
     );
 };
 
-const SummaryStep = ({ definicion, methods, catalogos, summaryStep, showPdfButton = true, envioId }) => {
+const SummaryStep = ({
+    definicion, methods, catalogos, summaryStep,
+    showPdfButton = true, envioId, puedeActualizar = false,
+}) => {
     const datos = useWatch({ control: methods.control }) || {};
     const realSteps = (definicion.steps || []).filter((s) => s.type !== 'summary');
     const isMobile = false;
+    const mostrarPdf = !!(
+        showPdfButton && envioId && summaryStep
+        && (summaryStep.exportPdf || summaryStep.pdfTemplate)
+    );
+    const mostrarActualizar = !!(puedeActualizar && envioId);
 
     return (
         <React.Fragment>
@@ -113,12 +122,15 @@ const SummaryStep = ({ definicion, methods, catalogos, summaryStep, showPdfButto
                 </React.Fragment>
             ))}
 
-            {showPdfButton && envioId && summaryStep && (summaryStep.exportPdf || summaryStep.pdfTemplate) && (
-                <div className="w-full mt-8 flex justify-end">
-                    <SummaryPdfButton
-                        step={summaryStep}
-                        envioId={envioId}
-                    />
+            {(mostrarActualizar || mostrarPdf) && (
+                <div className="w-full mt-8 flex justify-end gap-2">
+                    {mostrarActualizar && <UpdateFieldsButton envioId={envioId} labeled />}
+                    {mostrarPdf && (
+                        <SummaryPdfButton
+                            step={summaryStep}
+                            envioId={envioId}
+                        />
+                    )}
                 </div>
             )}
         </React.Fragment>
