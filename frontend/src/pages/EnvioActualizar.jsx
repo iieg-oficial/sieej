@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useForm, FormProvider } from 'react-hook-form';
 import useAuth from '@context/useAuth';
@@ -8,14 +8,21 @@ import {
     actualizarArchivoEnvio,
     actualizarCamposEnvio,
     getMiEnvioDetalle,
+    getMiEnvioHistorial,
 } from '@services/formulariosServices';
 import FieldRenderer from '@forms/renderer/FieldRenderer';
 import { evaluarShowWhen } from '@forms/renderer/conditional';
 import { camposEditables } from '@forms/renderer/editableFields';
+import HistorialCampos from '@forms/components/HistorialCampos';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
+import Tooltip from '@components/Tooltip';
 import Button from '@components/Button';
 import BackLink from '@components/BackLink';
+
+const AYUDA = 'Edita solo los campos habilitados. El resto del envío no cambia y cada '
+    + 'modificación queda registrada en el historial. Los archivos se reemplazan en '
+    + 'cuanto los subes; el resto se guarda con el botón.';
 
 const itemLabel = (step, idx) => (step.itemLabel || `Elemento ${idx + 1}`)
     .replace('{{index}}', String(idx + 1));
@@ -77,6 +84,9 @@ const EnvioActualizarContent = ({ envio }) => {
     const methods = useForm({ defaultValues: envio.datos || {} });
     const [saving, setSaving] = useState(false);
 
+    const [historial, setHistorial] = useState([]);
+    const [historialLoading, setHistorialLoading] = useState(true);
+
     const grupos = useMemo(
         () => collectEditableFields(envio.definicion_snapshot || {}, envio.datos || {}),
         [envio.definicion_snapshot, envio.datos],
@@ -86,12 +96,26 @@ const EnvioActualizarContent = ({ envio }) => {
         ({ fields }) => fields.every((f) => f.type === 'file'),
     );
 
+    const cargarHistorial = useCallback(async () => {
+        setHistorialLoading(true);
+        try {
+            setHistorial(await getMiEnvioHistorial(onFetch, envio.id));
+        } catch {
+            setHistorial([]);
+        } finally {
+            setHistorialLoading(false);
+        }
+    }, [onFetch, envio.id]);
+
+    useEffect(() => { cargarHistorial(); }, [cargarHistorial]);
+
     const volver = () => navigate(`/mis-envios/${envio.id}`);
 
     const handleUpload = async (fieldPath, file) => {
         try {
             const archivo = await actualizarArchivoEnvio(onFetch, envio.id, fieldPath, file);
             onMessage?.(false, 'Archivo actualizado');
+            cargarHistorial();
             return archivo;
         } catch (err) {
             onMessage?.(true, err.message || 'No se pudo actualizar el archivo');
@@ -130,13 +154,29 @@ const EnvioActualizarContent = ({ envio }) => {
                 <main className="rounded-[20px] bg-white px-2 pb-2 md:px-10 md:pb-10 md:pt-10">
                     <div className="sticky top-0 z-10 bg-white pb-4 space-y-4">
                         <BackLink to={`/mis-envios/${envio.id}`} />
-                        <div className="min-w-0">
-                            <Typography as="h1" titleName="Actualizar información" />
-                            <Typography
-                                as="p"
-                                className="text-[#7C7C7C] font-garetregular mt-1"
-                                titleName={envio.formulario.nombre}
-                            />
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                    <Typography as="h1" titleName="Actualizar información" />
+                                    <Tooltip text={AYUDA} />
+                                </div>
+                                <Typography
+                                    as="p"
+                                    className="text-[#7C7C7C] font-garetregular mt-1"
+                                    titleName={envio.formulario.nombre}
+                                />
+                            </div>
+                            {grupos.length > 0 && (
+                                <div className="shrink-0">
+                                    <Button
+                                        type="submit"
+                                        label={soloArchivos ? 'Listo' : 'Guardar cambios'}
+                                        variant="primary"
+                                        loading={saving}
+                                        fit
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -150,45 +190,30 @@ const EnvioActualizarContent = ({ envio }) => {
                             />
                         </div>
                     ) : (
-                        <>
-                            <p className="text-[13px] text-[#7C7C7C] font-garetregular mb-6">
-                                Edita solo los campos habilitados. El resto del envío no cambia y
-                                cada modificación queda registrada en el historial. Los archivos
-                                se reemplazan en cuanto los subes; el resto se guarda con el botón.
-                            </p>
-                            <div className="space-y-8">
-                                {grupos.map(({ step, fields, prefix, title, itemIndex }) => (
-                                    <StepGrupo
-                                        key={prefix}
-                                        step={step}
-                                        fields={fields}
-                                        prefix={prefix}
-                                        title={title}
-                                        itemIndex={itemIndex}
-                                        methods={methods}
-                                        catalogos={catalogos}
-                                        onUpload={handleUpload}
-                                    />
-                                ))}
-                            </div>
-                            <div className="flex flex-col-reverse md:flex-row md:justify-end gap-3 mt-10">
-                                <Button
-                                    type="button"
-                                    label="Cancelar"
-                                    variant="secondary"
-                                    onClick={volver}
-                                    fit
+                        <div className="space-y-8">
+                            {grupos.map(({ step, fields, prefix, title, itemIndex }) => (
+                                <StepGrupo
+                                    key={prefix}
+                                    step={step}
+                                    fields={fields}
+                                    prefix={prefix}
+                                    title={title}
+                                    itemIndex={itemIndex}
+                                    methods={methods}
+                                    catalogos={catalogos}
+                                    onUpload={handleUpload}
                                 />
-                                <Button
-                                    type="submit"
-                                    label={soloArchivos ? 'Listo' : 'Guardar cambios'}
-                                    variant="primary"
-                                    loading={saving}
-                                    fit
-                                />
-                            </div>
-                        </>
+                            ))}
+                        </div>
                     )}
+
+                    <section className="mt-12 border-t border-[#E2E2E2] pt-6">
+                        <Typography as="h3" titleName="Historial de cambios" />
+                        <p className="text-[11px] text-[#7C7C7C] font-garetregular mb-3">
+                            Registro de lo que has actualizado en este envío. No se puede modificar.
+                        </p>
+                        <HistorialCampos items={historial} loading={historialLoading} />
+                    </section>
                 </main>
             </form>
         </FormProvider>

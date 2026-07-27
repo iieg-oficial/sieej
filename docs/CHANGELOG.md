@@ -8,6 +8,25 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.43.0] - 2026-07-27
+
+### Agregado: historial visible para el respondent + encabezado sticky en «Actualizar información»
+
+El endpoint `GET /formularios/mis-envios/:id/historial` existía desde 1.33.0 pero
+solo lo consumía el admin: quien captura no tenía forma de ver qué había
+cambiado ni cuándo. Ahora la pantalla de actualización cierra con **Historial de
+cambios** (`HistorialCampos`), de solo lectura: campo, valor anterior tachado →
+valor nuevo y fecha. Se recarga al reemplazar un archivo, que es el cambio que
+se aplica sin pasar por el botón.
+
+- El párrafo de ayuda pasa a ser **tooltip del título**, que deja de robar
+  espacio en la parte fija de la pantalla.
+- El botón de guardado sube al encabezado, alineado a la derecha del título, y
+  queda **sticky** junto con él. Se retira «Cancelar»: el `BackLink` de arriba
+  ya vuelve al detalle del envío.
+
+---
+
 ## [1.42.0] - 2026-07-27
 
 ### Agregado: la pantalla de actualizar acepta archivos y campos de listas repetibles
