@@ -25,7 +25,7 @@ const UpdateFieldsButton = ({ envioId, labeled = false }) => {
             title={LABEL}
             className={labeled ? LABELED_CLASS : ICON_CLASS}
         >
-            <UpdateIcon />
+            <UpdateIcon className="text-white!" />
             {labeled && <span className="hidden md:inline font-garetbold text-sm">Actualizar</span>}
         </button>
     );

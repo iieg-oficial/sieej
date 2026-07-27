@@ -3,7 +3,7 @@
     "description": "Interfaz web para SIEEJ del Instituto de Informacion Estadistica y Geografica.",
     "license": "MIT",
     "author": "Edgar Alejandro Villarreal Padilla <edgar.villarreal@iieg.gob.mx>",
-    "version": "1.47.2",
+    "version": "1.48.0",
     "private": true,
     "type": "module",
     "scripts": {

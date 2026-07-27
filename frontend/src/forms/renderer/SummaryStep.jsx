@@ -31,7 +31,7 @@ const formatValue = (field, value, catalogos) => {
     }
     if (field.type === 'file') {
         if (typeof value === 'object' && value !== null) {
-            return value.filename_original || value.url_publica || '';
+            return value.filename_original || value.filename || value.url_publica || '';
         }
         return String(value);
     }

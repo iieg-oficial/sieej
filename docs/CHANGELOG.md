@@ -8,6 +8,22 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.48.0] - 2026-07-27
+
+### Corregido: la flecha del botón «Actualizar información» sobre el fondo morado
+
+`UpdateIcon` pintaba con `currentColor` heredado; ahora acepta `className` y el
+botón le pasa `text-white!` explícito, así que la flecha es blanca sobre el
+morado sin depender de la herencia. Aplica a las dos variantes —la redonda del
+detalle del envío y la del paso Resumen con etiqueta—; el ícono de la tarjeta
+de la lista conserva su gris.
+
+El resumen también tolera la forma vieja del valor de archivo (`filename`
+además de `filename_original`), que es la que quedó en los envíos guardados
+antes de homogeneizar el contrato (mariachi api 1.90.0).
+
+---
+
 ## [1.47.2] - 2026-07-27
 
 ### Documentación: cómo renueva la sesión el frontend
