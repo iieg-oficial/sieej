@@ -8,6 +8,63 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.50.0] - 2026-07-27
+
+### Agregado: las reglas del campo se leen y se evalúan mientras se escribe
+
+Un campo con `pattern` o con límites de longitud solo decía algo al fallar la
+validación, y el mínimo ni siquiera se validaba en el navegador: el respondent
+llenaba a ciegas y se enteraba del formato al intentar avanzar.
+
+- Debajo del input aparece una línea discreta con **las condiciones del campo**:
+  el `patternMessage` de la definición, «Mínimo N caracteres» y el conteo
+  `escritos/máximo`. Sin valor van en gris; conforme se escribe, cada condición
+  se pinta verde al cumplirse y roja mientras no, y el conteo avisa en naranja
+  al tocar el tope.
+- `validation.minLength` **se registra** en el formulario, así que ya bloquea el
+  avance igual que `maxLength` y que el backend.
+- El formulario valida en `onTouched` y revalida en cada tecla, así el estado de
+  las condiciones es el del dato que se está capturando.
+- El error deja de duplicarse: cuando el mensaje ya está dicho por una
+  condición, no se repite abajo en rojo.
+
+### Corregido: los campos obligatorios no dejan pasar de paso
+
+- El salto directo a otro paso desde el índice lateral **ya no brinca los
+  obligatorios** del paso actual; al intentarlo se avisa qué falta. Regresar a
+  un paso anterior sigue siendo libre.
+- El **envío** revisa todos los pasos, no solo el visible: si algún paso tiene
+  obligatorios vacíos, «Confirmar y enviar» queda deshabilitado y el tooltip
+  nombra las secciones pendientes, en vez de mandar el envío al rechazo del
+  backend.
+- El **borde rojo** del campo con error volvió a pintarse en los formularios
+  dinámicos: se leía `errors[name]` con nombres anidados (`paso.campo`), donde
+  siempre daba indefinido. Aplica a input, select, select múltiple y radio.
+
+### Corregido: el historial de un campo traduce lo que muestra
+
+El historial imprimía el valor crudo guardado —`true`, `2`, `si_no_aplica`—, que
+no es lo que el respondent eligió en pantalla. Ahora formatea con la misma
+función que el resumen: resuelve la etiqueta de la opción contra el catálogo o
+las opciones del campo, y traduce a «Sí»/«No» las booleanas, incluidas las que
+llegan como texto.
+
+### Corregido: el resumen ya no aprieta las respuestas largas
+
+Toda respuesta ocupaba media rejilla, así que una observación de párrafo se
+enrollaba en una columna angosta y descuadraba su fila. Un `textarea`, una
+selección múltiple o cualquier respuesta de más de 80 caracteres **toma la
+línea completa**, las filas se alinean por arriba y el texto respeta los saltos
+de línea sin desbordar.
+
+### Corregido: el ícono de actualizar información faltaba en el resumen del envío
+
+En el detalle de un envío enviado, el resumen no recibía la marca de campos
+editables, así que el botón «Actualizar» solo salía en el encabezado. Ahora
+también cierra el resumen, como en el paso Resumen del formulario.
+
+---
+
 ## [1.49.0] - 2026-07-27
 
 ### Agregado: el renderizador respeta la posición y la línea reservada de un campo

@@ -1,5 +1,6 @@
 import React from 'react';
 import Typography from '@components/Typography';
+import { formatFieldValue } from '@forms/renderer/fieldValue';
 import rigthDarkIcon from '@icons/ico_rigth_arrow_dark.svg';
 
 const formatFecha = (iso) => {
@@ -13,23 +14,11 @@ const formatFecha = (iso) => {
     });
 };
 
-const formatValor = (valor) => {
-    if (valor === null || valor === undefined || valor === '') return '(vacío)';
-    if (typeof valor === 'boolean') return valor ? 'Sí' : 'No';
-    if (Array.isArray(valor)) return valor.length ? valor.join(', ') : '(vacío)';
-    if (typeof valor === 'object') {
-        if (valor.filename || valor.filename_original) {
-            return valor.filename || valor.filename_original;
-        }
-        if (valor.start || valor.end || valor.startOption || valor.endOption) {
-            return `${valor.startOption || valor.start || ''} – ${valor.endOption || valor.end || ''}`;
-        }
-        return JSON.stringify(valor);
-    }
-    return String(valor);
-};
+const formatValor = (valor, field, catalogos) => (
+    formatFieldValue(field, valor, catalogos) || '(vacío)'
+);
 
-const HistorialCampos = ({ items = [] }) => {
+const HistorialCampos = ({ items = [], field, catalogos }) => {
     if (!items.length) {
         return (
             <Typography
@@ -54,11 +43,11 @@ const HistorialCampos = ({ items = [] }) => {
                         <span className="flex flex-wrap items-baseline gap-2 text-[13px] font-garetregular min-w-0">
                             <span className="text-[#FF8300] shrink-0" aria-hidden="true">–</span>
                             <span className="text-[#7C7C7C] line-through break-all">
-                                {formatValor(item.valor_anterior)}
+                                {formatValor(item.valor_anterior, field, catalogos)}
                             </span>
                             <img src={rigthDarkIcon} alt="" className="w-[5px] h-[10px] shrink-0" />
                             <span className="text-[#191919] break-all">
-                                {formatValor(item.valor_nuevo)}
+                                {formatValor(item.valor_nuevo, field, catalogos)}
                             </span>
                         </span>
                         <span className="text-[11px] text-[#7C7C7C] font-garetregular shrink-0">

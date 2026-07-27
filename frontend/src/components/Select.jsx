@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useFormState } from 'react-hook-form';
 import ErrorsRequired from '@helpers/ErrorsRequired';
+import { getFieldError } from '@helpers/formErrors';
 import DynamicDiv from '@helpers/DynamicDiv';
 import Typography from './Typography';
 
@@ -77,7 +78,7 @@ const Select = ({
                     font-garetmedium text-[14px] bg-[#F8F8F8] cursor-pointer
                     placeholder-[#6B6B6B] placeholder:font-garetregular
                     focus:outline-none focus:bg-[#FFFFFF] focus:ring focus:ring-[#4A148C]
-                    ${errors[name] ? 'border border-[#EA4336] placeholder-[#EA4336] bg-white' : ''}
+                    ${getFieldError(errors, name) ? 'border border-[#EA4336] placeholder-[#EA4336] bg-white' : ''}
                 `}
                 onClick={() => setShowDropdown((prev) => !prev)}
                 {...rest}

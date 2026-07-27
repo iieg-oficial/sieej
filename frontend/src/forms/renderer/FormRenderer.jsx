@@ -6,7 +6,7 @@ import NavigateStep from '@forms/components/wizard/NavigateStep';
 import useWizard from '@forms/context/useWizard';
 import useSubmission from '@forms/context/useSubmission';
 import useGlobal from '@context/useGlobal';
-import { requisitosPendientes, stepIncompleto } from './completeness';
+import { requisitosPendientes, stepIncompleto, stepsConPendientes } from './completeness';
 import { tieneCamposEditables } from './editableFields';
 
 const FormRenderer = ({
@@ -16,7 +16,8 @@ const FormRenderer = ({
 }) => {
     const methods = useForm({
         defaultValues: envio?.datos ?? {},
-        mode: 'onBlur',
+        mode: 'onTouched',
+        reValidateMode: 'onChange',
     });
     const { handleSubmit, reset, getValues, formState: { isDirty } } = methods;
     const { currentStep, goNext, goPrev, activeTab } = useWizard();
@@ -49,8 +50,18 @@ const FormRenderer = ({
         return map;
     }, [envio?.cambios_aplicados]);
 
+    const valores = methods.watch();
+
     const pendienteMsg = !isReadOnly && step
-        ? requisitosPendientes(step, { [step.id]: methods.watch(step.id) })
+        ? requisitosPendientes(step, { [step.id]: valores?.[step.id] })
+        : null;
+
+    const faltantesEnvio = !isReadOnly && isLast
+        ? stepsConPendientes(steps, valores)
+        : [];
+
+    const bloqueoEnvio = faltantesEnvio.length
+        ? `Faltan campos obligatorios en: ${faltantesEnvio.map(({ step: s }) => s.title || s.id).join(', ')}`
         : null;
 
     const handleSave = async (silent = false) => {
@@ -68,6 +79,7 @@ const FormRenderer = ({
     };
 
     const handleNext = handleSubmit(async (values) => {
+        if (pendienteMsg || bloqueoEnvio) return;
         const notice = step?.incompleteNotice;
         if (notice && !isReadOnly && stepIncompleto(step, values)) {
             openModal(
@@ -109,8 +121,8 @@ const FormRenderer = ({
                 isLast={isLast}
                 isLastTab={isLastTab}
                 isMobile={isMobile}
-                nextDisabled={!!pendienteMsg}
-                nextTooltip={pendienteMsg}
+                nextDisabled={!!pendienteMsg || !!bloqueoEnvio}
+                nextTooltip={pendienteMsg || bloqueoEnvio}
                 saveDisabled={isReadOnly || !isDirty}
                 onPrev={goPrev}
                 onSubmit={handleNext}

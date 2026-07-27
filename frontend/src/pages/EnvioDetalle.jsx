@@ -108,6 +108,7 @@ const EnvioDetalleContent = ({ envio }) => {
                             summaryStep={summaryStep}
                             showPdfButton={false}
                             envioId={envio.id}
+                            puedeActualizar={puedeActualizar}
                         />
                     </div>
                 </main>

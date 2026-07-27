@@ -64,6 +64,10 @@ export const requisitosPendientes = (step, values) => {
         : null;
 };
 
+export const stepsConPendientes = (steps, values) => (steps ?? [])
+    .map((step) => ({ step, mensaje: requisitosPendientes(step, values) }))
+    .filter((item) => item.mensaje);
+
 export const stepIncompleto = (step, values) => {
     const fields = step?.fields ?? [];
     if (!fields.length) return false;

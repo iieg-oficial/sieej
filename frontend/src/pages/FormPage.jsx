@@ -15,7 +15,7 @@ import Modal from '@components/Modal';
 import useGlobal from '@context/useGlobal';
 import useCatalogos from '@forms/context/useCatalogos';
 import { buildRepeaterItems } from '@forms/renderer/repeaterItems';
-import { stepCompleteness } from '@forms/renderer/completeness';
+import { requisitosPendientes, stepCompleteness } from '@forms/renderer/completeness';
 
 const construirMapaLabels = (definicion) => {
     const mapa = {};
@@ -141,6 +141,13 @@ const FormularioContent = () => {
 
     const handleStepClick = (idx) => {
         if (idx === currentStep || !visited?.has(idx)) return;
+        if (methods && idx > currentStep) {
+            const pendiente = requisitosPendientes(currentStepData, methods.getValues());
+            if (pendiente) {
+                onMessage?.(true, pendiente);
+                return;
+            }
+        }
         if (methods) handleSave(methods.getValues(), currentStep, true);
         goTo(idx);
     };

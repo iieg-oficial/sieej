@@ -11,7 +11,7 @@ const Text = ({ label, text, tooltip, colSpan, wDiv, clean, ...rest }) => {
             <Typography as="label" titleName={label} tooltip={tooltip} />
             <p 
                 className={`
-                    font-garetmedium text-[13px] my-2
+                    font-garetmedium text-[13px] my-2 break-words whitespace-pre-line
                     ${text ? 'text-[#5C2472]' : 'text-[#8E8E8E]'}
                 `}
                 {...rest}

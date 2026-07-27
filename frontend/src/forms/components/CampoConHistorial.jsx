@@ -41,7 +41,7 @@ const CampoConHistorial = ({ field, fullName, methods, catalogos, onUpload, hist
             </div>
             {abierto && (
                 <div className="ml-9 mt-1.5">
-                    <HistorialCampos items={historial} />
+                    <HistorialCampos items={historial} field={field} catalogos={catalogos} />
                 </div>
             )}
         </div>

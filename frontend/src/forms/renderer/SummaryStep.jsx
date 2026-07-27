@@ -4,59 +4,38 @@ import Text from '@components/Text';
 import Typography from '@components/Typography';
 import Divide from '@components/Divide';
 import FieldGrid from '@helpers/FieldLayout';
-import { resolveOptions } from './catalogResolver';
+import { formatFieldValue } from './fieldValue';
 import SummaryPdfButton from './pdf/SummaryPdfButton';
 import UpdateFieldsButton from '@forms/components/UpdateFieldsButton';
 
-const formatValue = (field, value, catalogos) => {
-    if (value === null || value === undefined || value === '') return '';
-    if (field.type === 'checkbox') return value ? 'Sí' : 'No';
-    if (field.type === 'radio' || field.type === 'select') {
-        const opts = resolveOptions(field, catalogos);
-        const opt = opts.find((o) => String(o.value) === String(value));
-        return opt ? opt.label : String(value);
-    }
-    if (field.type === 'select_multiple') {
-        if (!Array.isArray(value)) return '';
-        const opts = resolveOptions(field, catalogos);
-        return value
-            .map((v) => opts.find((o) => String(o.value) === String(v))?.label || String(v))
-            .join(', ');
-    }
-    if (field.type === 'date_range') {
-        if (typeof value !== 'object' || value === null) return '';
-        const start = value.startOption || value.start || '';
-        const end = value.endOption || value.end || '';
-        return start || end ? `${start} – ${end}` : '';
-    }
-    if (field.type === 'file') {
-        if (typeof value === 'object' && value !== null) {
-            return value.filename_original || value.filename || value.url_publica || '';
-        }
-        return String(value);
-    }
-    return String(value);
-};
+const LARGO_RESPUESTA = 80;
+const TIPOS_LARGOS = [ 'textarea', 'select_multiple' ];
 
-const renderFormStep = (step, datos, catalogos) => {
-    const stepData = datos[step.id] || {};
-    const visibleFields = step.fields.filter((f) => f.type !== 'info');
+const colSpanDeRespuesta = (field, texto) => (
+    TIPOS_LARGOS.includes(field.type) || texto.length > LARGO_RESPUESTA ? 4 : 2
+);
 
-    return (
-        <div className="w-full my-6 md:ml-12">
-            <FieldGrid col={4}>
-                {visibleFields.map((field) => (
-                    <Text
-                        key={field.name}
-                        label={field.label}
-                        text={formatValue(field, stepData[field.name], catalogos)}
-                        colSpan={2}
-                    />
-                ))}
-            </FieldGrid>
-        </div>
-    );
-};
+const renderCampos = (fields, valores, catalogos) => fields
+    .filter((f) => f.type !== 'info')
+    .map((field) => {
+        const texto = formatFieldValue(field, valores?.[field.name], catalogos);
+        return (
+            <Text
+                key={field.name}
+                label={field.label}
+                text={texto}
+                colSpan={colSpanDeRespuesta(field, texto)}
+            />
+        );
+    });
+
+const renderFormStep = (step, datos, catalogos) => (
+    <div className="w-full my-6 md:ml-12">
+        <FieldGrid col={4} align="start">
+            {renderCampos(step.fields, datos[step.id] || {}, catalogos)}
+        </FieldGrid>
+    </div>
+);
 
 const renderRepeaterStep = (step, datos, catalogos) => {
     const items = Array.isArray(datos[step.id]) ? datos[step.id] : [];
@@ -77,15 +56,8 @@ const renderRepeaterStep = (step, datos, catalogos) => {
                         titleName={`${idx + 1}. ${item?.nombre_bd || item?.nombres || `Item ${idx + 1}`}`}
                         style={{ color: '#5C2472' }}
                     />
-                    <FieldGrid col={4}>
-                        {step.fields.filter((f) => f.type !== 'info').map((field) => (
-                            <Text
-                                key={field.name}
-                                label={field.label}
-                                text={formatValue(field, item?.[field.name], catalogos)}
-                                colSpan={2}
-                            />
-                        ))}
+                    <FieldGrid col={4} align="start">
+                        {renderCampos(step.fields, item || {}, catalogos)}
                     </FieldGrid>
                     {idx < items.length - 1 && <Divide />}
                 </React.Fragment>

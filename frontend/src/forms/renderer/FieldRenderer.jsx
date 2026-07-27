@@ -76,6 +76,7 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload, cambioField, onInt
     const patternProps = {
         pattern: toRegExp(validation?.pattern),
         patternMessage: validation?.patternMessage,
+        minLength: validation?.minLength,
     };
 
     const labelWithBadge = badge ? (

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useFormState } from 'react-hook-form';
 import arrowDown from '@assets/icons/ico_down_arrow.svg';
 import ErrorsRequired from '@helpers/ErrorsRequired';
+import { getFieldError } from '@helpers/formErrors';
 import DynamicDiv from '@helpers/DynamicDiv';
 import Typography from './Typography';
 
@@ -79,7 +80,7 @@ const SelectMultiple = ({
                     ${hasThingSelected ? 'bg-white' : 'bg-[#F8F8F8] cursor-pointer hover:border-[#5C2472] hover:border-1'}
                     focus:outline-none focus:ring-1 focus:ring-[#5C2472] 
                     hover:shadow-lg hover:shadow-[#CECECE33] hover:bg-white
-                     ${errors[name] ? 'border border-[#EA4336] placeholder-[#EA4336] bg-white' : ''}
+                     ${getFieldError(errors, name) ? 'border border-[#EA4336] placeholder-[#EA4336] bg-white' : ''}
                 `}
                 onClick={() => setShowDropdown((prev) => !prev)}
                 {...register(name, {

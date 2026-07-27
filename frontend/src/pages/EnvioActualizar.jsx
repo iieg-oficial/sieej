@@ -83,7 +83,11 @@ const EnvioActualizarContent = ({ envio }) => {
     const { onMessage, isDesktop } = useGlobal();
     const { catalogos } = useCatalogos();
     const navigate = useNavigate();
-    const methods = useForm({ defaultValues: envio.datos || {} });
+    const methods = useForm({
+        defaultValues: envio.datos || {},
+        mode: 'onTouched',
+        reValidateMode: 'onChange',
+    });
     const [saving, setSaving] = useState(false);
 
     const [historial, setHistorial] = useState([]);

@@ -14,7 +14,7 @@ const parseNameToFields = (name) => {
     return fields;
 };
 
-export const getErrorMessage = (errors, name) => {
+export const getFieldError = (errors, name) => {
     const fields = parseNameToFields(name);
     let errorObj = errors;
 
@@ -32,5 +32,7 @@ export const getErrorMessage = (errors, name) => {
         errorObj = errorObj[field];
     }
 
-    return errorObj?.message || null;
+    return errorObj || null;
 };
+
+export const getErrorMessage = (errors, name) => getFieldError(errors, name)?.message || null;
