@@ -8,7 +8,7 @@ const CampoConHistorial = ({ field, fullName, methods, catalogos, onUpload, hist
     const [abierto, setAbierto] = useState(false);
 
     return (
-        <div>
+        <div className={abierto ? 'pb-5 border-b border-[#EFEFEF]' : ''}>
             <div className="flex items-start gap-2">
                 <div className="w-6 shrink-0 pt-7">
                     {historial.length > 0 && (
@@ -21,9 +21,8 @@ const CampoConHistorial = ({ field, fullName, methods, catalogos, onUpload, hist
                                 className={[
                                     'inline-flex items-center justify-center w-7 h-7 rounded-full',
                                     'transition cursor-pointer bg-transparent border-0! p-0!',
-                                    abierto
-                                        ? 'text-[#5C2473] bg-[#F0E2F5]!'
-                                        : 'text-[#7C7C7C] hover:text-[#5C2473] hover:bg-[#F0E2F5]!',
+                                    'text-[#FF8300] hover:bg-[#FEDAB2]!',
+                                    abierto ? 'bg-[#FEDAB2]!' : '',
                                 ].join(' ')}
                             >
                                 <HistoryIcon />
@@ -41,7 +40,7 @@ const CampoConHistorial = ({ field, fullName, methods, catalogos, onUpload, hist
                 </div>
             </div>
             {abierto && (
-                <div className="ml-8 mt-2">
+                <div className="ml-9 mt-3">
                     <HistorialCampos items={historial} />
                 </div>
             )}

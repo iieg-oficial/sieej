@@ -8,6 +8,22 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.46.0] - 2026-07-27
+
+### Cambiado: acabado visual del historial por campo
+
+- Se retira la barra vertical de la izquierda; cada entrada abre con un guion
+  naranja (`#FF8300`) como viñeta.
+- El botón de historial toma la paleta naranja (`#FF8300` con fondo `#FEDAB2`
+  al abrir o al pasar el cursor), la misma de los distintivos de cambio.
+- El separador deja de ir entre entradas y pasa a ir **entre campos**, visible
+  solo mientras ese historial está abierto.
+- La flecha `→` se sustituye por el chevron `ico_rigth_arrow_dark` que ya usa el
+  wizard.
+- Encabezado discreto «Historial» antes de las entradas.
+
+---
+
 ## [1.45.0] - 2026-07-27
 
 ### Corregido: el ícono del botón de historial era invisible por el CSS global de `button`

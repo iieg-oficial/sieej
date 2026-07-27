@@ -1,5 +1,6 @@
 import React from 'react';
 import Typography from '@components/Typography';
+import rigthDarkIcon from '@icons/ico_rigth_arrow_dark.svg';
 
 const formatFecha = (iso) => {
     if (!iso) return '';
@@ -40,27 +41,33 @@ const HistorialCampos = ({ items = [] }) => {
     }
 
     return (
-        <ol className="border-l-2 border-[#F0E2F5] pl-3 divide-y divide-[#EFEFEF]">
-            {items.map((item, idx) => (
-                <li
-                    key={idx}
-                    className="py-2 flex flex-col md:flex-row md:items-baseline md:justify-between gap-0.5 md:gap-4"
-                >
-                    <span className="flex flex-wrap items-baseline gap-2 text-[13px] font-garetregular min-w-0">
-                        <span className="text-[#7C7C7C] line-through break-all">
-                            {formatValor(item.valor_anterior)}
+        <div>
+            <p className="text-[10px] uppercase tracking-wide text-[#A8A8A8] font-garetmedium mb-1">
+                Historial
+            </p>
+            <ol className="space-y-1">
+                {items.map((item, idx) => (
+                    <li
+                        key={idx}
+                        className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-0.5 md:gap-4"
+                    >
+                        <span className="flex flex-wrap items-baseline gap-2 text-[13px] font-garetregular min-w-0">
+                            <span className="text-[#FF8300] shrink-0" aria-hidden="true">–</span>
+                            <span className="text-[#7C7C7C] line-through break-all">
+                                {formatValor(item.valor_anterior)}
+                            </span>
+                            <img src={rigthDarkIcon} alt="" className="w-[5px] h-[10px] shrink-0" />
+                            <span className="text-[#191919] break-all">
+                                {formatValor(item.valor_nuevo)}
+                            </span>
                         </span>
-                        <span className="text-[#7C7C7C]" aria-hidden="true">→</span>
-                        <span className="text-[#191919] break-all">
-                            {formatValor(item.valor_nuevo)}
+                        <span className="text-[11px] text-[#7C7C7C] font-garetregular shrink-0">
+                            {formatFecha(item.cambiado_en)}
                         </span>
-                    </span>
-                    <span className="text-[11px] text-[#7C7C7C] font-garetregular shrink-0">
-                        {formatFecha(item.cambiado_en)}
-                    </span>
-                </li>
-            ))}
-        </ol>
+                    </li>
+                ))}
+            </ol>
+        </div>
     );
 };
 
