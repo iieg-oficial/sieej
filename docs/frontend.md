@@ -140,7 +140,7 @@ para no ejecutarse en pantallas publicas (login/exencion).
 
 `AuthContext`:
 - En mount: `GET /autenticacion/perfil` → si 200 setUser (normalizado);
-  si 401 redirect.
+  si 401 intenta renovar y reintenta antes de dar la sesion por perdida.
 - `onLogin({username, password})`: `POST /autenticacion/iniciar-sesion`,
   guarda `csrf_token` en `sessionStorage`, `setUser`.
 - `onLogout`: `POST /autenticacion/cerrar-sesion`, limpia.
@@ -149,8 +149,30 @@ para no ejecutarse en pantallas publicas (login/exencion).
   - Inyecta `X-CSRF-Token` en `POST/PUT/DELETE/PATCH`.
   - Serializa body a JSON si no es FormData/URLSearchParams/Blob/string.
   - **No muta** `options.body` recibido.
-  - 401 → setUser(null) + redirect a `/inicio-sesion`.
+  - 401 → renueva la sesion y reintenta **una vez**; solo si eso falla
+    setUser(null) + redirect a `/inicio-sesion`.
   - `mountedRef` evita setState en componente desmontado.
+
+#### Renovacion de sesion (desde 1.47.1)
+
+El `access_token` vive 30 min; el `refresh_token` 8 h deslizantes. Renovar es
+**responsabilidad del cliente**: hay que llamar a `POST /autenticacion/refrescar`
+ante un 401, o la sesion muere a la media hora aunque el refresh siga vigente.
+El endpoint no pide `X-CSRF-Token` — la cookie httpOnly es la prueba.
+
+- `postRefresh()` (`services/authServices.js`) hace la llamada y guarda el
+  `csrf_token` nuevo que devuelve.
+- `runExclusiveRefresh` (`helpers/sessionRefresh.js`) serializa la renovacion
+  con `navigator.locks` + marca en `localStorage` (`auth_refreshed_at`, 10 s).
+  SIEEJ y el panel de Mariachi comparten origen y cookie: si dos pestañas rotan
+  el mismo refresh a la vez, la deteccion de reuso del backend revoca la familia
+  entera y las saca a las dos.
+- Los endpoints de auth quedan excluidos del reintento para no ciclar.
+
+> **Toda peticion autenticada pasa por `onFetch`.** Un `fetch` suelto se salta
+> este flujo y falla con la sesion expirada en vez de renovar — le paso a
+> `downloadEnvioPdf`, que por eso ahora recibe `onFetch` como primer parametro
+> igual que el resto de `services/formulariosServices.js`.
 
 ### Catalogos
 

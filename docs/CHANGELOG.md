@@ -8,6 +8,21 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.47.2] - 2026-07-27
+
+### Documentación: cómo renueva la sesión el frontend
+
+`docs/frontend.md` describía el `AuthContext` con «401 → redirect a
+`/inicio-sesion`», que era justo el comportamiento corregido en 1.47.1. Se
+actualiza la sección de Auth y se agrega **«Renovación de sesión»**: vidas del
+`access_token` (30 min) y del `refresh_token` (8 h deslizantes), que renovar es
+responsabilidad del cliente, `postRefresh` + `runExclusiveRefresh`, por qué se
+serializa entre pestañas —SIEEJ y Mariachi comparten origen y cookie— y la regla
+de que toda petición autenticada pasa por `onFetch`, con `downloadEnvioPdf` como
+el caso que la incumplía.
+
+---
+
 ## [1.47.1] - 2026-07-27
 
 ### Corregido: pedía la contraseña otra vez a la media hora, aunque la sesión dure 8 h
