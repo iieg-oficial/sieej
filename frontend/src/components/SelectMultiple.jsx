@@ -7,7 +7,7 @@ import Typography from './Typography';
 
 const SelectMultiple = ({
     name, options, label, required, tooltip,
-    placeholder, colSpan, newRow, wDiv, methods, pattern, ...rest
+    placeholder, colSpan, newRow, col, alone, wDiv, methods, pattern, ...rest
 }) => {
     const { register, setValue, control, getValues } = methods;
     const { errors } = useFormState({ control, name });
@@ -52,7 +52,7 @@ const SelectMultiple = ({
     }, [getValues, name]);
 
     return (
-        <DynamicDiv colSpan={colSpan} newRow={newRow} wDiv={wDiv} className="mt-[15px]" ref={dropdownRef}>
+        <DynamicDiv colSpan={colSpan} newRow={newRow} col={col} alone={alone} wDiv={wDiv} className="mt-[15px]" ref={dropdownRef}>
             <Typography
                 as="label"
                 titleName={label} 

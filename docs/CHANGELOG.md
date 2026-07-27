@@ -8,6 +8,31 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.49.0] - 2026-07-27
+
+### Agregado: el renderizador respeta la posición y la línea reservada de un campo
+
+El editor de formularios de Mariachi (1.94.0) deja colocar un campo en cualquier
+parte de su línea —un tercio pegado a la derecha, por ejemplo— y reservarle la
+línea entera aunque sea angosto. `DynamicDiv` solo sabía traducir `colSpan` y
+`newRow`, así que ese acomodo se perdía al renderizar: el campo salía pegado al
+hueco de la izquierda.
+
+- **`layout.col`** se traduce a `md:col-start-{n}`, con `newRow` como su caso
+  particular (`col: 1`). Una `col` donde el ancho declarado no cabría se ignora,
+  en vez de desbordar la cuadrícula creando una columna implícita.
+- **`layout.alone`** extiende el campo hasta el final de la fila
+  (`md:col-end-7`) para que nada más quepa, y limita su contenido con
+  `md:max-w-[…]` al ancho elegido, así que se sigue viendo angosto. No aplica a
+  un campo que ya ocupa la fila completa.
+- El cálculo de clases sale a **`helpers/gridLayout.js`**, compartido por
+  `DynamicDiv` y `FieldRenderer`, que lo tenían duplicado. Los nueve componentes
+  de campo propagan `col` y `alone` hasta `DynamicDiv`.
+
+Va de la mano de mariachi **1.94.0**; conviene desplegarlo antes o junto con él.
+
+---
+
 ## [1.48.0] - 2026-07-27
 
 ### Corregido: la flecha del botón «Actualizar información» sobre el fondo morado

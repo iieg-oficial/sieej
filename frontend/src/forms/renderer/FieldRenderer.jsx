@@ -9,6 +9,7 @@ import DateRangePicker from '@components/DateRangePicker';
 import Typography from '@components/Typography';
 import Dragger from '@components/Dragger';
 import { openRangeOptions, resolveOptions } from './catalogResolver';
+import { placementClasses, startColOf } from '@helpers/gridLayout';
 
 const toRegExp = (raw) => {
     if (!raw) return undefined;
@@ -21,7 +22,6 @@ const toRegExp = (raw) => {
     }
 };
 
-const SPAN_CLASS = { 2: 'md:col-span-2', 3: 'md:col-span-3', 6: 'md:col-span-6' };
 
 const BADGE_CAMBIO = {
     nuevo: 'bg-[#EAF6ED] text-[#34A853]',
@@ -41,7 +41,9 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload, cambioField, onInt
     })();
 
     const newRow = !!layout?.newRow;
-    const spanClass = `${SPAN_CLASS[gridSpan] || 'md:col-span-6'}${newRow ? ' md:col-start-1' : ''}`;
+    const alone = !!layout?.alone;
+    const startCol = startColOf({ col: layout?.col, newRow, colSpan: gridSpan });
+    const spanClass = placementClasses({ colSpan: gridSpan, col: layout?.col, newRow, alone });
 
     const interactRef = React.useRef(null);
     const notifyInteract = useCallback(() => {
@@ -68,6 +70,7 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload, cambioField, onInt
 
     const baseProps = {
         name, label, required, placeholder, tooltip, methods, colSpan: gridSpan, newRow,
+        col: startCol, alone,
     };
 
     const patternProps = {

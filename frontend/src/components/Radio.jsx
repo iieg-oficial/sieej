@@ -4,13 +4,13 @@ import DynamicDiv from '@helpers/DynamicDiv';
 import Typography from './Typography';
 
 const Radio = ({
-    name, options, label, required, description, tooltip, colSpan = 1, newRow,
+    name, options, label, required, description, tooltip, colSpan = 1, newRow, col, alone,
     wDiv, methods, ...rest
 }) => {
     const { register, formState: { errors } } = methods;
 
     return (
-        <DynamicDiv colSpan={colSpan} newRow={newRow} wDiv={wDiv} className="mt-[15px]">
+        <DynamicDiv colSpan={colSpan} newRow={newRow} col={col} alone={alone} wDiv={wDiv} className="mt-[15px]">
             <Typography
                 as="label"
                 titleName={label}

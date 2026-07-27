@@ -1,7 +1,11 @@
 import React from 'react';
+import { placementClasses } from './gridLayout';
 
 const DynamicDiv = React.forwardRef(function DynamicDiv(
-    { colSpan = 1, wDiv, colSpanCondicional, center, inline, newRow, className, children },
+    {
+        colSpan = 1, wDiv, colSpanCondicional, center, inline, newRow, col, alone,
+        className, children
+    },
     ref
 ) {
     if (inline) {
@@ -9,25 +13,14 @@ const DynamicDiv = React.forwardRef(function DynamicDiv(
         return <div ref={ref} className={className || ''}>{children}</div>;
     }
 
-    const colSpanClasses = {
-        1: 'md:col-span-1',
-        2: 'md:col-span-2',
-        3: 'md:col-span-3',
-        4: 'md:col-span-4',
-        5: 'md:col-span-5',
-        6: 'md:col-span-6',
-        0: 'hidden'
-    };
+    const placement = colSpanCondicional
+        ? placementClasses({ colSpan: 2 })
+        : placementClasses({ colSpan, col, newRow, alone });
 
-    const colClass = colSpanCondicional
-        ? colSpanClasses[2]
-        : colSpanClasses[colSpan] || '';
-
-    const startClass = newRow ? 'md:col-start-1' : '';
     const wClass = wDiv ? `w-${wDiv}` : '';
     const isCenter = center
         ? `${className} flex justify-center items-center w-full h-full`
-        : `${className} relative mb-4 ${colClass} ${startClass} ${wClass}`;
+        : `${className} relative mb-4 ${placement} ${wClass}`;
 
     return (
         <div ref={ref} className={isCenter}>

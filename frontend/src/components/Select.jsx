@@ -5,7 +5,7 @@ import DynamicDiv from '@helpers/DynamicDiv';
 import Typography from './Typography';
 
 const Select = ({
-    name, options, label, required, _defaultValue, placeholder, colSpan, newRow,
+    name, options, label, required, _defaultValue, placeholder, colSpan, newRow, col, alone,
     wDiv, tooltip, tooltipModal, methods, pattern, enableSearch, ...rest
 }) => {
     const { register, setValue, control, watch } = methods;
@@ -44,7 +44,7 @@ const Select = ({
     useEffect(() => setSelectedValue(watchedValue), [watchedValue]);
 
     return (
-        <DynamicDiv colSpan={colSpan} newRow={newRow} wDiv={wDiv} className="mt-[15px]" ref={dropdownRef}>
+        <DynamicDiv colSpan={colSpan} newRow={newRow} col={col} alone={alone} wDiv={wDiv} className="mt-[15px]" ref={dropdownRef}>
             <Typography
                 as="label"
                 titleName={label} 
