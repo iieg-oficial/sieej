@@ -8,6 +8,28 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.44.0] - 2026-07-27
+
+### Cambiado: historial por campo, tooltip en portal y ajustes de mobile
+
+- **Historial por campo**: en vez de una lista al final de la pantalla, cada
+  campo con cambios previos muestra un botón de reloj a su izquierda que
+  despliega **su** historial justo debajo. El botón solo aparece si ese campo
+  tiene cambios.
+- **Tooltip**: el panel se renderiza en un portal a `document.body` con posición
+  fija calculada contra el rect del disparador y acotada al viewport (`z-[999]`).
+  Antes era `absolute` dentro del contenedor `sticky` del título, así que
+  quedaba recortado y podía salirse por arriba de la pantalla. El ancho pasa a
+  `min(406px, 100vw-16px)` y el panel voltea abajo si no cabe arriba. Aplica a
+  todos los tooltips de la app, incluidos los de los campos.
+- La pantalla de actualización se renderiza **siempre en lista**: ignora el
+  `colSpan` de la definición y da a cada campo el ancho completo.
+- En mobile se retira el botón de guardado del encabezado (el enlace de volver
+  basta) y se agrega separación entre «Mis formularios» y el header en las
+  pantallas de formulario, detalle y actualización.
+
+---
+
 ## [1.43.0] - 2026-07-27
 
 ### Agregado: historial visible para el respondent + encabezado sticky en «Actualizar información»

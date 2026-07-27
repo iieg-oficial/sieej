@@ -1,24 +1,60 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import useGlobal from '@context/useGlobal';
 import IcoQuestion from '@assets/icons/ico_tooltip.svg';
 import IcoX from '@assets/icons/ico_x_slow.svg';
 
+const MARGEN_VIEWPORT = 8;
+
 const Tooltip = ({ text, showIcon = true, size = 'normal', placement = 'top', children }) => {
     const { isDesktop } = useGlobal();
     const [isHovered, setIsHovered] = useState(false);
+    const [coords, setCoords] = useState(null);
     const typeTooltip = isDesktop ? size : 'full';
     const hoverTimeoutRef = useRef(null);
+    const triggerRef = useRef(null);
+    const panelRef = useRef(null);
 
     useEffect(() => () => {
         if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     }, []);
 
+    useEffect(() => {
+        if (!isHovered) setCoords(null);
+    }, [isHovered]);
+
+    useLayoutEffect(() => {
+        if (!isHovered || typeTooltip === 'full') return;
+        const trigger = triggerRef.current;
+        const panel = panelRef.current;
+        if (!trigger || !panel) return;
+        const t = trigger.getBoundingClientRect();
+        const p = panel.getBoundingClientRect();
+        const left = Math.max(
+            MARGEN_VIEWPORT,
+            Math.min(
+                t.left + t.width / 2 - p.width / 2,
+                window.innerWidth - p.width - MARGEN_VIEWPORT,
+            ),
+        );
+        const arriba = t.top - p.height - MARGEN_VIEWPORT;
+        const abajo = t.bottom + MARGEN_VIEWPORT;
+        const cabeArriba = arriba >= MARGEN_VIEWPORT;
+        const preferirArriba = placement !== 'bottom';
+        setCoords({
+            left,
+            top: (preferirArriba && cabeArriba) || abajo + p.height > window.innerHeight
+                ? Math.max(MARGEN_VIEWPORT, arriba)
+                : abajo,
+        });
+    }, [isHovered, typeTooltip, text, placement]);
+
     if(!text) return children;
 
     return (
         <div className="inline-flex space-x-1 items-center justify-center">
-            {children && 
-                <span 
+            {children &&
+                <span
                     className="inline-block"
                     onMouseEnter={() => !showIcon && setIsHovered(true)}
                     onMouseLeave={() => !showIcon && setIsHovered(false)}
@@ -27,6 +63,7 @@ const Tooltip = ({ text, showIcon = true, size = 'normal', placement = 'top', ch
                 </span>
             }
             <span
+                ref={triggerRef}
                 className="relative"
                 onMouseEnter={() => {
                     if (typeTooltip === 'full') {
@@ -48,29 +85,43 @@ const Tooltip = ({ text, showIcon = true, size = 'normal', placement = 'top', ch
                         <img src={IcoQuestion} alt="tooltip" className="w-5 h-5"/>
                     </button>
                 )}
-                {isHovered && typeTooltip === 'normal' && (
+                {isHovered && typeTooltip === 'normal' && createPortal(
                     <div
-                        className={`
-                            absolute inline-flex left-1/2 transform -translate-x-1/2
-                            ${placement === 'bottom' ? 'top-full mt-1' : 'bottom-full mb-1'}
-                            text-xs/[21px] text-[#191919] bg-[#F8F8F8] rounded-[10px] py-4 px-7 z-50
-                            w-[406px] text-start whitespace-normal font-garetmedium shadow-[0px_3px_12px_#4615524D]
-                        `}
-                    >
-                        <img src={IcoQuestion} alt="tooltip" className="w-5 h-5 mr-6"/>
-                        {text}
-                    </div>
-                )}
-                {isHovered && isDesktop && typeTooltip === 'small' && (
-                    <div 
+                        ref={panelRef}
+                        style={{
+                            top: coords?.top ?? 0,
+                            left: coords?.left ?? 0,
+                            visibility: coords ? 'visible' : 'hidden',
+                        }}
                         className="
-                            absolute bottom-6 -left-1 transform -translate-x-18
-                            text-[10px] text-white bg-[#8591AB] rounded px-2 py-1 z-20
-                            font-garetbold whitespace-nowrap
+                            fixed inline-flex z-[999]
+                            text-xs/[21px] text-[#191919] bg-[#F8F8F8] rounded-[10px] py-4 px-7
+                            w-[min(406px,calc(100vw-16px))] text-start whitespace-normal
+                            font-garetmedium shadow-[0px_3px_12px_#4615524D]
+                        "
+                    >
+                        <img src={IcoQuestion} alt="tooltip" className="w-5 h-5 mr-6 shrink-0"/>
+                        {text}
+                    </div>,
+                    document.body,
+                )}
+                {isHovered && isDesktop && typeTooltip === 'small' && createPortal(
+                    <div
+                        ref={panelRef}
+                        style={{
+                            top: coords?.top ?? 0,
+                            left: coords?.left ?? 0,
+                            visibility: coords ? 'visible' : 'hidden',
+                        }}
+                        className="
+                            fixed z-[999] max-w-[min(280px,calc(100vw-16px))]
+                            text-[10px] text-white bg-[#8591AB] rounded px-2 py-1
+                            font-garetbold
                         "
                     >
                         {text}
-                    </div>
+                    </div>,
+                    document.body,
                 )}
                 {isHovered && typeTooltip === 'full' && (
                     <div

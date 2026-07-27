@@ -210,7 +210,7 @@ const FormularioContent = () => {
                         bg-white shadow-xl-[#03222708] px-2 pb-2 md:px-10 md:pb-10 text-black
                     "
                 >
-                    <div className="xl:hidden w-full pt-4 md:pt-6 pb-3">
+                    <div className="xl:hidden w-full pt-6 pb-3">
                         <BackLink to="/" />
                         <Typography as="h2" className="mt-1" titleName={nombre || 'Formulario'} />
                         {showAviso && (

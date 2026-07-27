@@ -59,8 +59,8 @@ const EnvioDetalleContent = ({ envio }) => {
         <FormProvider {...methods}>
             <div className="flex flex-col xl:flex-row gap-5 pb-5">
                 <main className="flex-1 min-w-0 rounded-[20px] bg-white px-2 pb-2 md:px-10 md:pb-10 md:pt-10">
-                    <div className="sticky top-0 z-10 bg-white pb-4 space-y-4">
-                        <div className="flex items-center justify-between gap-3 mt-2 md:mt-0">
+                    <div className="sticky top-0 z-10 bg-white pb-4 space-y-4 pt-6 md:pt-0">
+                        <div className="flex items-center justify-between gap-3">
                             <BackLink to="/" />
                             <div className="flex items-center gap-2 shrink-0">
                                 {puedeActualizar && <UpdateFieldsButton envioId={envio.id} />}

@@ -10,10 +10,9 @@ import {
     getMiEnvioDetalle,
     getMiEnvioHistorial,
 } from '@services/formulariosServices';
-import FieldRenderer from '@forms/renderer/FieldRenderer';
 import { evaluarShowWhen } from '@forms/renderer/conditional';
 import { camposEditables } from '@forms/renderer/editableFields';
-import HistorialCampos from '@forms/components/HistorialCampos';
+import CampoConHistorial from '@forms/components/CampoConHistorial';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
 import Tooltip from '@components/Tooltip';
@@ -50,24 +49,28 @@ const collectEditableFields = (definicion, datos) => {
     return grupos;
 };
 
-const StepGrupo = ({ step, fields, prefix, title, itemIndex, methods, catalogos, onUpload }) => {
+const StepGrupo = ({
+    step, fields, prefix, title, itemIndex, methods, catalogos, onUpload, historialPorCampo,
+}) => {
     const scopeValues = methods.watch(
         itemIndex === undefined ? step.id : `${step.id}[${itemIndex}]`,
     ) || {};
     return (
         <section className="space-y-4">
             {title && <Typography as="h3" titleName={title} />}
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+            <div className="space-y-5">
                 {fields.map((field) => {
                     if (!evaluarShowWhen(field.showWhen, scopeValues)) return null;
                     const fullName = `${prefix}.${field.name}`;
                     return (
-                        <FieldRenderer
+                        <CampoConHistorial
                             key={fullName}
-                            field={{ ...field, name: fullName }}
+                            field={field}
+                            fullName={fullName}
                             methods={methods}
                             catalogos={catalogos}
                             onUpload={onUpload}
+                            historial={historialPorCampo[fullName] || []}
                         />
                     );
                 })}
@@ -78,14 +81,21 @@ const StepGrupo = ({ step, fields, prefix, title, itemIndex, methods, catalogos,
 
 const EnvioActualizarContent = ({ envio }) => {
     const { onFetch } = useAuth();
-    const { onMessage } = useGlobal();
+    const { onMessage, isDesktop } = useGlobal();
     const { catalogos } = useCatalogos();
     const navigate = useNavigate();
     const methods = useForm({ defaultValues: envio.datos || {} });
     const [saving, setSaving] = useState(false);
 
     const [historial, setHistorial] = useState([]);
-    const [historialLoading, setHistorialLoading] = useState(true);
+
+    const historialPorCampo = useMemo(() => {
+        const mapa = {};
+        historial.forEach((item) => {
+            (mapa[item.field_path] = mapa[item.field_path] || []).push(item);
+        });
+        return mapa;
+    }, [historial]);
 
     const grupos = useMemo(
         () => collectEditableFields(envio.definicion_snapshot || {}, envio.datos || {}),
@@ -97,13 +107,10 @@ const EnvioActualizarContent = ({ envio }) => {
     );
 
     const cargarHistorial = useCallback(async () => {
-        setHistorialLoading(true);
         try {
             setHistorial(await getMiEnvioHistorial(onFetch, envio.id));
         } catch {
             setHistorial([]);
-        } finally {
-            setHistorialLoading(false);
         }
     }, [onFetch, envio.id]);
 
@@ -152,13 +159,15 @@ const EnvioActualizarContent = ({ envio }) => {
         <FormProvider {...methods}>
             <form onSubmit={onSubmit} className="pb-5">
                 <main className="rounded-[20px] bg-white px-2 pb-2 md:px-10 md:pb-10 md:pt-10">
-                    <div className="sticky top-0 z-10 bg-white pb-4 space-y-4">
+                    <div className="sticky top-0 z-10 bg-white pb-4 space-y-4 pt-6 md:pt-0">
                         <BackLink to={`/mis-envios/${envio.id}`} />
                         <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-start gap-1">
                                     <Typography as="h1" titleName="Actualizar información" />
-                                    <Tooltip text={AYUDA} />
+                                    <span className="-mt-1">
+                                        <Tooltip text={AYUDA} />
+                                    </span>
                                 </div>
                                 <Typography
                                     as="p"
@@ -166,7 +175,7 @@ const EnvioActualizarContent = ({ envio }) => {
                                     titleName={envio.formulario.nombre}
                                 />
                             </div>
-                            {grupos.length > 0 && (
+                            {isDesktop && grupos.length > 0 && (
                                 <div className="shrink-0">
                                     <Button
                                         type="submit"
@@ -202,18 +211,12 @@ const EnvioActualizarContent = ({ envio }) => {
                                     methods={methods}
                                     catalogos={catalogos}
                                     onUpload={handleUpload}
+                                    historialPorCampo={historialPorCampo}
                                 />
                             ))}
                         </div>
                     )}
 
-                    <section className="mt-12 border-t border-[#E2E2E2] pt-6">
-                        <Typography as="h3" titleName="Historial de cambios" />
-                        <p className="text-[11px] text-[#7C7C7C] font-garetregular mb-3">
-                            Registro de lo que has actualizado en este envío. No se puede modificar.
-                        </p>
-                        <HistorialCampos items={historial} loading={historialLoading} />
-                    </section>
                 </main>
             </form>
         </FormProvider>
