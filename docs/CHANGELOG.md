@@ -8,6 +8,24 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.40.0] - 2026-07-27
+
+### Corregido: un tipo de campo desconocido ya no rompe el formulario
+
+`FieldRenderer` pintaba «Tipo no soportado: X» ante cualquier tipo que no
+estuviera en su `switch`. Un formulario en produccion con tipos historicos
+(`email`, `tel`) o con un snapshot anterior a un cambio de contrato perdia el
+campo: no se podia capturar ni corregir.
+
+Ahora `email` y `tel` se renderean como texto (que es lo que son desde que se
+absorbieron en `text` + `validation.pattern`) y cualquier otro tipo desconocido
+cae al mismo input en vez de a un mensaje de error. El backend normaliza las
+definiciones antes de servirlas (mariachi api >= 1.86.0), asi que esto es la
+segunda linea de defensa: el formulario se sigue pudiendo llenar aunque llegue
+una definicion sin normalizar.
+
+---
+
 ## [1.38.0] - 2026-07-24
 
 ### Ordenamiento del grid: fin de `grid-flow-row-dense` + `layout.newRow`

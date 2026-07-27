@@ -84,6 +84,8 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload, cambioField, onInt
 
     switch (type) {
     case 'text':
+    case 'email':
+    case 'tel':
         return (
             <Input {...baseProps} {...patternProps} type="text" maxLength={validation?.maxLength}
                 label={labelWithBadge || label} onFocus={notifyInteract} />
@@ -153,7 +155,10 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload, cambioField, onInt
             />
         );
     default:
-        return <Typography variant="body">Tipo no soportado: {type}</Typography>;
+        return (
+            <Input {...baseProps} {...patternProps} type="text" maxLength={validation?.maxLength}
+                label={labelWithBadge || label} onFocus={notifyInteract} />
+        );
     }
 };
 
