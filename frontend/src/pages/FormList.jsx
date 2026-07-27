@@ -125,7 +125,7 @@ const FormCard = ({ formulario, onClick, onDownloadPdf, onUpdateFields, onContac
 
 const FormList = () => {
     const { formularios, loading, error, errorStatus } = useForms();
-    const { user } = useAuth();
+    const { user, onFetch } = useAuth();
     const navigate = useNavigate();
     const [q, setQ] = useState('');
 
@@ -146,7 +146,7 @@ const FormList = () => {
 
     const handleDownloadPdf = async (f) => {
         try {
-            await downloadEnvioPdf(f.envio_id);
+            await downloadEnvioPdf(onFetch, f.envio_id);
         } catch (e) {
             console.error('Error al descargar PDF:', e);
         }

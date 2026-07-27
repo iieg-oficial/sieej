@@ -3,14 +3,19 @@ import {
 } from 'react';
 import useGlobal from './useGlobal';
 import { useLocation, useNavigate } from 'react-router';
-import { postLogin, postLogout, getProfile } from '@services/authServices';
+import { postLogin, postLogout, postRefresh, getProfile } from '@services/authServices';
 import { pushAnalyticsEvent } from '@helpers/analytics';
 import { normalizeUser } from '@helpers/normalizeUser';
+import { runExclusiveRefresh } from '@helpers/sessionRefresh';
 
 const AuthContext = createContext();
 
 export const CSRF_KEY = 'sieej_csrf_token';
 const MUTATION_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+const AUTH_PATHS = ['/autenticacion/refrescar', '/autenticacion/iniciar-sesion'];
+
+const isAuthEndpoint = (url) =>
+    typeof url === 'string' && AUTH_PATHS.some((path) => url.includes(path));
 
 const AuthProvider = ({ children }) => {
     const { onMessage, hostBackend } = useGlobal();
@@ -23,6 +28,7 @@ const AuthProvider = ({ children }) => {
     const [authError, setAuthError] = useState(null);
 
     const csrfRefreshPromiseRef = useRef(null);
+    const sessionRefreshPromiseRef = useRef(null);
 
     const originPage = location.state?.from?.pathname || '/';
 
@@ -56,8 +62,24 @@ const AuthProvider = ({ children }) => {
         return csrfRefreshPromiseRef.current;
     }, [hostBackend]);
 
+    const refreshSession = useCallback(async () => {
+        if (sessionRefreshPromiseRef.current) return sessionRefreshPromiseRef.current;
+        sessionRefreshPromiseRef.current = runExclusiveRefresh(async () => {
+            try {
+                const data = await postRefresh();
+                if (data?.csrf_token) sessionStorage.setItem(CSRF_KEY, data.csrf_token);
+                return true;
+            } catch {
+                return false;
+            }
+        }).finally(() => { sessionRefreshPromiseRef.current = null; });
+        return sessionRefreshPromiseRef.current;
+    }, []);
+
     const handleFetchWithAuth = useCallback(async (url, options = {}) => {
-        const { body: rawBody, headers: rawHeaders, __csrfRetried, ...rest } = options;
+        const {
+            body: rawBody, headers: rawHeaders, __csrfRetried, __refreshRetried, ...rest
+        } = options;
         const method = (rest.method || 'GET').toUpperCase();
         const headers = {
             'Accept': 'application/json',
@@ -90,6 +112,12 @@ const AuthProvider = ({ children }) => {
         });
 
         if (response.status === 401) {
+            if (!__refreshRetried && !isAuthEndpoint(url)) {
+                const refreshed = await refreshSession();
+                if (refreshed) {
+                    return handleFetchWithAuth(url, { ...options, __refreshRetried: true });
+                }
+            }
             sessionStorage.removeItem(CSRF_KEY);
             setUser(null);
             setIsAuthenticated(false);
@@ -116,7 +144,7 @@ const AuthProvider = ({ children }) => {
         }
 
         return response;
-    }, [location.pathname, navigate, refreshCsrfToken]);
+    }, [location.pathname, navigate, refreshCsrfToken, refreshSession]);
 
     const mountedRef = useRef(true);
     useEffect(() => () => { mountedRef.current = false; }, []);
@@ -124,20 +152,33 @@ const AuthProvider = ({ children }) => {
 
     const handleCheckAuth = useCallback(async () => {
         safeSet(setAuthLoading)(true);
-        try {
+        const loadProfile = async () => {
             const profile = await getProfile();
             safeSet(setUser)(normalizeUser(profile));
             safeSet(setIsAuthenticated)(true);
             if (!sessionStorage.getItem(CSRF_KEY)) {
                 await refreshCsrfToken();
             }
-        } catch {
+        };
+
+        try {
+            await loadProfile();
+        } catch (error) {
+            const puedeRenovar = error?.status === 401 && await refreshSession();
+            if (puedeRenovar) {
+                try {
+                    await loadProfile();
+                    return;
+                } catch {
+                    /* la sesión tampoco es válida tras renovar */
+                }
+            }
             safeSet(setUser)(null);
             safeSet(setIsAuthenticated)(false);
         } finally {
             safeSet(setAuthLoading)(false);
         }
-    }, [refreshCsrfToken]);
+    }, [refreshCsrfToken, refreshSession]);
 
     const handleLogin = async ({ username, password }) => {
         safeSet(setAuthLoading)(true);

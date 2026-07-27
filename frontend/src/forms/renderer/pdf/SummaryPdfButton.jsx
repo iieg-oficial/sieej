@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import Spinner from '@components/Spinner';
 import DownloadIcon from '@components/icons/DownloadIcon';
 import { downloadEnvioPdf } from '@services/formulariosServices';
+import useAuth from '@context/useAuth';
 
 const SummaryPdfButton = ({ step, envioId, onError }) => {
     const [loading, setLoading] = useState(false);
+    const { onFetch } = useAuth();
 
     const handleClick = async () => {
         setLoading(true);
         try {
-            await downloadEnvioPdf(envioId);
+            await downloadEnvioPdf(onFetch, envioId);
         } catch (e) {
             onError?.(e.message || 'Error al generar PDF');
         } finally {

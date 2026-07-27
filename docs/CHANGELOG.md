@@ -8,6 +8,32 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.47.1] - 2026-07-27
+
+### Corregido: pedía la contraseña otra vez a la media hora, aunque la sesión dure 8 h
+
+El `access_token` vive 30 min y se renueva con el `refresh_token` (8 h
+deslizantes) llamando a `POST /autenticacion/refrescar`. SIEEJ nunca hacía esa
+llamada: ante cualquier 401, `handleFetchWithAuth` borraba el CSRF y mandaba a
+`/inicio-sesion`. En los accesos del gateway se ve el contraste — desde
+`/mariachi/...` un 401 va seguido de `refrescar` 200 y la petición se reintenta;
+desde `/sieej/...` el 401 iba seguido de `iniciar-sesion`.
+
+- Ante un 401 se intenta renovar una vez y se reintenta la petición original;
+  sólo si la renovación falla se limpia la sesión y se va al login. Los propios
+  endpoints de auth quedan excluidos para no ciclar.
+- `handleCheckAuth` hace lo mismo al arrancar la app, que era el caso de
+  «recargo la pestaña y me pide contraseña».
+- `runExclusiveRefresh` (`helpers/sessionRefresh.js`) serializa la renovación
+  entre pestañas con `navigator.locks` y una marca en `localStorage`: SIEEJ y
+  Mariachi comparten origen y cookie, y si ambas rotan el mismo token a la vez
+  la detección de reúso del backend revoca la familia y las saca a las dos.
+- `downloadEnvioPdf` usaba `fetch` directo, fuera del interceptor: la descarga
+  del PDF fallaba con la sesión expirada en lugar de renovar. Ahora pasa por
+  `onFetch` como el resto de los servicios.
+
+---
+
 ## [1.47.0] - 2026-07-27
 
 ### Cambiado: historial más pegado a su campo

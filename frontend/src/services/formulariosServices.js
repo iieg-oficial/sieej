@@ -106,9 +106,9 @@ export const getMiEnvioHistorial = async (onFetch, envioId) => {
     return parseJson(r);
 };
 
-export const downloadEnvioPdf = async (envioId) => {
+export const downloadEnvioPdf = async (onFetch, envioId) => {
     const url = buildUrl(`/formularios/mis-envios/${envioId}/pdf`);
-    const response = await fetch(url, { credentials: 'include' });
+    const response = await onFetch(url);
     if (!response.ok) {
         throw new Error('Error al descargar el PDF');
     }

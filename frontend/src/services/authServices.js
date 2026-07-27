@@ -44,5 +44,8 @@ export const postLogin = async ({ username, password }) =>
 export const postLogout = async () =>
     fetchJson(buildUrl('/autenticacion/cerrar-sesion'), { method: 'POST' });
 
+export const postRefresh = async () =>
+    fetchJson(buildUrl('/autenticacion/refrescar'), { method: 'POST' });
+
 export const getProfile = async () =>
     fetchJson(buildUrl('/autenticacion/perfil'));
