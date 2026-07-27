@@ -8,6 +8,16 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.47.0] - 2026-07-27
+
+### Cambiado: historial más pegado a su campo
+
+La separación entre el campo y su historial baja a la mitad (`mt-3` → `mt-1.5`)
+y se retira el separador entre campos: la sangría del historial ya deja claro de
+qué campo cuelga.
+
+---
+
 ## [1.46.0] - 2026-07-27
 
 ### Cambiado: acabado visual del historial por campo

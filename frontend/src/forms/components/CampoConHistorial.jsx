@@ -8,7 +8,7 @@ const CampoConHistorial = ({ field, fullName, methods, catalogos, onUpload, hist
     const [abierto, setAbierto] = useState(false);
 
     return (
-        <div className={abierto ? 'pb-5 border-b border-[#EFEFEF]' : ''}>
+        <div>
             <div className="flex items-start gap-2">
                 <div className="w-6 shrink-0 pt-7">
                     {historial.length > 0 && (
@@ -40,7 +40,7 @@ const CampoConHistorial = ({ field, fullName, methods, catalogos, onUpload, hist
                 </div>
             </div>
             {abierto && (
-                <div className="ml-9 mt-3">
+                <div className="ml-9 mt-1.5">
                     <HistorialCampos items={historial} />
                 </div>
             )}
