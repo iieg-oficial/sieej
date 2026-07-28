@@ -8,7 +8,7 @@ const ICON_CLASS = `inline-flex shrink-0 items-center justify-center w-10 h-10 r
 
 const LABELED_CLASS = `inline-flex shrink-0 items-center justify-center gap-2 h-10 rounded-full transition
     bg-[#5C2472] text-white hover:shadow-[0px_8px_16px_#4615524D]
-    w-10 p-0! md:w-auto md:px-6!`;
+    w-10 p-0! md:w-auto md:px-5!`;
 
 const LABEL = 'Actualizar información';
 
@@ -25,7 +25,7 @@ const UpdateFieldsButton = ({ envioId, labeled = false }) => {
             title={LABEL}
             className={labeled ? LABELED_CLASS : ICON_CLASS}
         >
-            <UpdateIcon className="text-white!" />
+            <UpdateIcon size={labeled ? 20 : 18} className="text-white! shrink-0" />
             {labeled && <span className="hidden md:inline font-garetbold text-sm">Actualizar</span>}
         </button>
     );

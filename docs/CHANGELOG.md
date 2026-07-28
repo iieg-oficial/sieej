@@ -8,6 +8,16 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.50.1] - 2026-07-28
+
+### Cambiado: el botón «Actualizar información» del resumen aprieta menos su ícono
+
+Con `px-6` a cada lado, la flecha de 18 px quedaba encogida junto a la etiqueta.
+El relleno horizontal baja a `px-5`, el ícono sube a 20 px en la variante con
+etiqueta y lleva `shrink-0`, así que no se deforma si el contenedor se angosta.
+
+---
+
 ## [1.50.0] - 2026-07-27
 
 ### Agregado: las reglas del campo se leen y se evalúan mientras se escribe
