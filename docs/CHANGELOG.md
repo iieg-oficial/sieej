@@ -8,6 +8,19 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.52.1] - 2026-07-28
+
+### Documentación: el constructor visual gana líneas y relaciones entre campos
+
+`plataforma-formularios.md` describe el constructor del CMS, así que suma lo que
+llegó del lado de mariachi (1.98.0–1.99.0) sin tocar el renderer: manejar líneas
+como unidad —subir, bajar, unir con la de arriba y partir por un campo— y la
+relación navegable entre un campo con `showWhen` y su disparador, con aviso
+cuando la condición queda rota. Lo que se guarda en la definición no cambia:
+sigue siendo `layout.newRow`, `layout.col` y `showWhen`. Sin cambios de código.
+
+---
+
 ## [1.52.0] - 2026-07-28
 
 ### Cambiado: la línea de un campo la declara la definición, ya no se deduce

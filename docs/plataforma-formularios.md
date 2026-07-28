@@ -490,6 +490,19 @@ si el campo arrastrado no cabe en el. Arrastrar sobre otra tarjeta **intercambia
 las dos ranuras** en vez de reordenar la lista, que era lo que desplazaba lineas
 enteras sin tocarlas.
 
+**Lineas como unidad** (mariachi 1.98.0+): el separador de cada linea permite
+subirla, bajarla (con todos sus campos) o unirla con la de arriba, y el switch
+«Empezar una linea nueva en este campo» parte una linea por donde se quiera. Lo
+que se guarda en la `definicion` sigue siendo solo `layout.newRow` y `layout.col`.
+
+**Campos condicionados** (mariachi 1.99.0+): la etiqueta de un campo con
+`showWhen` dice la condicion en palabras («Si Responsable = Si», resuelta contra
+el catalogo) y enlaza a su disparador; el disparador enlaza de vuelta a sus
+dependientes, y al pasar el cursor se resalta la pareja. El editor **avisa de la
+condicion rota** —disparador inexistente, disparador en otra pestaña del repeater
+o cadena circular—, que antes se perdia sin ruido porque `compat.py` descarta los
+`showWhen` huerfanos al guardar.
+
 Sidebar: grupo SIEEJ con items "Formularios", "Grupos" y "Catalogos".
 
 ## Calendario propio y campo date_range (1.31.0)
