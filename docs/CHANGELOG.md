@@ -8,6 +8,42 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.50.2] - 2026-07-28
+
+### Documentación: la arquitectura de la plataforma vuelve a coincidir con el código
+
+`docs/plataforma-formularios.md` seguía fechado en 1.9.0 / mariachi 0.40.2 y
+documentaba cosas que ya no existen. Lo corregido:
+
+- **Endpoint inexistente.** Listaba `GET /formularios/mis-envios` (listado
+  paginado), eliminado en mariachi 1.47+ junto con la pantalla «Mis envíos».
+  Solo sobrevive el detalle individual.
+- **Ruta de los archivos en Acervo.** Describía `{slug}/envio{id}/{uuid}.{ext}`;
+  desde mariachi 1.91.1 la clave es legible, con un directorio por campo y sus
+  versiones dentro, más el respaldo `envio.json` y el bucket marcado
+  `protegido`.
+- **Prefijo del API.** `VITE_BACKEND_API_HOST` es `/api/mariachi`, no
+  `/api/administrador`.
+- **Modelo de datos.** De 8 a 14 tablas: versiones archivadas, periodos,
+  historial de valores, bitácora de avisos y los dos índices únicos parciales
+  que conviven desde los formularios periódicos.
+- **Contrato de la definición.** Se documentan `editableAfterSubmit`,
+  `openStart`/`openEnd`/`openCatalog`, `incompleteNotice`, `layout.col` y
+  `layout.alone`, y que `email`/`tel` desaparecieron como tipos.
+- **Sin documentar hasta ahora.** Tres secciones nuevas — versionado de
+  definiciones (`menor`/`rompe`), actualización ligera post-envío y capa de
+  compatibilidad de definiciones legadas — más la renovación de sesión, la
+  edición concurrente del CMS y la página de catálogos.
+
+`docs/context.md` pasa a 1.50.2 y suma las decisiones de 1.40.0–1.50.0, que no
+se habían recogido: renovación de sesión serializada entre pestañas, historial
+por campo, acomodo manual, condiciones del campo en vivo y la actualización
+post-envío ya sin la limitación a pasos `form`.
+
+Sin cambios de código.
+
+---
+
 ## [1.50.1] - 2026-07-28
 
 ### Cambiado: el botón «Actualizar información» del resumen aprieta menos su ícono

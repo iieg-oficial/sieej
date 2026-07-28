@@ -1,8 +1,8 @@
 # Plataforma de formularios dinamicos SIEEJ
 
 **Estado:** implementada y en operacion.
-**Ultima version SIEEJ:** 1.9.0. **Ultima version mariachi:** 0.40.2.
-**Fecha:** 2026-05-07.
+**Ultima version SIEEJ:** 1.50.1. **Ultima version mariachi:** 1.94.1.
+**Fecha:** 2026-07-28.
 
 Este documento describe la **arquitectura final** de la plataforma de
 formularios dinamicos. Reemplaza al wizard hardcodeado original. La
@@ -22,12 +22,21 @@ PDF genericos.
 
 ## Modelo de datos (mariachi/api, schema `sieej`)
 
-8 tablas + 3 enums Postgres + catalogos globales genericos:
+14 tablas + enums Postgres + catalogos globales genericos:
 
 ```
 sieej.formulario
   slug UNIQUE, nombre, descripcion, definicion JSONB, estado, version,
-  vigencia_inicio/fin, publico, creado_por_id, creado_en, actualizado_en
+  vigencia_inicio/fin, periodicidad JSONB, publico, creado_por_id,
+  actualizado_por_id, creado_en, actualizado_en
+
+sieej.formulario_version               definiciones archivadas
+  formulario_id, version, definicion JSONB, archivado_en
+
+sieej.formulario_periodo               ventanas de captura materializadas
+  formulario_id, clave (2026-03/2026-T2/2026-S1/2026), apertura, cierre,
+  estado (programado/abierto/cerrado),
+  notificado_apertura_en, notificado_faltantes_en
 
 sieej.grupo
   nombre UNIQUE, descripcion, creado_en
@@ -38,17 +47,27 @@ sieej.formulario_usuario               asignacion individual
 
 sieej.envio_formulario
   formulario_id, formulario_version, definicion_snapshot JSONB,
-  usuario_id, estado (en_proceso/enviado/expirado), datos JSONB,
-  paso_actual, iniciado_en/enviado_en/expirado_en, actualizado_en
-  UNIQUE (formulario_id, usuario_id)
+  usuario_id, periodo_id, estado (en_proceso/enviado/expirado),
+  datos JSONB, cambios_pendientes JSONB, paso_actual, eliminado_en,
+  iniciado_en/enviado_en/expirado_en, actualizado_en
+  UNIQUE parcial (formulario_id, usuario_id) WHERE periodo_id IS NULL
+  UNIQUE parcial (formulario_id, usuario_id, periodo_id) WHERE periodo_id IS NOT NULL
 
 sieej.envio_archivo
   envio_id, field_path, bucket, object_key, url_publica,
   filename_original, mime, size_bytes, subido_en
 
 sieej.envio_evento                     auditoria append-only
-  envio_id, tipo (iniciado/guardado/enviado/expirado/reabierto),
+  envio_id, tipo (iniciado/guardado/enviado/expirado/reabierto/actualizado),
   payload JSONB, actor_usuario_id, ocurrido_en
+
+sieej.envio_valor_historial            versionado de valores, append-only
+  envio_id, field_path, field_label, valor_anterior, valor_nuevo,
+  formulario_version, actor_usuario_id, cambiado_en
+
+sieej.notificacion                     bitacora de avisos periodicos
+  formulario_id, periodo_id, tipo (apertura/faltantes), resumen,
+  payload JSONB, destinatarios, creado_en
 ```
 
 Enums: `sieej_formulario_estado`, `sieej_envio_estado`,
@@ -86,12 +105,18 @@ requiere la migracion `d4e5f6a7b8c9` de mariachi). Las claves historicas
           "options": [{"value":"true","label":"Si"}], // o "catalog": "unidades_admin"
           "showWhen": {"field":"otro","equals":"true"},   // equals string o lista (OR): ["a","b"]
           "validation": {"minLength":1,"maxLength":255,"pattern":"^...$","patternMessage":"...","min":0,"max":100},
-          "layout": {"colSpan": 1, "newRow": false},   // 1=fila completa, 2=mitad, 3=un tercio
+          "layout": {"colSpan": 1, "col": 1, "newRow": false, "alone": false},
+          "editableAfterSubmit": false,               // corregible sin reabrir el envio
+          "openStart": false, "openEnd": false,       // type=date_range: extremo abierto
+          "openCatalog": "estatus_fecha",             // type=date_range: catalogo del extremo abierto
           "bucket": "sieej",                          // type=file
           "accept": [".pdf",".csv"],                  // type=file
           "maxSizeMB": 10                             // type=file (cap absoluto 100)
         }
       ],
+      // form y repeater:
+      "incompleteNotice": {"title":"...","message":"..."},  // aviso no bloqueante al avanzar
+
       // Solo repeater:
       "minItems": 1,
       "maxItems": null,
@@ -108,6 +133,12 @@ requiere la migracion `d4e5f6a7b8c9` de mariachi). Las claves historicas
   ]
 }
 ```
+
+Los tipos `email` y `tel` **ya no existen**: se absorbieron en `text` +
+`validation.pattern` (mariachi 1.79.0). El constructor visual ofrece un
+catalogo de regex comunes (correo, telefono de 10 digitos, CURP, RFC, codigo
+postal, CLABE, URL) o un patron propio. La migracion `a5b6c7d8e9f1` reescribio
+los existentes en las tres columnas JSONB.
 
 ### Layout del grid
 
@@ -126,6 +157,21 @@ si ya estaba al inicio). Es la forma soportada de dejar espacio libre al final d
 una fila; antes se lograba metiendo campos `info` con label vacio como
 espaciadores, que ademas ensuciaban `datos`, el export y el PDF.
 
+**Acomodo manual** (mariachi 1.94.0 / SIEEJ 1.49.0): el campo puede fijar su
+posicion dentro de la fila y reservarse la linea entera.
+
+- **`layout.col`** (1..6) ancla el campo a una columna concreta
+  (`md:col-start-{n}`) — `newRow` es su caso particular (`col: 1`). El backend
+  rechaza una `col` donde el ancho declarado no cabria; el renderer la ignora en
+  vez de desbordar la cuadricula creando una columna implicita.
+- **`layout.alone`** extiende el campo hasta el final de la fila
+  (`md:col-end-7`) para que nada mas quepa, y limita su contenido con
+  `md:max-w-[…]` al ancho elegido, asi que se sigue viendo angosto. No aplica a
+  un campo que ya ocupa la fila completa.
+
+El calculo de clases vive en `helpers/gridLayout.js`, compartido por
+`DynamicDiv` y `FieldRenderer`.
+
 ## Endpoints
 
 ### Respondent — `/formularios/...`
@@ -134,15 +180,24 @@ catalogos del wizard original.
 
 | Verbo | Path | |
 |---|---|---|
-| GET | `/formularios/` | Lista visible para el user |
+| GET | `/formularios/` | Lista visible para el user. Incluye `envio_id`, `estado_envio`, `tiene_campos_editables` y, en los periodicos, `periodico`/`abierto`/`ventana_*`/`proxima_apertura` |
 | GET | `/formularios/:slug` | Definicion + estado del envio |
 | GET | `/formularios/:slug/schema` | Definicion + `validation_rules` planos |
 | GET | `/formularios/:slug/envio` | Datos del envio (lazy init) |
-| PUT | `/formularios/:slug/envio` | Guardar parcial (`enviar:false`) o enviar (`enviar:true`) |
+| PUT | `/formularios/:slug/envio` | Guardar parcial (`enviar:false`) o enviar (`enviar:true`). Acepta `cambios_vistos` |
+| POST | `/formularios/:slug/envio/actualizar-version` | Migra el envio `en_proceso` a la definicion vigente conservando `datos` |
 | POST | `/formularios/:slug/envio/upload` | Multipart con `field_path` + `file` |
-| GET | `/formularios/mis-envios` | Listado paginado del histórico del usuario (filtros `estado`, `q`, `page`, `page_size`, `sort`). Item ligero sin `datos` ni `definicion_snapshot`. |
 | GET | `/formularios/mis-envios/:id` | Detalle del envio: `definicion_snapshot` + `datos` + `archivos[]` + `eventos[]`. 404 si no existe; 403 si pertenece a otro usuario. No expone `actor_usuario_id`. |
+| DELETE | `/formularios/mis-envios/:id` | Soft-delete para el respondent (`eliminado_en`); el admin lo sigue viendo. Idempotente |
+| GET | `/formularios/mis-envios/:id/pdf` | PDF del envio generado server-side |
+| PUT | `/formularios/mis-envios/:id/actualizar-campos` | Correccion post-envio de los campos `editableAfterSubmit`, sin reabrir |
+| POST | `/formularios/mis-envios/:id/actualizar-archivo` | Contraparte multipart para los campos `file` |
+| GET | `/formularios/mis-envios/:id/historial` | Historial append-only de valores corregidos (sin actor) |
 | GET | `/formularios/catalogos` | Bundle dinamico `{clave: [{id, value}]}` con todos los catalogos |
+
+> El **listado** `GET /formularios/mis-envios` se elimino en mariachi 1.47+: la
+> pantalla «Mis envios» era redundante con «Mis formularios», que ya muestra el
+> estado de cada formulario. Solo sobrevive el detalle individual.
 
 #### Upload de archivos por campo (`POST /formularios/:slug/envio/upload`)
 
@@ -162,19 +217,52 @@ Flujo end-to-end:
    - Resuelve el bucket con `_bucket_para_field` leyendo `field.bucket` del
      `definicion_snapshot` del envio (no del schema vivo).
    - Sube a **Acervo** (SeaweedFS S3-compatible) via `AcervoClient.upload_file`
-     con `object_key = envio{envio_id}/{uuid}.{ext}`.
+     con la clave que arma `acervo_keys.py` (ver abajo).
    - Persiste un registro en `sieej.envio_archivo` (bucket, object_key,
      url_publica, filename_original, mime, size_bytes).
    - Inserta el valor del campo en `envio.datos[field_path]` server-side.
 4. **Respuesta** (`EnvioUploadResponse`):
-   `{ field_path, url_publica, filename_original, mime, size_bytes }`. El
-   frontend guarda este objeto como valor del campo (lo consume `SummaryStep`
-   y el PDF); el `PUT .../envio` posterior lo reenvia tal cual.
+   `{ field_path, url_publica, object_key, filename_original, mime, size_bytes }`.
+   El frontend guarda este objeto como valor del campo (lo consume `SummaryStep`
+   y el PDF); el `PUT .../envio` posterior lo reenvia tal cual, pero
+   `_preservar_archivos_del_servidor` **ignora** lo que mande el cliente en un
+   campo `file` y conserva el valor que puso la subida (un valor vacio si se
+   respeta: asi se quita un archivo). Eso cierra la puerta a apuntar un campo a
+   una URL arbitraria.
 
-**Donde queda el archivo:** en Acervo, en el bucket que declare
-`field.bucket` (actualmente `sieej`), bajo la ruta
-`envio{id}/{uuid}.{ext}`. La URL publica y los metadatos quedan en
-`sieej.envio_archivo` y referenciados en `sieej.envio_formulario.datos`.
+**Donde queda el archivo:** en Acervo, en el bucket que declare `field.bucket`
+(actualmente `sieej`), con esta convencion de claves (mariachi 1.91.1):
+
+```
+{slug}/{usuario}-{envio_id}[/{periodo}]/{step}.{campo}/{ts}-{nombre}-{sufijo}.{ext}
+{slug}/{usuario}-{envio_id}[/{periodo}]/envio.json
+```
+
+```
+mundial/admin-2/alta_archivos.base_de_datos/20260727T171309Z-direccion-de-integracion-0baab7.xlsx
+censo/sedeco-enlace-23/2026-01/general.padron/20260115T090000Z-padron-4c2b1a.csv
+```
+
+Sustituye a la convencion anterior `{slug}/envio{id}/{uuid}.{ext}`, con la que
+el bucket quedaba ilegible: que archivo es cada UUID, a que campo pertenece y
+cual de varias versiones es la vigente solo se sabia cruzando con
+`envio_archivo`. Ahora hay **un directorio por campo** con sus versiones
+ordenadas cronologicamente, el nombre original sanitizado viaja en la clave con
+un sufijo de 6 hex anticolision, el indice de los repeaters se aplana
+(`bases_datos[0].diccionario` -> `bases_datos-0.diccionario`) y el periodo solo
+aparece si el formulario es periodico.
+
+Junto a los archivos se escribe un **`envio.json`** con `formulario`, `envio`,
+`usuario`, `datos`, `definicion_snapshot` y el catalogo de `archivos`:
+suficiente para reconstruir el envio sin la BD. Se actualiza al enviar, al
+actualizar campos y al reemplazar un archivo — no en cada guardado de borrador.
+Es best-effort de punta a punta: nunca puede tumbar el envio del respondent.
+
+**El bucket `sieej` esta marcado `protegido`** en `acervo.buckets`: el
+explorador del CMS oculta borrar, editar, mover, subir y crear carpeta, y los
+endpoints de escritura de `/acervo` responden 409 **incluso al admin**. Su
+contenido lo gestiona el flujo de formularios y sus claves estan referenciadas
+desde `envio_archivo` y `envio.datos`.
 
 ### Admin — `/sieej/...`
 Gateado por `staff_dep` (`tetlamamakani` + `editora`).
@@ -183,48 +271,65 @@ Gateado por `staff_dep` (`tetlamamakani` + `editora`).
 |---|---|---|
 | GET | `/sieej/stats` | Metricas de envios |
 | GET/POST | `/sieej/formularios` | Lista (filtros estado/slug) / Crea |
-| GET/PUT/DELETE | `/sieej/formularios/:id` | CRUD completo |
+| GET/PUT/DELETE | `/sieej/formularios/:id_or_slug` | CRUD completo. El `PUT` acepta `actualizado_en_esperado` (bloqueo optimista, 409) |
 | POST | `/sieej/formularios/:id/publicar` | estado=activo |
 | POST | `/sieej/formularios/:id/cerrar` | estado=cerrado |
 | PUT | `/sieej/formularios/:id/asignaciones` | Reemplazo de grupos+usuarios |
 | GET | `/sieej/formularios/:id/envios` | Lista paginada con filtro estado |
 | GET | `/sieej/formularios/:id/envios/:envio_id` | Detalle + archivos |
-| GET/POST | `/sieej/grupos` | Lista / Crea |
+| POST | `/sieej/formularios/:id/envios/:envio_id/reabrir` | Devuelve un envio `enviado`/`expirado` a `en_proceso`, conservando su version |
+| GET | `/sieej/formularios/:id/envios/:envio_id/historial` | Historial de valores corregidos, con actor |
+| GET | `/sieej/formularios/:id/periodos` | Ventanas de captura de un formulario periodico |
+| GET | `/sieej/formularios/:id/notificaciones[/exportar]` | Bitacora de avisos (`?formato=csv\|xlsx`) |
+| GET | `/sieej/formularios/presencia` | Presencia de **todos** los formularios en un scan (se declara antes que la ruta con parametro) |
+| GET/PUT/DELETE | `/sieej/formularios/:id/presencia` | Quien esta editando / heartbeat / salida |
+| POST | `/sieej/periodos/tick` | Corre el motor de apertura periodica (idempotente) |
+| POST | `/sieej/expirar-envios-pendientes` | Bulk-expire de envios fuera de vigencia |
+| GET/POST | `/sieej/grupos` | Lista / Crea (acepta `usuarios: int[]` atomico) |
 | GET/PUT/DELETE | `/sieej/grupos/:id` | CRUD |
 | GET/PUT | `/sieej/grupos/:id/usuarios` | Lista miembros / Reemplazo |
+| GET/POST | `/sieej/catalogos` | Lista con total de opciones y campos enlazados / Crea |
+| GET/POST | `/sieej/catalogos/:clave` | Opciones con conteo `en_uso` / Agrega opcion |
+| PUT/DELETE | `/sieej/catalogos/:clave` | Renombra el `label` (la `clave` es inmutable) / Elimina (409 si esta en uso) |
+| PUT/DELETE | `/sieej/catalogos/:clave/:item_id` | Renombra opcion (propaga a los envios) / Elimina (409 si esta en uso) |
+| PUT | `/sieej/catalogos/:clave/reordenar` | Reordena las opciones (columna `posicion`) |
 
 **Slugs reservados** (rechazados al crear formulario): `inicio-sesion`,
 `exencion`, `cambiar-contrasena`, `error`, `regisño`, `catalogos`,
-`schema`, `envio`.
+`schema`, `envio`, `mis-envios`.
 
 ## Frontend SIEEJ
 
 ### Routing
-- `/` — `FormList` (lista de formularios visibles, modo grid o lista
-  con toggle, persistencia `localStorage.sieej_form_list_view`).
+- `/` — `FormList` (lista de formularios visibles en tarjetas, con busqueda
+  siempre visible; el toggle grid/lista se retiro).
 - `/:slug` — `FormPage` (renderer dinamico).
-- `/mis-envios` — `MisEnvios` (histórico paginado con filtros).
 - `/mis-envios/:id` — `EnvioDetalle` (vista de revisión read-only con
   `definicion_snapshot`, timeline y adjuntos).
+- `/mis-envios/:id/actualizar` — `EnvioActualizar` (solo los campos
+  `editableAfterSubmit` de un envio ya enviado).
 - Reservadas: `/inicio-sesion`, `/exencion`, `/cambiar-contrasena`,
   `/error`. Declaradas literal antes de `/:slug` para precedencia (igual
-  que `/mis-envios` y `/mis-envios/:id`).
+  que las de `/mis-envios`).
+- El listado `/mis-envios` se elimino: era redundante con «Mis formularios».
 
 ### Estructura
 ```
 src/
-├── pages/{FormList,FormPage,MisEnvios,EnvioDetalle,Login,...}.jsx
+├── Routes.jsx
+├── pages/{FormList,FormPage,EnvioDetalle,EnvioActualizar,Login,ChangePassword,...}.jsx
 ├── forms/
 │   ├── components/
 │   │   ├── wizard/{StepIndicator,NavigateStep,Tabs}.jsx
-│   │   ├── EventTimeline.jsx                     (1.11.0)
-│   │   └── EnvioAdjuntos.jsx                     (1.11.0)
+│   │   ├── EventTimeline.jsx
+│   │   └── EnvioAdjuntos.jsx
 │   ├── context/
 │   │   ├── {FormsContext,SubmissionContext,WizardContext}.jsx + hooks
-│   │   └── CatalogosContext.jsx + useCatalogos.js   (movido en 1.9.0)
+│   │   └── CatalogosContext.jsx + useCatalogos.js
 │   ├── renderer/
 │   │   ├── {FormRenderer,StepRenderer,FormStep,RepeaterStep,SummaryStep,FieldRenderer}.jsx
-│   │   ├── {conditional,catalogResolver}.js
+│   │   ├── {conditional,catalogResolver,completeness,editableFields}.js
+│   │   ├── {fieldValue,repeaterItems}.js
 │   │   └── pdf/
 │   │       ├── SummaryPdfButton.jsx              (dynamic-import del template)
 │   │       ├── genericPdf.jsx                    (cualquier formulario)
@@ -232,9 +337,11 @@ src/
 │   │           ├── index.jsx                     (downloadSieejLevantamientoPdf)
 │   │           └── PdfForm.jsx                   (245 LOC custom)
 │   └── ...
-├── services/{authServices,formulariosServices}.js   (incluye listMisEnvios y getMiEnvioDetalle desde 1.11.0)
-├── components/{Input,Select,Radio,DatePicker,Checkbox,Dragger,...,IncompleteBadge}.jsx
-├── helpers/{normalizeUser,DynamicDiv,FieldLayout,ErrorsRequired,...}.{js,jsx}
+├── services/{authServices,formulariosServices}.js
+├── components/{Input,Select,Radio,DatePicker,DateRangePicker,Calendar,Checkbox,
+│               Dragger,IncompleteBadge,AccessDenied,...}.jsx
+├── helpers/{normalizeUser,DynamicDiv,gridLayout,FieldHints,fieldHints,
+│            sessionRefresh,formErrors,ErrorsRequired,...}.{js,jsx}
 └── context/{Auth,Global}Context.jsx + hooks       (provider tree raiz)
 ```
 
@@ -272,7 +379,18 @@ para evitar fetches y providers innecesarios en `/inicio-sesion` o
 ### Auth
 Cookie HttpOnly + `X-CSRF-Token` en mutaciones. `onFetch` del
 `AuthContext` lo aplica automaticamente. Variable critica:
-`VITE_BACKEND_API_HOST=/api/administrador` (sin sufijo).
+`VITE_BACKEND_API_HOST=/api/mariachi` (sin sufijo). El prefijo anterior
+`/api/administrador` sigue montado en mariachi-api por compatibilidad.
+
+**Renovacion de sesion** (1.47.1): el `access_token` vive 30 min y se renueva
+con el `refresh_token` (8 h deslizantes) llamando a
+`POST /autenticacion/refrescar`. Ante un 401, `onFetch` intenta renovar una vez
+y reintenta la peticion original; solo si la renovacion falla se limpia la
+sesion y se va al login. `runExclusiveRefresh` (`helpers/sessionRefresh.js`)
+serializa la renovacion entre pestañas con `navigator.locks` y una marca en
+`localStorage`: SIEEJ y Mariachi comparten origen y cookie, y si ambas rotan el
+mismo token a la vez la deteccion de reuso del backend revoca la familia y las
+saca a las dos. **Toda peticion autenticada debe pasar por `onFetch`.**
 
 ### Header
 - Logo SIEEJ → click navega a `/`.
@@ -299,17 +417,42 @@ descarga cuando el usuario hace click en "Descargar PDF".
 ## Constructor visual (mariachi/admin)
 
 `features/sieej-formularios/`:
-- `pages/FormulariosListPage.jsx` — tabla con publicar/cerrar/eliminar.
+- `pages/FormulariosListPage.jsx` — grid de tarjetas con busqueda, filtro de
+  estado y tres ordenamientos; crear (modal slug/nombre/descripcion) y
+  publicar/cerrar/eliminar.
 - `pages/FormularioEditorPage.jsx` — tabs Definicion / Configuracion /
-  Asignaciones / Envios.
-- `pages/GruposPage.jsx` — CRUD de grupos + miembros.
+  Periodos (solo si es periodico) / Asignaciones / Envios, bookmarkables con
+  `?tab=`.
+- `pages/GruposPage.jsx` — CRUD de grupos + miembros (`MemberPicker`).
+- `pages/CatalogosPage.jsx` — CRUD de catalogos y opciones, con reordenamiento
+  por arrastre y tag «Sistema» en los que el producto necesita.
 - `components/DefinicionEditor.jsx` — toggle Visual / JSON.
 - `components/visualEditor/` — drag-n-drop con `@dnd-kit`:
-  `StepsList` → `FieldsList` → `StepDrawer`/`FieldDrawer`.
-- `components/{ConfiguracionEditor,AsignacionesEditor,EnviosTable}.jsx`.
+  `StepsList` → `FieldsList` → `StepDrawer`/`FieldForm`, mas
+  `LayoutControls`/`fieldLayout.js` (acomodo manual), `CatalogPicker`,
+  `OptionsSource`, `ShowWhenField`, `OpenRangeConfig`, `TabsManager` y
+  `fieldClipboard.js`.
+- `components/{ConfiguracionEditor,AsignacionesEditor,EnviosTable,PeriodosPanel,PresenciaEditores}.jsx`.
 
-Sidebar: grupo SIEEJ con items "Formularios" y "Grupos" (habilitado
-desde mariachi 0.40.2).
+**Crear un formulario** manda solo `slug`, `nombre`, `descripcion` y una
+definicion semilla de un paso; el backend lo guarda en `borrador` con
+`version: 1` y el editor se abre enseguida. Publicar es un paso aparte y
+explicito: hasta entonces ningun respondent lo ve.
+
+**Edicion concurrente** (mariachi 1.85.0): el `PUT` de la definicion lleva
+`actualizado_en_esperado` y responde **409** con quien guardo y cuando en vez de
+pisar — importa porque guardar una definicion vieja puede clasificarse como
+cambio que rompe y reabrir envios ya enviados. Ademas hay presencia en Redis
+(TTL 30 s): avatares de quien esta editando, en el header del editor y en cada
+tarjeta del listado. La presencia es un aviso; quien garantiza es el 409.
+
+**Copiar / Pegar / Duplicar campo**: el portapapeles vive en `localStorage`
+(`mariachi.sieej.fieldClipboard`) para cruzar formularios y pestañas del
+navegador; `prepareFieldForPaste` normaliza al pegar (nombre duplicado →
+sufijo, `tab` → pestaña activa, `showWhen` huerfano → se quita, `bucket` sin
+acceso → `sieej`) y avisa de cada ajuste. Sin backend.
+
+Sidebar: grupo SIEEJ con items "Formularios", "Grupos" y "Catalogos".
 
 ## Calendario propio y campo date_range (1.31.0)
 
@@ -419,15 +562,90 @@ una vigencia unica. La config vive en `formulario.periodicidad` (JSONB;
 
 Detalle backend en `mariachi/docs/sieej.md`, seccion "Apertura periodica".
 
+## Versionado de definiciones
+
+Cada envio congela `formulario_version` + `definicion_snapshot` al iniciarse, y
+`cambio_classifier.py` clasifica cada edicion de la definicion:
+
+- **Cambio `menor`** — se propaga en silencio a los envios `en_proceso`,
+  reescribiendo su snapshot. **No** incrementa `formulario.version`. Ejemplos:
+  label, tooltip, layout, orden, campo opcional nuevo, opciones nuevas,
+  validacion mas floja.
+- **Cambio `rompe`** — incrementa `formulario.version`, archiva la definicion
+  previa en `sieej.formulario_version` y **reabre** los envios ya `enviado`
+  (evento `reabierto`), que deben reenviarse sobre la definicion vigente
+  conservando `datos`.
+
+Desde SIEEJ 1.28.0 la actualizacion **se aplica sola**: al cargar el formulario
+(o al detectar en un guardado que el admin publico a media sesion) el frontend
+llama `POST /formularios/{slug}/envio/actualizar-version` y sigue con el envio
+migrado. El respondent solo ve avisos: etiqueta «Actualizacion» en la tarjeta,
+panel `UpdateBanner` («Ver cambios» / «Entendido») y distintivos por paso y
+campo, que se apagan al interactuar (`cambios_vistos` viaja en el `PUT`).
+
+Los valores de campos eliminados **permanecen** en el JSONB `datos`: dejan de
+renderizarse y de salir en el PDF, pero el export admin une las definiciones
+historicas con la vigente, asi que si salen marcados «(eliminado)» y con la
+columna «Version» de cada envio.
+
+## Actualizacion ligera post-envio
+
+Alternativa a la reapertura para correcciones puntuales. Un campo marcado
+`editableAfterSubmit` se corrige sobre un envio ya `enviado` **sin reabrirlo**:
+el estado no cambia y no pasa por la solicitud via Colibri.
+
+- Pantalla dedicada `/mis-envios/:id/actualizar` (`pages/EnvioActualizar.jsx`),
+  que renderiza solo esos campos.
+- Los paths permitidos se derivan del `definicion_snapshot`; **la marca la manda
+  la definicion vigente** (mariachi 1.89.0), porque es politica del admin, no
+  contrato de datos: activarla despues alcanza a los envios ya enviados, que son
+  justo los que se quieren corregir.
+- Aplica a **cualquier tipo de campo**, repeaters y `file` incluidos (mariachi
+  1.88.0). Los `file` van por `POST .../actualizar-archivo`, no por el `PUT`.
+- Merge **parcial** de `datos` y una fila append-only por cambio en
+  `sieej.envio_valor_historial`, mas un evento `actualizado`. Los no-op no
+  generan historial.
+- `GET /formularios/` expone `tiene_campos_editables` por item (mariachi
+  1.87.0), asi que el acceso se pinta en la tarjeta de la lista, en el paso
+  Resumen y en el encabezado del detalle sin tener que abrir el envio.
+
+## Compatibilidad de definiciones legadas
+
+Cada vez que el contrato se endurece, los formularios que ya viven en produccion
+quedan fuera de el. `compat.py::normalizar_definicion` (mariachi 1.86.0) traduce
+cualquier definicion historica al contrato vigente: es **idempotente** y **solo
+relaja**, nunca inventa campos ni endurece reglas.
+
+Reglas actuales: `tel`/`email` → `text` + patron; tipo desconocido → `text`;
+`select`/`radio` sin `options` ni `catalog` → `text`; campo de repeater con
+`tabs` sin `tab` valido → primera pestaña; `info` sin label (espaciadores) → se
+elimina; `file` sin `bucket` → `sieej`; `maxSizeMB` sobre el cap → 100;
+`colSpan` fuera de rango → acotado; `pattern` que no compila, `showWhen`
+huerfano o cruzado entre steps → se descartan.
+
+Se aplica en tres capas —lectura, escritura y persistencia (migracion
+`c3d4e5f6a7b9`)— de modo que **un deploy no depende de que la migracion de datos
+haya corrido**. Lado SIEEJ, el renderer hace el mismo fallback para los
+snapshots historicos (1.40.0: un tipo de campo desconocido ya no rompe el
+formulario).
+
+Al endurecer el validador: agregar la regla equivalente en `compat.py` y una
+definicion real en `api/tests/fixtures/sieej/legacy/`.
+
 ## Decisiones cerradas
 
 - **Editor JSON como source of truth**: el visual transforma JSON, no
   al reves. Toggle bidireccional valida el JSON al cambiar de view.
 - **Validacion compartida**: backend es la fuente. Frontend recibe
-  `validation_rules` planos por `GET /formularios/:slug/schema`.
-- **Upload por campo**: `field.bucket` resuelve a un `MediaBucket`
+  `validation_rules` planos por `GET /formularios/:slug/schema`. Desde 1.50.0
+  las condiciones (`patternMessage`, minimo, conteo hasta el maximo) se muestran
+  y se evaluan mientras se escribe, en vez de solo al fallar.
+- **Upload por campo**: `field.bucket` resuelve a un bucket del Acervo
   preexistente. Cap absoluto 100 MB (alineado con
   `client_max_body_size` del gateway-hub).
+- **El valor de un campo `file` lo escribe el servidor**: el cliente no puede
+  sobrescribirlo. Contrato unico
+  `{field_path, url_publica, object_key, filename_original, mime, size_bytes}`.
 - **PDF custom solo cuando hay flag**: por default los formularios
   usan el generico. `sieej-levantamiento` es la unica excepcion
   documentada.
@@ -437,14 +655,21 @@ Detalle backend en `mariachi/docs/sieej.md`, seccion "Apertura periodica".
 
 ## Referencias
 
+- **Contrato backend completo (fuente de verdad): `mariachi/docs/sieej.md`.**
 - Modelos: `mariachi/api/app/models/sieej/`
 - Validators: `mariachi/api/app/services/sieej/{definicion,datos}_validator.py`
+- Compatibilidad: `mariachi/api/app/services/sieej/compat.py` +
+  `scripts/sieej_check_definiciones.py` (`make sieej-check`)
+- Clasificador de cambios: `mariachi/api/app/services/sieej/cambio_classifier.py`
+- Claves del Acervo: `mariachi/api/app/services/sieej/acervo_keys.py`
 - Migration inicial: `e7f8a9b0c1d2_init_sieej_schema.py` (catalogos +
   wizard, antes del refactor).
 - Migration plataforma: `a4b5c6d7e8f9_add_sieej_formularios_dinamicos.py`
 - Migration seed: `b5c6d7e8f9aa_seed_sieej_levantamiento.py`
 - Migration drop wizard: `c6d7e8f9ab01_drop_wizard_sieej_tables.py`
 - Migration pdfTemplate: `d7e8f9a0b1c2_sieej_levantamiento_pdf_template.py`
-- Tests: `mariachi/api/tests/test_sieej_*.py` (66 tests, suite total 300)
+- Migration periodos: `f9a0b1c2d3e4` · historial de valores: `f2b3c4d5e6a7` ·
+  normalizacion legada: `c3d4e5f6a7b9`
+- Tests: `mariachi/api/tests/test_sieej_*.py` (13 archivos, ~250 tests)
 - CHANGELOGs: `sieej/docs/CHANGELOG.md` y `mariachi/docs/CHANGELOG.md`
   para la historia version-por-version.

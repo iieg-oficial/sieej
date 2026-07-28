@@ -1,7 +1,7 @@
 # SIEEJ frontend — Contexto del proyecto
 
-**Version:** 1.39.0
-**Fecha de este documento:** 2026-07-24
+**Version:** 1.50.1
+**Fecha de este documento:** 2026-07-28
 **Repo:** https://github.com/iieg-oficial/sieej
 
 Referencia general del proyecto SIEEJ. Para detalles de arquitectura
@@ -73,10 +73,15 @@ viven en `mariachi`.
   rama `prod-migracion` con `alembic -x db=dataengine`.
 - **Subida de archivos por campo.** Los campos `type=file` se suben al
   instante via `POST /formularios/:slug/envio/upload` al bucket Acervo
-  `sieej` (nombre canonico tras renombrar `sieej-diccionarios`), bajo la
-  ruta `{slug}/envio{id}/{uuid}.{ext}` para escalar a multiples encuestas.
-  El valor del campo guarda la respuesta del backend (`url_publica`,
-  `filename_original`), no el `File` local.
+  `sieej` (nombre canonico tras renombrar `sieej-diccionarios`). Desde
+  mariachi 1.91.1 la clave es legible —
+  `{slug}/{usuario}-{envio_id}[/{periodo}]/{step}.{campo}/{ts}-{nombre}-{sufijo}.{ext}`
+  — con un directorio por campo y sus versiones ordenadas dentro, en vez del
+  `{slug}/envio{id}/{uuid}.{ext}` anterior. El valor del campo guarda la
+  respuesta del backend (`url_publica`, `object_key`, `filename_original`), no
+  el `File` local; el backend **ignora** lo que mande el cliente en un campo
+  `file` y conserva lo que escribio la subida. El bucket esta marcado
+  `protegido`: el explorador del CMS no permite tocarlo a mano.
 - **Formularios enviados abren el resumen read-only.** Cuando el
   `estado_envio === 'enviado'`, al hacer clic en una tarjeta del listado
   el frontend navega a `/mis-envios/{envio_id}` (resumen de solo lectura
@@ -147,8 +152,46 @@ viven en `mariachi`.
   Colibri. El backend valida contra el `definicion_snapshot` que cada campo
   enviado este realmente marcado, hace merge parcial de `datos` (no reemplazo)
   y guarda cada cambio en un historial append-only para el reporte de auditoria
-  del admin. En esta version solo aplica a campos de pasos `form` (repeaters y
-  `file` quedan fuera). Requiere mariachi api >= 1.75.0.
+  del admin. **Ya no se limita a los pasos `form` (1.42.0)**: acepta campos de
+  listas repetibles (con indice en el path) y campos `file`, que van por
+  `POST /formularios/mis-envios/:id/actualizar-archivo` en vez del `PUT`.
+  Requiere mariachi api >= 1.88.0, y >= 1.89.0 para que marcar un campo
+  **despues** del envio alcance a los envios ya enviados (la marca la manda la
+  definicion vigente, no el snapshot: es politica del admin, no contrato de
+  datos).
+- **Acceso visible a «Actualizar informacion» (1.41.0).** `GET /formularios/`
+  expone `tiene_campos_editables` por item (mariachi >= 1.87.0), asi que el
+  acceso a `/mis-envios/:id/actualizar` se pinta en la tarjeta de la lista, en
+  el paso Resumen y en el encabezado del detalle, sin tener que abrir el envio.
+- **Historial por campo visible para el respondent (1.43.0–1.47.0).** Cada
+  campo actualizable cuelga su propio historial (`valor anterior → valor nuevo`
+  + fecha, una fila por cambio), con la paleta naranja de los distintivos de
+  cambio. Los valores se formatean con la misma funcion que el resumen:
+  resuelve la etiqueta contra el catalogo o las opciones del campo y traduce
+  las booleanas a «Si»/«No», en vez de imprimir el valor crudo.
+- **Renovacion de sesion propia (1.47.1).** El `access_token` vive 30 min y el
+  `refresh_token` 8 h deslizantes; renovar es responsabilidad del cliente. Ante
+  un 401, `onFetch` llama `POST /autenticacion/refrescar` una vez y reintenta la
+  peticion; solo si la renovacion falla se limpia la sesion y se va al login.
+  `runExclusiveRefresh` (`helpers/sessionRefresh.js`) la serializa entre
+  pestañas con `navigator.locks`: SIEEJ y Mariachi comparten origen y cookie, y
+  si ambas rotan el mismo token a la vez la deteccion de reuso del backend
+  revoca la familia y las saca a las dos. **Toda peticion autenticada debe pasar
+  por `onFetch`** — `downloadEnvioPdf` era la excepcion que fallaba.
+- **Un tipo de campo desconocido no rompe el formulario (1.40.0).** El renderer
+  degrada a texto en vez de tumbar el paso, en linea con
+  `compat.py::normalizar_definicion` del backend (mariachi 1.86.0).
+- **Acomodo manual de campos (1.49.0).** `layout.col` ancla el campo a una
+  columna de la rejilla (`md:col-start-{n}`, con `newRow` como caso particular)
+  y `layout.alone` le reserva la linea completa limitando su contenido al ancho
+  elegido. El calculo salio a `helpers/gridLayout.js`, compartido por
+  `DynamicDiv` y `FieldRenderer`. Va de la mano de mariachi 1.94.0.
+- **Las reglas del campo se leen mientras se escribe (1.50.0).** Debajo del
+  input se listan las condiciones del campo (`patternMessage`, «Minimo N
+  caracteres», conteo `escritos/maximo`), que se pintan verde al cumplirse y
+  rojo mientras no. `validation.minLength` **se registra** y bloquea el avance
+  igual que el backend; el salto entre pasos desde el indice lateral y el envio
+  revisan los obligatorios de **todos** los pasos, no solo del visible.
 - **Un campo, una pestaña en las listas repetibles (1.39.0).** En un step
   `repeater` con `tabs`, cada campo pertenece a exactamente una pestaña.
   `RepeaterStep` resuelve la pestaña con fallback a la primera cuando el `tab`
@@ -187,7 +230,7 @@ Vite Dev Server (:5174)
                                               |
                                               |-- PostgreSQL (mariachi)
                                               |-- Redis (mariachi)
-                                              `-- Acervo MinIO (diccionarios)
+                                              `-- Acervo SeaweedFS (bucket sieej)
 ```
 
 ### Modo staging / produccion
@@ -297,4 +340,4 @@ Prerrequisitos:
 - mariachi: `../mariachi/` — backend + admin CMS.
 - gateway-hub: `../gateway-hub/` — reverse proxy publico + TLS.
 - mapalab: `../mapalab/` — proyecto hermano (mismo patron de infra).
-- acervo: `../acervo/` — MinIO compartido para media.
+- acervo: `../acervo/` — SeaweedFS (S3-compatible) compartido para media.
