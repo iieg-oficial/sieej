@@ -42,9 +42,10 @@ export const spacerClass = (units) => `hidden md:block ${SPAN_CLASS[units] || ''
 
 const explicitColOf = (field) => {
     const col = field?.layout?.col;
-    if (Number.isInteger(col) && col >= 1 && col <= GRID_COLUMNS) return col;
-    return field?.layout?.newRow ? 1 : null;
+    return Number.isInteger(col) && col >= 1 && col <= GRID_COLUMNS ? col : null;
 };
+
+const opensRow = (field) => field?.layout?.newRow === true;
 
 export const groupIntoRows = (fields) => {
     const rows = [];
@@ -63,14 +64,14 @@ export const groupIntoRows = (fields) => {
         const wanted = explicitColOf(field);
         const alone = !!field?.layout?.alone;
         let col;
-        if (alone) {
+        if (alone || opensRow(field)) {
             flush();
             col = Math.min(wanted ?? 1, GRID_COLUMNS + 1 - units);
         } else if (wanted == null) {
             if (items.length > 0 && cursor + units > GRID_COLUMNS + 1) flush();
             col = cursor;
         } else {
-            if (items.length > 0 && wanted < cursor) flush();
+            if (items.length > 0 && (wanted < cursor || wanted + units > GRID_COLUMNS + 1)) flush();
             col = Math.min(wanted, GRID_COLUMNS + 1 - units);
         }
         items.push({ idx, col, units });

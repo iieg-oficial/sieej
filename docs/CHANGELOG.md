@@ -8,6 +8,30 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.52.0] - 2026-07-28
+
+### Cambiado: la línea de un campo la declara la definición, ya no se deduce
+
+`layout.newRow` pasa a ser la **marca de inicio de línea**: un campo con la marca
+abre línea aunque su columna quepa a la derecha del anterior. Antes la marca solo
+valía en la columna 1 y se ignoraba en el resto, así que la línea era implícita —
+se deducía comparando la columna pedida contra la ya ocupada, y el orden de los
+campos, no la definición, decidía dónde cortaba cada línea.
+
+Eso hacía que un cambio en un campo re-particionara todo lo que venía después: en
+el CMS, mover o ensanchar uno desplazaba líneas enteras que nadie había tocado.
+Con la línea declarada, el renderer reproduce exactamente el acomodo del editor
+también en esos casos.
+
+Las definiciones anteriores se ven igual: sin la marca, un campo cuya columna
+quedó atrás del cursor abre línea como siempre. El contrato del backend no cambia
+—`newRow` ya era un booleano válido—, así que no hay migración.
+
+Tres casos nuevos en `test/fixtures/layoutContract.js`, verificados también del
+lado del CMS. Va de la mano de mariachi **1.96.0+**.
+
+---
+
 ## [1.51.1] - 2026-07-28
 
 ### Documentación: el acomodo explícito del constructor visual

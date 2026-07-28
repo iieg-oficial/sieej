@@ -152,10 +152,17 @@ fila, baja a la siguiente y deja el hueco. El grid ya **no** usa
 de modo que el orden visual dejaba de coincidir con el de la definicion (y con el
 orden del tab), volviendo el layout impredecible.
 
-`layout.newRow: true` fuerza que el campo abra una fila (`md:col-start-1`, no-op
-si ya estaba al inicio). Es la forma soportada de dejar espacio libre al final de
-una fila; antes se lograba metiendo campos `info` con label vacio como
-espaciadores, que ademas ensuciaban `datos`, el export y el PDF.
+`layout.newRow: true` **marca el inicio de una linea**: el campo abre linea aunque
+su columna quepa a la derecha del anterior. Es la forma soportada de dejar espacio
+libre al final de una fila; antes se lograba metiendo campos `info` con label
+vacio como espaciadores, que ademas ensuciaban `datos`, el export y el PDF.
+
+Hasta SIEEJ 1.51.x la marca se derivaba de `col === 1` y se ignoraba en cualquier
+otra columna, asi que la linea era **implicita**: se deducia comparando la columna
+pedida contra la ya ocupada, y el orden de los campos — no la definicion — decidia
+donde cortaba cada linea. Desde **1.52.0** la linea la declara la definicion. Las
+definiciones anteriores se ven igual: sin la marca, un campo cuya columna quedo
+atras del cursor abre linea como siempre.
 
 **Acomodo manual** (mariachi 1.94.0 / SIEEJ 1.49.0): el campo puede fijar su
 posicion dentro de la fila y reservarse la linea entera.
@@ -474,12 +481,14 @@ sufijo, `tab` → pestaña activa, `showWhen` huerfano → se quita, `bucket` si
 acceso → `sieej`) y avisa de cada ajuste. Sin backend.
 
 **El acomodo es explicito y no se reorganiza solo** (mariachi 1.96.0+): antes de
-cada cambio de acomodo, el editor fija la columna de todos los campos visibles,
-asi que cambiar el ancho de uno no mueve de linea a los demas. Como
-consecuencia, la `definicion` guarda `layout.col` en todos los campos del paso.
+cada cambio de acomodo, el editor fija la linea (`newRow`) y la columna (`col`) de
+todos los campos visibles, asi que cambiar el ancho de uno no mueve a los demas.
+Como consecuencia, la `definicion` guarda ambas en todos los campos del paso.
 Los espacios libres son **zonas soltables** mientras se arrastra, de modo que un
-campo se puede llevar a una columna concreta de otra linea; un hueco donde no
-cabe ni el campo mas angosto (dos columnas) no se ofrece.
+campo se puede llevar a una columna concreta de otra linea; un hueco no se ofrece
+si el campo arrastrado no cabe en el. Arrastrar sobre otra tarjeta **intercambia
+las dos ranuras** en vez de reordenar la lista, que era lo que desplazaba lineas
+enteras sin tocarlas.
 
 Sidebar: grupo SIEEJ con items "Formularios", "Grupos" y "Catalogos".
 
