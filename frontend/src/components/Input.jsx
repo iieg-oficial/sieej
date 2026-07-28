@@ -12,7 +12,7 @@ import { getFieldError } from '@helpers/formErrors';
 import Typography from './Typography';
 
 const Input = ({
-    name, type, pattern, patternMessage, placeholder, label, required, colSpan, newRow, col, alone,
+    name, type, pattern, patternMessage, placeholder, label, required, colSpan, col,
     wDiv, tooltip, methods, _inside, clean, className, normalize = 'normal',
     filled, minLength, maxLength, ...rest
 }) => {
@@ -56,7 +56,7 @@ const Input = ({
     };
 
     return (
-        <DynamicDiv colSpan={colSpan} newRow={newRow} col={col} alone={alone} wDiv={wDiv} className="mt-4">
+        <DynamicDiv colSpan={colSpan} col={col} wDiv={wDiv} className="mt-4">
             <Typography
                 as="label"
                 titleName={label}

@@ -9,6 +9,23 @@ import { readFileSync } from 'fs';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8'));
 
+const ontoyPlugin = () => ({
+    name: 'sieej-ontoy',
+    apply: 'build',
+    generateBundle() {
+        this.emitFile({
+            type: 'asset',
+            fileName: 'ontoy.json',
+            source: `${JSON.stringify({
+                version: pkg.version,
+                service: 'sieej',
+                released_at: new Date().toISOString().slice(0, 10),
+                status: 'ok',
+            })}\n`,
+        });
+    },
+});
+
 export default defineConfig(({ mode }) => {
     const { resolve } = path;
     const env = loadEnv(mode, process.cwd(), '');
@@ -22,7 +39,7 @@ export default defineConfig(({ mode }) => {
             __APP_VERSION__: JSON.stringify(pkg.version),
             global: 'globalThis',
         },
-        plugins: [react(), tailwindcss()],
+        plugins: [react(), tailwindcss(), ontoyPlugin()],
         test: {
             environment: 'jsdom',
             globals: true,

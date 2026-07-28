@@ -1,9 +1,9 @@
 import React from 'react';
-import { placementClasses } from './gridLayout';
+import { GRID_COLUMNS, placementClasses } from './gridLayout';
 
 const DynamicDiv = React.forwardRef(function DynamicDiv(
     {
-        colSpan = 1, wDiv, colSpanCondicional, center, inline, newRow, col, alone,
+        colSpan = GRID_COLUMNS, wDiv, center, inline, col,
         className, children
     },
     ref
@@ -13,9 +13,7 @@ const DynamicDiv = React.forwardRef(function DynamicDiv(
         return <div ref={ref} className={className || ''}>{children}</div>;
     }
 
-    const placement = colSpanCondicional
-        ? placementClasses({ colSpan: 2 })
-        : placementClasses({ colSpan, col, newRow, alone });
+    const placement = placementClasses({ colSpan, col });
 
     const wClass = wDiv ? `w-${wDiv}` : '';
     const isCenter = center

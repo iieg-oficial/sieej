@@ -1,5 +1,64 @@
 import { describe, expect, it } from 'vitest';
-import { placementClasses, startColOf } from '@helpers/gridLayout';
+import {
+    GRID_COLUMNS, layoutSlots, placementClasses, spacerClass, startColOf,
+} from '@helpers/gridLayout';
+import { CASOS, aCampo, marca } from './fixtures/layoutContract';
+
+const filasDeSlots = (campos) => {
+    const filas = [];
+    let actual = [];
+    let usado = 0;
+    layoutSlots(campos).forEach((slot) => {
+        if (slot.kind === 'field') {
+            actual.push(marca(campos[slot.idx].name, slot.col, slot.units));
+        }
+        usado += slot.units;
+        if (usado >= GRID_COLUMNS) {
+            filas.push(actual);
+            actual = [];
+            usado = 0;
+        }
+    });
+    if (actual.length) filas.push(actual);
+    return filas;
+};
+
+describe('contrato de acomodo (compartido con el editor de mariachi)', () => {
+    CASOS.forEach(({ nombre, campos, filas }) => {
+        it(nombre, () => {
+            expect(filasDeSlots(campos.map(aCampo))).toEqual(filas);
+        });
+    });
+});
+
+describe('layoutSlots', () => {
+    it('rellena el hueco de la izquierda para que la línea reservada no se comparta', () => {
+        const campos = [
+            aCampo({ name: 'a', colSpan: 3, col: 1 }),
+            aCampo({ name: 'b', colSpan: 3, col: 3, alone: true }),
+        ];
+        expect(layoutSlots(campos)).toEqual([
+            { kind: 'field', idx: 0, col: 1, units: 2 },
+            { kind: 'spacer', units: 4 },
+            { kind: 'spacer', units: 2 },
+            { kind: 'field', idx: 1, col: 3, units: 2 },
+            { kind: 'spacer', units: 2 },
+        ]);
+    });
+
+    it('cada línea suma exactamente el ancho de la cuadrícula', () => {
+        CASOS.forEach(({ campos }) => {
+            const total = layoutSlots(campos.map(aCampo)).reduce((acc, s) => acc + s.units, 0);
+            expect(total % GRID_COLUMNS).toBe(0);
+        });
+    });
+
+    it('ignora los campos ocultos porque recibe solo los visibles', () => {
+        const visibles = [aCampo({ name: 'a', colSpan: 2 }), aCampo({ name: 'c', colSpan: 2 })];
+        expect(layoutSlots(visibles).filter((s) => s.kind === 'field').map((s) => s.col))
+            .toEqual([1, 4]);
+    });
+});
 
 describe('startColOf', () => {
     it('usa la columna explícita cuando cabe el ancho', () => {
@@ -18,7 +77,7 @@ describe('startColOf', () => {
 });
 
 describe('placementClasses', () => {
-    it('coloca un campo normal con su ancho y su columna', () => {
+    it('coloca un campo con su ancho y su columna', () => {
         expect(placementClasses({ colSpan: 2, col: 5 }))
             .toBe('md:col-span-2 md:col-start-5');
     });
@@ -27,22 +86,7 @@ describe('placementClasses', () => {
         expect(placementClasses({ colSpan: 3 })).toBe('md:col-span-3');
     });
 
-    it('un campo con línea reservada se extiende hasta el final y limita su ancho', () => {
-        expect(placementClasses({ colSpan: 2, col: 1, alone: true }))
-            .toBe('md:col-start-1 md:col-end-7 md:max-w-[33.3333%]');
-        expect(placementClasses({ colSpan: 3, col: 1, alone: true }))
-            .toBe('md:col-start-1 md:col-end-7 md:max-w-[50%]');
-    });
-
-    it('no limita el ancho cuando ya ocupa todo el espacio restante', () => {
-        expect(placementClasses({ colSpan: 2, col: 5, alone: true }))
-            .toBe('md:col-start-5 md:col-end-7');
-        expect(placementClasses({ colSpan: 3, col: 4, alone: true }))
-            .toBe('md:col-start-4 md:col-end-7');
-    });
-
-    it('reservar la línea no aplica a un campo que ya ocupa la fila completa', () => {
-        expect(placementClasses({ colSpan: 6, col: 1, alone: true }))
-            .toBe('md:col-span-6 md:col-start-1');
+    it('los rellenos solo existen en escritorio', () => {
+        expect(spacerClass(2)).toBe('hidden md:block md:col-span-2');
     });
 });

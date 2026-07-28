@@ -162,15 +162,36 @@ posicion dentro de la fila y reservarse la linea entera.
 
 - **`layout.col`** (1..6) ancla el campo a una columna concreta
   (`md:col-start-{n}`) — `newRow` es su caso particular (`col: 1`). El backend
-  rechaza una `col` donde el ancho declarado no cabria; el renderer la ignora en
-  vez de desbordar la cuadricula creando una columna implicita.
-- **`layout.alone`** extiende el campo hasta el final de la fila
-  (`md:col-end-7`) para que nada mas quepa, y limita su contenido con
-  `md:max-w-[…]` al ancho elegido, asi que se sigue viendo angosto. No aplica a
-  un campo que ya ocupa la fila completa.
+  rechaza una `col` donde el ancho declarado no cabria; el renderer la recorta a
+  la ultima posicion valida, igual que `compat.py`.
+- **`layout.alone`** reserva la linea completa para el campo: ningun otro se
+  acomoda a su lado, ni por la derecha ni por la izquierda, aunque quepa.
 
-El calculo de clases vive en `helpers/gridLayout.js`, compartido por
-`DynamicDiv` y `FieldRenderer`.
+### El acomodo se calcula, no se deduce (SIEEJ 1.51.0)
+
+`helpers/gridLayout.js` agrupa los campos en lineas con el **mismo algoritmo que
+el editor del CMS** (`groupIntoRows`) y `layoutSlots` emite la secuencia que se
+renderiza: los campos con su columna y, entre ellos, `spacer`s que rellenan los
+huecos y completan cada linea hasta las 6 columnas. `FormStep` y `RepeaterStep`
+los recorren; los rellenos son `<div aria-hidden>` con `hidden md:block`, asi que
+no existen en mobile.
+
+Antes el renderer emitia solo las clases de cada campo y **dejaba el corte de
+lineas al auto-placement del navegador**, mientras el editor lo decidia con su
+propio modelo. Coincidian mientras todo fluyera, y divergian con posicion
+explicita: en 6 de 10 casos con acomodos que el propio editor genera, un campo
+marcado «linea reservada» terminaba compartiendo linea, porque `md:col-end-7`
+impide vecinos por la derecha pero no por la izquierda. Tambien desaparece el
+`md:max-w-[…]` con que se recortaba el ancho de esos campos: al quedar la linea
+completa por los rellenos, el ancho es exactamente el declarado.
+
+Como el agrupamiento se calcula sobre los campos **visibles**, un campo oculto
+por `showWhen` no deja hueco: la linea se recompone.
+
+El contrato vive en `test/fixtures/layoutContract.js` y lo verifican los dos
+repos contra su propia implementacion — `test/gridLayout.test.js` aqui y
+`__tests__/fieldLayout.test.js` en mariachi. Al tocar el acomodo en cualquiera
+de los dos, agrega el caso al fixture y copialo al otro repo.
 
 ## Endpoints
 

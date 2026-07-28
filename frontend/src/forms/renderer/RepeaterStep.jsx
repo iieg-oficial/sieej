@@ -9,6 +9,7 @@ import useGlobal from '@context/useGlobal';
 import FieldRenderer from './FieldRenderer';
 import { evaluarShowWhen } from './conditional';
 import { buildRepeaterItems, resolverTabDeCampo } from './repeaterItems';
+import { layoutSlots, spacerClass } from '@helpers/gridLayout';
 
 const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcarVisto }) => {
     const { append, remove } = useFieldArray({ control: methods.control, name: step.id });
@@ -168,13 +169,18 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], ma
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                {visibleFields.map((field) => {
+                {layoutSlots(visibleFields).map((slot, i) => {
+                    if (slot.kind === 'spacer') {
+                        return <div key={`spacer-${i}`} aria-hidden className={spacerClass(slot.units)} />;
+                    }
+                    const field = visibleFields[slot.idx];
                     const fullName = `${step.id}.${currentIndex}.${field.name}`;
                     const cambio = cambioPorField.get(field.name);
                     return (
                         <FieldRenderer
                             key={fullName}
                             field={{ ...field, name: fullName }}
+                            placement={slot}
                             methods={methods}
                             catalogos={catalogos}
                             onUpload={(_n, file) => onUpload?.(`${step.id}[${currentIndex}].${field.name}`, file)}

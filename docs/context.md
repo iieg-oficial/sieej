@@ -1,6 +1,6 @@
 # SIEEJ frontend — Contexto del proyecto
 
-**Version:** 1.50.1
+**Version:** 1.51.0
 **Fecha de este documento:** 2026-07-28
 **Repo:** https://github.com/iieg-oficial/sieej
 
@@ -183,9 +183,20 @@ viven en `mariachi`.
   `compat.py::normalizar_definicion` del backend (mariachi 1.86.0).
 - **Acomodo manual de campos (1.49.0).** `layout.col` ancla el campo a una
   columna de la rejilla (`md:col-start-{n}`, con `newRow` como caso particular)
-  y `layout.alone` le reserva la linea completa limitando su contenido al ancho
-  elegido. El calculo salio a `helpers/gridLayout.js`, compartido por
-  `DynamicDiv` y `FieldRenderer`. Va de la mano de mariachi 1.94.0.
+  y `layout.alone` le reserva la linea completa. El calculo salio a
+  `helpers/gridLayout.js`, compartido por `DynamicDiv` y `FieldRenderer`. Va de
+  la mano de mariachi 1.94.0.
+- **El acomodo se calcula, no se deduce (1.51.0).** `gridLayout.js` agrupa los
+  campos en lineas con el **mismo algoritmo que el editor del CMS**
+  (`groupIntoRows`) y emite cada campo con su columna mas rellenos que completan
+  la linea. Antes el renderer dejaba el corte de lineas al auto-placement del
+  navegador mientras el editor lo decidia con su propio modelo: con posicion
+  explicita divergian, y un campo con «linea reservada» acababa compartiendola
+  porque `col-end-7` bloquea la derecha pero no la izquierda. El agrupamiento
+  corre sobre los campos **visibles**, asi que un campo oculto por `showWhen` no
+  deja hueco. El contrato esta fijado en `test/fixtures/layoutContract.js`,
+  duplicado identico en mariachi para que los dos repos verifiquen el mismo
+  acomodo. Va de la mano de mariachi 1.95.0.
 - **Las reglas del campo se leen mientras se escribe (1.50.0).** Debajo del
   input se listan las condiciones del campo (`patternMessage`, «Minimo N
   caracteres», conteo `escritos/maximo`), que se pintan verde al cumplirse y

@@ -6,13 +6,13 @@ import Typography from './Typography';
 
 const Checkbox = ({
     name, label, required, tooltip,
-    colSpan, newRow, col, alone, wDiv, methods, ...rest
+    colSpan, col, wDiv, methods, ...rest
 }) => {
     const { register, control } = methods;
     const { errors } = useFormState({ control, name });
 
     return (
-        <DynamicDiv colSpan={colSpan} newRow={newRow} col={col} alone={alone} wDiv={wDiv} className="mt-4">
+        <DynamicDiv colSpan={colSpan} col={col} wDiv={wDiv} className="mt-4">
             <div className="flex items-center gap-3">
                 <input
                     type="checkbox"

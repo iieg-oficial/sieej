@@ -8,6 +8,58 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.51.0] - 2026-07-28
+
+### Corregido: el acomodo que se elige en el CMS es el que se ve al capturar
+
+Un campo marcado «reservar la línea solo para este campo» seguía compartiendo
+línea con el anterior. La marca se traducía a `md:col-end-7`, que impide vecinos
+por la derecha pero no por la izquierda: si el campo previo dejaba hueco, el
+navegador metía ahí el campo que tenía la línea reservada. En una batería de 10
+acomodos que el propio editor genera, **6 se veían distintos** de como los
+mostraba el CMS.
+
+La causa de fondo es que el renderer emitía las clases de cada campo y le dejaba
+**el corte de líneas al auto-placement del navegador**, mientras el editor lo
+decidía con su propio modelo. Coincidían mientras todo fluyera y divergían en
+cuanto había posición explícita.
+
+- `helpers/gridLayout.js` agrupa los campos en líneas con el **mismo algoritmo
+  que el editor** (`groupIntoRows`) y `layoutSlots` emite la secuencia a
+  renderizar: cada campo con su columna y, entre ellos, rellenos que cierran los
+  huecos y completan la línea. El acomodo se calcula, ya no se deduce.
+- Los rellenos son `<div aria-hidden>` con `hidden md:block`, así que no existen
+  en mobile, donde el grid sigue siendo de una columna.
+- Se retira el `md:max-w-[…]` con que se recortaba el ancho de los campos de
+  línea reservada: con la línea completa por rellenos, el ancho es exactamente
+  el declarado. Antes, una posición no alineada al ancho lo dejaba más ancho de
+  lo elegido.
+- El agrupamiento corre sobre los campos **visibles**, así que un campo oculto
+  por `showWhen` no deja hueco: la línea se recompone.
+- `test/fixtures/layoutContract.js` fija el contrato con 15 acomodos y lo
+  verifican los dos repos contra su propia implementación.
+
+Va de la mano de mariachi **1.95.0**; conviene desplegarlo junto con él.
+
+### Corregido: `/sieej/ontoy` reportaba una versión de hace dos meses
+
+`public/ontoy.json` estaba escrito a mano con `1.14.0` (2026-05-28) y nadie lo
+regeneraba, así que el endpoint que consulta el dashboard de plataformas de
+Mariachi mentía sobre lo desplegado — justo el dato que hace falta para saber si
+un arreglo ya está arriba. Ahora lo emite el build desde la versión del
+`package.json`, con la fecha del build.
+
+### Cambiado: un componente sin `colSpan` ocupa la fila completa
+
+`DynamicDiv` tomaba `colSpan = 1` por defecto, que en su escala son 1/6 de la
+línea, mientras que en la definición de un formulario `colSpan: 1` significa
+línea completa: el mismo nombre con dos significados opuestos. El default pasa a
+las 6 columnas. Se retiran también las props `newRow`/`alone` de los nueve
+componentes de campo (la posición ya llega resuelta) y el `colSpanCondicional`,
+que no lo usaba nadie.
+
+---
+
 ## [1.50.2] - 2026-07-28
 
 ### Documentación: la arquitectura de la plataforma vuelve a coincidir con el código

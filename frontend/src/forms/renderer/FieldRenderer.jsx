@@ -9,7 +9,7 @@ import DateRangePicker from '@components/DateRangePicker';
 import Typography from '@components/Typography';
 import Dragger from '@components/Dragger';
 import { openRangeOptions, resolveOptions } from './catalogResolver';
-import { placementClasses, startColOf } from '@helpers/gridLayout';
+import { placementClasses, startColOf, unitsOfColSpan } from '@helpers/gridLayout';
 
 const toRegExp = (raw) => {
     if (!raw) return undefined;
@@ -31,19 +31,12 @@ const BADGE_CAMBIO = {
 
 const LABEL_CAMBIO = { nuevo: 'Nuevo', eliminado: 'Cambió', modificado: 'Cambió' };
 
-const FieldRenderer = ({ field, methods, catalogos, onUpload, cambioField, onInteract }) => {
+const FieldRenderer = ({ field, placement, methods, catalogos, onUpload, cambioField, onInteract }) => {
     const { type, name, label, required, placeholder, tooltip, validation, layout } = field;
-    const gridSpan = (() => {
-        const cs = layout?.colSpan ?? 1;
-        if (cs === 2) return 3;
-        if (cs === 3) return 2;
-        return 6;
-    })();
-
-    const newRow = !!layout?.newRow;
-    const alone = !!layout?.alone;
-    const startCol = startColOf({ col: layout?.col, newRow, colSpan: gridSpan });
-    const spanClass = placementClasses({ colSpan: gridSpan, col: layout?.col, newRow, alone });
+    const gridSpan = placement?.units ?? unitsOfColSpan(layout?.colSpan ?? 1);
+    const startCol = placement?.col
+        ?? startColOf({ col: layout?.col, newRow: !!layout?.newRow, colSpan: gridSpan });
+    const spanClass = placementClasses({ colSpan: gridSpan, col: startCol });
 
     const interactRef = React.useRef(null);
     const notifyInteract = useCallback(() => {
@@ -69,8 +62,8 @@ const FieldRenderer = ({ field, methods, catalogos, onUpload, cambioField, onInt
     }
 
     const baseProps = {
-        name, label, required, placeholder, tooltip, methods, colSpan: gridSpan, newRow,
-        col: startCol, alone,
+        name, label, required, placeholder, tooltip, methods, colSpan: gridSpan,
+        col: startCol,
     };
 
     const patternProps = {

@@ -1,9 +1,11 @@
 import React, { useMemo } from 'react';
 import FieldRenderer from './FieldRenderer';
 import { evaluarShowWhen } from './conditional';
+import { layoutSlots, spacerClass } from '@helpers/gridLayout';
 
 const FormStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcarVisto }) => {
-    const stepValues = methods.watch(step.id) || {};
+    const watched = methods.watch(step.id);
+    const stepValues = useMemo(() => watched || {}, [watched]);
 
     const cambioPorField = useMemo(() => {
         const map = new Map();
@@ -17,6 +19,13 @@ const FormStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcar
         return cambiosStep.some((c) => !c.field_name) || cambiosStep.length > 0;
     }, [cambiosStep]);
 
+    const visibles = useMemo(
+        () => step.fields.filter((field) => evaluarShowWhen(field.showWhen, stepValues)),
+        [step.fields, stepValues],
+    );
+
+    const slots = useMemo(() => layoutSlots(visibles), [visibles]);
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             {tieneCambiosStep && (
@@ -26,14 +35,18 @@ const FormStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcar
                     </span>
                 </div>
             )}
-            {step.fields.map((field) => {
-                if (!evaluarShowWhen(field.showWhen, stepValues)) return null;
+            {slots.map((slot, i) => {
+                if (slot.kind === 'spacer') {
+                    return <div key={`spacer-${i}`} aria-hidden className={spacerClass(slot.units)} />;
+                }
+                const field = visibles[slot.idx];
                 const fullName = `${step.id}.${field.name}`;
                 const cambio = cambioPorField.get(field.name);
                 return (
                     <FieldRenderer
                         key={fullName}
                         field={{ ...field, name: fullName }}
+                        placement={slot}
                         methods={methods}
                         catalogos={catalogos}
                         onUpload={(_n, file) => onUpload?.(fullName, file)}
