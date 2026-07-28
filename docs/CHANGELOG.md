@@ -8,6 +8,19 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.51.1] - 2026-07-28
+
+### Documentación: el acomodo explícito del constructor visual
+
+`plataforma-formularios.md` describía el constructor del CMS sin el modelo de
+acomodo que ahora comparten los dos repos: que el editor fija la columna de todos
+los campos visibles antes de cada cambio (así cambiar un ancho no mueve a los
+demás, a costa de que la definición guarde `layout.col` en todo el paso) y que
+los espacios libres son zonas soltables durante el arrastre, salvo los que no
+alcanzan para el campo más angosto. Sin cambios de código.
+
+---
+
 ## [1.51.0] - 2026-07-28
 
 ### Corregido: el acomodo que se elige en el CMS es el que se ve al capturar

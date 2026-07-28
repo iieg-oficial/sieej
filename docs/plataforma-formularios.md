@@ -473,6 +473,14 @@ navegador; `prepareFieldForPaste` normaliza al pegar (nombre duplicado →
 sufijo, `tab` → pestaña activa, `showWhen` huerfano → se quita, `bucket` sin
 acceso → `sieej`) y avisa de cada ajuste. Sin backend.
 
+**El acomodo es explicito y no se reorganiza solo** (mariachi 1.96.0+): antes de
+cada cambio de acomodo, el editor fija la columna de todos los campos visibles,
+asi que cambiar el ancho de uno no mueve de linea a los demas. Como
+consecuencia, la `definicion` guarda `layout.col` en todos los campos del paso.
+Los espacios libres son **zonas soltables** mientras se arrastra, de modo que un
+campo se puede llevar a una columna concreta de otra linea; un hueco donde no
+cabe ni el campo mas angosto (dos columnas) no se ofrece.
+
 Sidebar: grupo SIEEJ con items "Formularios", "Grupos" y "Catalogos".
 
 ## Calendario propio y campo date_range (1.31.0)
