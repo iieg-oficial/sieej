@@ -4,7 +4,7 @@ Frontend del **Sistema de Información Estadística del Estado de Jalisco** —
 plataforma de captura para que dependencias e instituciones de gobierno
 entreguen información estructurada al IIEG.
 
-**Version:** 1.18.0
+**Version:** 1.52.2
 **Repo:** [iieg-oficial/sieej](https://github.com/iieg-oficial/sieej)
 
 > **Backend**: este repositorio **solo** contiene el frontend. La API la

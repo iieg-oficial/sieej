@@ -4,8 +4,7 @@ import { evaluarShowWhen } from './conditional';
 import { layoutSlots, spacerClass } from '@helpers/gridLayout';
 
 const FormStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcarVisto }) => {
-    const watched = methods.watch(step.id);
-    const stepValues = useMemo(() => watched || {}, [watched]);
+    methods.watch(step.id);
 
     const cambioPorField = useMemo(() => {
         const map = new Map();
@@ -19,12 +18,9 @@ const FormStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcar
         return cambiosStep.some((c) => !c.field_name) || cambiosStep.length > 0;
     }, [cambiosStep]);
 
-    const visibles = useMemo(
-        () => step.fields.filter((field) => evaluarShowWhen(field.showWhen, stepValues)),
-        [step.fields, stepValues],
-    );
-
-    const slots = useMemo(() => layoutSlots(visibles), [visibles]);
+    const scope = methods.getValues(step.id) || {};
+    const visibles = step.fields.filter((field) => evaluarShowWhen(field.showWhen, scope));
+    const slots = layoutSlots(visibles);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">

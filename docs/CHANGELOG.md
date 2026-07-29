@@ -8,6 +8,15 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.52.2] - 2026-07-29
+
+### Corregido: problema con los campos condicionados
+
+`FormStep.jsx` se cambio el hook para poder refrescar conforme a los estados que
+se necesitan.
+
+---
+
 ## [1.52.1] - 2026-07-28
 
 ### Documentación: el constructor visual gana líneas y relaciones entre campos
