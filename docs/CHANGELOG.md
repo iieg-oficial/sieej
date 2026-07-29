@@ -8,6 +8,31 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.52.3] - 2026-07-29
+
+### Una sola fuente de verdad para la version, y el contexto al repo central
+
+Solo documentacion y metadatos; sin cambios en el frontend.
+
+#### Corregido
+
+- **Dos fuentes de verdad para la version.** `docs/CONTRIBUTING.md` declaraba que el `VERSION` de
+  la raiz era la autoritativa y que `frontend/package.json` debia «mantenerse sincronizado», pero
+  el `/ontoy` que consume huachicol lo genera el plugin de Vite **desde `package.json`**, y nada
+  leia `VERSION` (ni el CI, ni el Makefile, ni scripts). El resultado era drift recurrente: hoy
+  `VERSION` decia 1.52.1 con `package.json` en 1.52.2, y ya habia pasado antes (ver 1.12.1). Se
+  elimina el archivo `VERSION`, `package.json` queda como unica fuente y CONTRIBUTING lo refleja.
+- El README fijaba la version en el texto; ahora apunta a `frontend/package.json`.
+
+#### Eliminado
+
+- `docs/context.md`, `plataforma-formularios.md`, `taiga.md` y `gateway.md`. Viven ahora en el
+  repositorio central de contexto (`iieg-oficial/context-ame-esta`): el contexto y la plataforma de
+  formularios en `repos/sieej/`, el contrato de enrutamiento en `ecosistema/contratos.md`, y la
+  guia de Taiga —unica, con las credenciales fuera de git— en `ecosistema/taiga.md`.
+
+---
+
 ## [1.52.2] - 2026-07-29
 
 ### Corregido: problema con los campos condicionados

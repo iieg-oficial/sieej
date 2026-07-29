@@ -4,7 +4,7 @@ Frontend del **Sistema de Información Estadística del Estado de Jalisco** —
 plataforma de captura para que dependencias e instituciones de gobierno
 entreguen información estructurada al IIEG.
 
-**Version:** 1.52.2
+**Version:** ver `frontend/package.json` y el [changelog](docs/CHANGELOG.md)
 **Repo:** [iieg-oficial/sieej](https://github.com/iieg-oficial/sieej)
 
 > **Backend**: este repositorio **solo** contiene el frontend. La API la
@@ -136,13 +136,14 @@ gateway-hub (:443)
 
 | Documento | Descripcion |
 |-----------|-------------|
-| [Contexto del proyecto](docs/context.md) | Referencia completa: arquitectura, decisiones, integracion con mariachi |
 | [Arquitectura](docs/arquitectura.md) | Diagramas y flujos |
 | [Frontend](docs/frontend.md) | Detalles tecnicos del frontend |
-| [Gateway](docs/gateway.md) | Como se enruta `/sieej/` via gateway-hub |
 | [CHANGELOG](docs/CHANGELOG.md) | Historial de cambios |
 | [Contribucion](docs/CONTRIBUTING.md) | Flujo de trabajo, convenciones |
 | [Codigo de conducta](docs/CODE_OF_CONDUCT.md) | Normas |
+
+El contexto del proyecto, la plataforma de formularios dinamicos y el contrato de enrutamiento con
+gateway-hub viven en el repositorio central de contexto: `repos/sieej/` y `ecosistema/contratos.md`.
 
 ## Licencia
 

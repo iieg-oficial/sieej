@@ -101,10 +101,8 @@ Los seeders estan en `backend/app/migrations/` y leen JSONs en
 
 ## Versionado
 
-- `VERSION` en la raiz del repo es la fuente de verdad del version
-  global.
-- `frontend/package.json::version` debe mantenerse sincronizado
-  (hasta que se automatice).
+- `frontend/package.json::version` es la **unica** fuente de verdad: es de donde el
+  plugin de Vite genera el `ontoy.json` que consume huachicol.
 - Cada release se taggea `v<major>.<minor>.<patch>` y se menciona en
   `docs/CHANGELOG.md` con la fecha.
 
