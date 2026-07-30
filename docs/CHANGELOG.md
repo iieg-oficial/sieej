@@ -19,10 +19,9 @@ el morado primario y hablaban en identificadores internos.
 #### Agregado
 
 - **Campos de texto expandibles.** Cuando el contenido no cabe aparece un boton que expande el
-  campo a un area de texto multilinea editable, y vuelve a contraerlo. En reposo un campo de texto
-  largo ocupa lo mismo que uno normal (40 px, una sola linea); crece solo cuando el usuario lo
-  pide. Sin foco, un campo desbordado muestra el inicio del texto con puntos suspensivos en vez de
-  dejar el final a la vista.
+  campo a un area de texto multilinea editable, y vuelve a contraerlo. Sin foco, un campo
+  desbordado muestra el inicio del texto con puntos suspensivos en vez de dejar el final a la
+  vista.
 - **Limpiar campo.** Los campos con respuesta muestran una equis al pasar el cursor (o al llegar
   con el tabulador) que los deja sin respuesta. Vive en `FieldClearButton` y el hook
   `useFieldClear`, asi que aparece en cualquier lugar donde se reutilicen los componentes de campo,
@@ -42,21 +41,6 @@ el morado primario y hablaban en identificadores internos.
 - El boton «Entendido» del aviso usa el boton primario en vez del verde plano.
 - El distintivo «Actualizado» se movio de encima de la reja de campos a la misma fila del titulo
   del paso; en movil cae a su propia fila. Los pasos repetidores tambien lo muestran.
-- La barra del titulo del paso se compacta a 24 px de aire, salvo en escritorio, donde conserva el
-  necesario para que el titulo del paso quede a la altura del titulo del panel lateral,
-  descontando los 2 px que el centrado vertical con los botones desplaza al titulo.
-- El asterisco de campo obligatorio pasa a rojo, el mismo de los mensajes de error.
-- **Todos los campos miden lo mismo.** El hueco del mensaje bajo el control se reserva siempre, no
-  solo en los campos con reglas, asi que una reja de campos ya no mezcla dos alturas segun quien
-  tenga algo que decir. Como el hueco suma altura, el margen inferior de la celda baja de 16 a
-  8 px. La reserva vive en `ErrorsRequired`, que ya usaban los ocho componentes de campo, de modo
-  que ninguno necesito tocarse.
-
-#### Corregido en la barra de navegacion del paso
-
-- El titulo del paso no quedaba centrado con los botones: `space-y-4` seguia aplicando cuando la
-  barra pasa a fila en pantallas medianas, y empujaba los botones 16 px hacia abajo. La separacion
-  vertical ahora se limita a movil y en fila se usa `gap`.
 - Titulo y descripcion se alinean arriba en las tarjetas de «Mis formularios».
 - El area de contenido gana el mismo margen inferior que hay entre la pagina y el encabezado, para
   que al llegar al final del scroll no quede pegada al borde.
@@ -71,12 +55,32 @@ el morado primario y hablaban en identificadores internos.
 - **Los campos de tipo `textarea` nunca fueron multilinea.** Se renderizaban como
   `<input type="textarea">`, un tipo que no existe en HTML y que el navegador degrada a una sola
   linea. Ahora son un `<textarea>` real.
+
+---
+
+## [1.53.1] - 2026-07-30
+
+### Los campos de texto largo se comportan como los demas
+
+Ajustes sobre la 1.53.0 tras probarla: el area de texto desentonaba con el resto de campos y sus
+botones se peleaban con el contenido.
+
+#### Cambiado
+
+- En reposo un campo de texto largo ocupa lo mismo que uno normal (40 px, una sola linea); crece
+  solo cuando el usuario lo pide.
+- La barra del titulo del paso pierde el aire de mas: pasa de 40 px arriba y 20 abajo a 24 px
+  simetricos.
+- El asterisco de campo obligatorio pasa a rojo, el mismo de los mensajes de error.
+
+#### Corregido
+
 - **El texto del area de texto se metia debajo de los botones.** El espacio reservado a la derecha
   se daba con `padding`, pero un `<textarea>` con `overflow: hidden` recorta en el borde del
   *padding box*, no del content box, asi que el texto se dibujaba encima de la equis y del boton de
-  expandir (el `<input>` se salvaba porque su elipsis corta antes). En reposo el area de texto usa
-  ahora una caja de una sola linea, de modo que el texto respeta la reserva y la segunda linea
-  queda fuera. Los botones ganan realce al pasar el cursor para distinguirlos del contenido.
+  expandir (el `<input>` se salvaba porque su elipsis corta antes). Ahora la caja de una sola linea
+  hace que el texto respete la reserva y la segunda linea quede fuera. Los botones ganan realce al
+  pasar el cursor para distinguirlos del contenido.
 - **El boton de expandir parpadeaba sin parar** al dejar el cursor sobre el. El borde solo existia
   en `:hover` y, al ser `border-box`, restaba 2 px a la caja de contenido: con la linea ocupando
   el alto completo eso fingia un desbordamiento. El ciclo se realimentaba solo — cursor sobre el
@@ -84,6 +88,29 @@ el morado primario y hablaban en identificadores internos.
   desborda, desaparece el boton. Ahora el borde existe siempre en transparente y solo cambia de
   color, la linea deja libres esos 2 px, y la medicion tiene banda muerta. De paso desaparece el
   salto de 2 px que daban todos los campos al pasar el cursor.
+
+---
+
+## [1.53.2] - 2026-07-30
+
+### Alturas parejas en la reja de campos
+
+#### Cambiado
+
+- **Todos los campos miden lo mismo.** El hueco del mensaje bajo el control se reserva siempre, no
+  solo en los campos con reglas, asi que una reja de campos ya no mezcla dos alturas segun quien
+  tenga algo que decir. Como el hueco suma altura, el margen inferior de la celda baja de 16 a
+  8 px. La reserva vive en `ErrorsRequired`, que ya usaban los ocho componentes de campo, de modo
+  que ninguno necesito tocarse.
+- En escritorio la barra del titulo conserva el aire necesario para que el titulo del paso quede a
+  la altura del titulo del panel lateral, descontando los 2 px que el centrado vertical con los
+  botones desplaza al titulo.
+
+#### Corregido
+
+- El titulo del paso no quedaba centrado con los botones: `space-y-4` seguia aplicando cuando la
+  barra pasa a fila en pantallas medianas, y empujaba los botones 16 px hacia abajo. La separacion
+  vertical ahora se limita a movil y en fila se usa `gap`.
 
 ---
 
