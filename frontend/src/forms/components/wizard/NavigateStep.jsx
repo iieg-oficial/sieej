@@ -26,7 +26,8 @@ const NavigateStep = ({
         <div
             className="
                 sticky flex flex-col space-y-4 w-full py-4 top-0 bg-white z-9
-                md:py-6 md:flex-row md:justify-between md:items-center
+                md:space-y-0 md:gap-4 md:py-6 xl:pt-[37px]
+                md:flex-row md:justify-between md:items-center
             "
         >
             <div className="min-w-0 flex flex-wrap items-center gap-x-3 gap-y-2">

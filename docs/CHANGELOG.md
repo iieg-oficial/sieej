@@ -42,9 +42,21 @@ el morado primario y hablaban en identificadores internos.
 - El boton «Entendido» del aviso usa el boton primario en vez del verde plano.
 - El distintivo «Actualizado» se movio de encima de la reja de campos a la misma fila del titulo
   del paso; en movil cae a su propia fila. Los pasos repetidores tambien lo muestran.
-- La barra del titulo del paso pierde el aire de mas: pasa de 40 px arriba y 20 abajo a 24 px
-  simetricos, con el titulo centrado verticalmente respecto a los botones.
+- La barra del titulo del paso se compacta a 24 px de aire, salvo en escritorio, donde conserva el
+  necesario para que el titulo del paso quede a la altura del titulo del panel lateral,
+  descontando los 2 px que el centrado vertical con los botones desplaza al titulo.
 - El asterisco de campo obligatorio pasa a rojo, el mismo de los mensajes de error.
+- **Todos los campos miden lo mismo.** El hueco del mensaje bajo el control se reserva siempre, no
+  solo en los campos con reglas, asi que una reja de campos ya no mezcla dos alturas segun quien
+  tenga algo que decir. Como el hueco suma altura, el margen inferior de la celda baja de 16 a
+  8 px. La reserva vive en `ErrorsRequired`, que ya usaban los ocho componentes de campo, de modo
+  que ninguno necesito tocarse.
+
+#### Corregido en la barra de navegacion del paso
+
+- El titulo del paso no quedaba centrado con los botones: `space-y-4` seguia aplicando cuando la
+  barra pasa a fila en pantallas medianas, y empujaba los botones 16 px hacia abajo. La separacion
+  vertical ahora se limita a movil y en fila se usa `gap`.
 - Titulo y descripcion se alinean arriba en las tarjetas de «Mis formularios».
 - El area de contenido gana el mismo margen inferior que hay entre la pagina y el encabezado, para
   que al llegar al final del scroll no quede pegada al borde.

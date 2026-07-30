@@ -202,12 +202,13 @@ const Input = ({
                     rest.onKeyDown?.(e);
                 }}
             />
-            <div className={hints.length > 0 ? 'min-h-[18px]' : ''}>
-                {!!error && !(focused && errorEnHint) && (
-                    <ErrorsRequired name={name} errors={errors} />
-                )}
+            <ErrorsRequired
+                name={name}
+                errors={errors}
+                mostrar={!(focused && errorEnHint)}
+            >
                 {focused && hints.length > 0 && <FieldHints items={hints} />}
-            </div>
+            </ErrorsRequired>
         </DynamicDiv>
     );
 };

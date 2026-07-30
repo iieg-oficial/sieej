@@ -2,17 +2,20 @@ import React from 'react';
 import icoError from '@assets/icons/ico_error.svg';
 import { getErrorMessage } from '@helpers/formErrors';
 
-const ErrorsRequired = ({ name, errors }) => {
+const ErrorsRequired = ({ name, errors, mostrar = true, children }) => {
     const errorMessage = getErrorMessage(errors, name);
 
-    if (!errorMessage) return null;
-
     return (
-        <div className="flex items-center mt-1">
-            <img src={icoError} alt="error" className="mr-2"/>
-            <span role="alert" className="text-[#EA4336] text-[11px] font-garetmedium">
-                {errorMessage}
-            </span>
+        <div className="min-h-[17px] mt-1">
+            {mostrar && errorMessage && (
+                <div className="flex items-center">
+                    <img src={icoError} alt="error" className="mr-2"/>
+                    <span role="alert" className="text-[#EA4336] text-[11px] font-garetmedium">
+                        {errorMessage}
+                    </span>
+                </div>
+            )}
+            {children}
         </div>
     );
 };

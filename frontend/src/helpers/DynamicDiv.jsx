@@ -18,7 +18,7 @@ const DynamicDiv = React.forwardRef(function DynamicDiv(
     const wClass = wDiv ? `w-${wDiv}` : '';
     const isCenter = center
         ? `${className} flex justify-center items-center w-full h-full`
-        : `${className} relative mb-4 ${placement} ${wClass}`;
+        : `${className} relative mb-2 ${placement} ${wClass}`;
 
     return (
         <div ref={ref} className={isCenter}>
