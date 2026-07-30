@@ -28,12 +28,12 @@ entreguen información estructurada al IIEG.
 ### Desarrollo
 
 ```bash
-make dev
+make up
 # Frontend (Vite):     http://localhost:5174
 # Backend (mariachi):  http://localhost:8000/api/administrador
 ```
 
-`make dev` invoca `make ensure-env` que copia `.env.development` desde
+`make up` invoca `make setup` que copia `.env.development` desde
 `.env.example` la primera vez. El proxy de Vite reenvía las llamadas
 `/api/*` al `BACKEND_DEV_TARGET`.
 
@@ -52,7 +52,7 @@ npm run test:watch
 cp .env.example .env.production
 # Editar VITE_BASE_PATH=/sieej/ y demas.
 
-make build
+make deploy
 # Genera ./frontend/dist/ con base path /sieej/
 # gateway-hub lo sirve via bind mount (ver gateway-hub/docker-compose.yml).
 ```
@@ -61,9 +61,9 @@ make build
 
 | Comando | Descripcion |
 |---------|-------------|
-| `make dev` | Modo desarrollo (Vite hot-reload) |
-| `make build` | Construir `dist/` consumido por gateway-hub |
-| `make ensure-env` | Crea `.env.development` desde `.env.example` si falta |
+| `make up` | Modo desarrollo (Vite hot-reload) |
+| `make deploy` | Construir `dist/` consumido por gateway-hub |
+| `make setup` | Crea `.env.development` desde `.env.example` si falta |
 | `make down` | Detener servicios de desarrollo |
 | `make logs` | Ver logs |
 | `make status` | Estado de los servicios |
@@ -116,7 +116,7 @@ gateway-hub (:443)
 ## Stack
 
 - **React 19** + **React Router 7** (sin `react-router-dom`)
-- **Vite 6** + `@vitejs/plugin-react` + `@tailwindcss/vite`
+- **Vite 8** (Rolldown) + `@vitejs/plugin-react` + `@tailwindcss/vite`
 - **Tailwind CSS 4** con paleta institucional centralizada en `@theme`
   (`--color-sieej-primary`, `--color-sieej-bg`, etc.)
 - **react-hook-form** para formularios multi-paso

@@ -4,6 +4,24 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [1.54.0] - 2026-07-30
+
+### Cambiado: Makefile homologado con el resto del ecosistema
+
+La interfaz de comandos es ahora la misma en los nueve repos: `up` levanta desarrollo sin
+reconstruir y `deploy` hace produccion completa (`git pull` + `down` + `build` + `up`). Se
+retiraron todas las banderas: el entorno se detecta por el nombre de proyecto de Compose y lo que
+antes era un argumento ahora es un selector interactivo. Lo transversal vive en `make/common.mk` y
+`make/lib.sh`, copiados en cada repo. Convencion completa en `ecosistema/makefiles.md` del repo de
+contexto.
+
+### Cambiado: `dev` pasa a `up`, y `build` a `deploy`
+
+`deploy` sigue sin levantar servicios: construye el `dist` que sirve gateway-hub, y ahora recuerda
+al terminar que hay que recargar el gateway. `ensure-env` pasa a llamarse `setup`.
+
+---
+
 ## [No publicado]
 
 ---

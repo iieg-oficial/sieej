@@ -5,7 +5,7 @@
 > contextos y estructura de `forms/`, ver
 > **`docs/plataforma-formularios.md`**.
 
-React 19 + Vite 6 + Tailwind CSS 4. SPA con un renderer generico de
+React 19 + Vite 8 + Tailwind CSS 4. SPA con un renderer generico de
 formularios cuyas definiciones viven en `mariachi/api`.
 
 ## Requisitos
@@ -19,11 +19,11 @@ formularios cuyas definiciones viven en `mariachi/api`.
 ### Con Docker
 
 ```bash
-make dev
+make up
 # http://localhost:5174
 ```
 
-`make dev` invoca `make ensure-env` que copia `.env.development` desde
+`make up` invoca `make setup` que copia `.env.development` desde
 `.env.example` si falta.
 
 ### Sin Docker
@@ -244,7 +244,7 @@ Suite inicial sobre logica pura del renderer: `evaluarShowWhen`,
 ## Build
 
 ```bash
-make build
+make deploy
 # Genera frontend/dist/ con base path /sieej/.
 # gateway-hub lo monta como /usr/share/nginx/html/sieej via bind mount.
 ```
@@ -257,7 +257,13 @@ Defaults del Dockerfile alineados con `.env.production`
 ### Code splitting
 
 `vite.config.js` agrupa vendors en chunks dedicados (`vendor-react`,
-`vendor-router`, `vendor-form`, `vendor-pdf`). El chunk `vendor-pdf`
+`vendor-router`, `vendor-form`, `vendor-pdf`) mediante
+`build.rolldownOptions.output.codeSplitting.groups`, donde cada grupo
+declara una expresion regular contra el id del modulo y una prioridad.
+`vendor-react` lleva la prioridad mas alta a proposito: a diferencia
+del viejo `manualChunks`, un grupo de Rolldown arrastra las
+dependencias de lo que captura, y con el orden inverso React terminaba
+dentro de `vendor-form`. El chunk `vendor-pdf`
 (~1.4 MB) **no esta en el initial bundle** desde 1.9.0: se carga
 on-demand cuando el usuario hace click en "Descargar PDF" via dynamic
 import en `forms/renderer/pdf/SummaryPdfButton.jsx`.

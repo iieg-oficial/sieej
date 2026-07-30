@@ -7,7 +7,7 @@
 2. Commit con mensajes convencionales, sin atribucion a asistentes o
    modelos (ni `Co-Authored-By: Claude ...`, ni lineas `Generated with`).
 3. Pull request a `develop`. Revisar checklist:
-   - [ ] `make dev` arranca sin errores.
+   - [ ] `make up` arranca sin errores.
    - [ ] Lint del frontend (`npm run lint` en `frontend/`) sin warnings.
    - [ ] Tests del backend (`pytest test/` en `backend/`) verdes.
    - [ ] Documentacion actualizada si la API o la configuracion cambio.
@@ -33,7 +33,7 @@ Ejemplos:
 feat(backend): endpoint /users/{id}/enlaces para admin
 fix(frontend): evitar doble submit en ResumeStep
 docs: agregar docs/gateway.md con upstream sieej
-chore: bump vite 6.2.2 -> 6.3.0
+chore: bump vite 8.2.0 -> 8.3.0
 ```
 
 ## Estilo de codigo
@@ -75,10 +75,10 @@ chore: bump vite 6.2.2 -> 6.3.0
 # Dev (requiere Docker + docker compose)
 cp .env.example .env.development
 # editar .env.development
-make dev
+make up
 
 # Detener
-make down-dev
+make down
 
 # Limpieza total
 make clean
