@@ -28,6 +28,62 @@ repo, y el entorno staging se retiro de todo el ecosistema.
 
 ---
 
+## [1.53.2] - 2026-07-30
+
+### Alturas parejas en la reja de campos
+
+#### Cambiado
+
+- **Todos los campos miden lo mismo.** El hueco del mensaje bajo el control se reserva siempre, no
+  solo en los campos con reglas, asi que una reja de campos ya no mezcla dos alturas segun quien
+  tenga algo que decir. Como el hueco suma altura, el margen inferior de la celda baja de 16 a
+  8 px. La reserva vive en `ErrorsRequired`, que ya usaban los ocho componentes de campo, de modo
+  que ninguno necesito tocarse.
+- En escritorio la barra del titulo conserva el aire necesario para que el titulo del paso quede a
+  la altura del titulo del panel lateral, descontando los 2 px que el centrado vertical con los
+  botones desplaza al titulo.
+
+#### Corregido
+
+- El titulo del paso no quedaba centrado con los botones: `space-y-4` seguia aplicando cuando la
+  barra pasa a fila en pantallas medianas, y empujaba los botones 16 px hacia abajo. La separacion
+  vertical ahora se limita a movil y en fila se usa `gap`.
+
+---
+
+## [1.53.1] - 2026-07-30
+
+### Los campos de texto largo se comportan como los demas
+
+Ajustes sobre la 1.53.0 tras probarla: el area de texto desentonaba con el resto de campos y sus
+botones se peleaban con el contenido.
+
+#### Cambiado
+
+- En reposo un campo de texto largo ocupa lo mismo que uno normal (40 px, una sola linea); crece
+  solo cuando el usuario lo pide.
+- La barra del titulo del paso pierde el aire de mas: pasa de 40 px arriba y 20 abajo a 24 px
+  simetricos.
+- El asterisco de campo obligatorio pasa a rojo, el mismo de los mensajes de error.
+
+#### Corregido
+
+- **El texto del area de texto se metia debajo de los botones.** El espacio reservado a la derecha
+  se daba con `padding`, pero un `<textarea>` con `overflow: hidden` recorta en el borde del
+  *padding box*, no del content box, asi que el texto se dibujaba encima de la equis y del boton de
+  expandir (el `<input>` se salvaba porque su elipsis corta antes). Ahora la caja de una sola linea
+  hace que el texto respete la reserva y la segunda linea quede fuera. Los botones ganan realce al
+  pasar el cursor para distinguirlos del contenido.
+- **El boton de expandir parpadeaba sin parar** al dejar el cursor sobre el. El borde solo existia
+  en `:hover` y, al ser `border-box`, restaba 2 px a la caja de contenido: con la linea ocupando
+  el alto completo eso fingia un desbordamiento. El ciclo se realimentaba solo — cursor sobre el
+  campo, aparece el boton bajo el cursor, el campo pierde el `:hover`, se va el borde, ya no
+  desborda, desaparece el boton. Ahora el borde existe siempre en transparente y solo cambia de
+  color, la linea deja libres esos 2 px, y la medicion tiene banda muerta. De paso desaparece el
+  salto de 2 px que daban todos los campos al pasar el cursor.
+
+---
+
 ## [1.53.0] - 2026-07-30
 
 ### Capturar formularios largos deja de estorbar
@@ -75,62 +131,6 @@ el morado primario y hablaban en identificadores internos.
 - **Los campos de tipo `textarea` nunca fueron multilinea.** Se renderizaban como
   `<input type="textarea">`, un tipo que no existe en HTML y que el navegador degrada a una sola
   linea. Ahora son un `<textarea>` real.
-
----
-
-## [1.53.1] - 2026-07-30
-
-### Los campos de texto largo se comportan como los demas
-
-Ajustes sobre la 1.53.0 tras probarla: el area de texto desentonaba con el resto de campos y sus
-botones se peleaban con el contenido.
-
-#### Cambiado
-
-- En reposo un campo de texto largo ocupa lo mismo que uno normal (40 px, una sola linea); crece
-  solo cuando el usuario lo pide.
-- La barra del titulo del paso pierde el aire de mas: pasa de 40 px arriba y 20 abajo a 24 px
-  simetricos.
-- El asterisco de campo obligatorio pasa a rojo, el mismo de los mensajes de error.
-
-#### Corregido
-
-- **El texto del area de texto se metia debajo de los botones.** El espacio reservado a la derecha
-  se daba con `padding`, pero un `<textarea>` con `overflow: hidden` recorta en el borde del
-  *padding box*, no del content box, asi que el texto se dibujaba encima de la equis y del boton de
-  expandir (el `<input>` se salvaba porque su elipsis corta antes). Ahora la caja de una sola linea
-  hace que el texto respete la reserva y la segunda linea quede fuera. Los botones ganan realce al
-  pasar el cursor para distinguirlos del contenido.
-- **El boton de expandir parpadeaba sin parar** al dejar el cursor sobre el. El borde solo existia
-  en `:hover` y, al ser `border-box`, restaba 2 px a la caja de contenido: con la linea ocupando
-  el alto completo eso fingia un desbordamiento. El ciclo se realimentaba solo — cursor sobre el
-  campo, aparece el boton bajo el cursor, el campo pierde el `:hover`, se va el borde, ya no
-  desborda, desaparece el boton. Ahora el borde existe siempre en transparente y solo cambia de
-  color, la linea deja libres esos 2 px, y la medicion tiene banda muerta. De paso desaparece el
-  salto de 2 px que daban todos los campos al pasar el cursor.
-
----
-
-## [1.53.2] - 2026-07-30
-
-### Alturas parejas en la reja de campos
-
-#### Cambiado
-
-- **Todos los campos miden lo mismo.** El hueco del mensaje bajo el control se reserva siempre, no
-  solo en los campos con reglas, asi que una reja de campos ya no mezcla dos alturas segun quien
-  tenga algo que decir. Como el hueco suma altura, el margen inferior de la celda baja de 16 a
-  8 px. La reserva vive en `ErrorsRequired`, que ya usaban los ocho componentes de campo, de modo
-  que ninguno necesito tocarse.
-- En escritorio la barra del titulo conserva el aire necesario para que el titulo del paso quede a
-  la altura del titulo del panel lateral, descontando los 2 px que el centrado vertical con los
-  botones desplaza al titulo.
-
-#### Corregido
-
-- El titulo del paso no quedaba centrado con los botones: `space-y-4` seguia aplicando cuando la
-  barra pasa a fila en pantallas medianas, y empujaba los botones 16 px hacia abajo. La separacion
-  vertical ahora se limita a movil y en fila se usa `gap`.
 
 ---
 
@@ -609,22 +609,6 @@ una definicion sin normalizar.
 
 ---
 
-## [1.38.0] - 2026-07-24
-
-### Ordenamiento del grid: fin de `grid-flow-row-dense` + `layout.newRow`
-
-El grid de 6 columnas dejaba de respetar el orden de la definicion por usar
-`grid-flow-row-dense`, que reacomodaba campos hacia atras para rellenar huecos y
-rompia tanto el orden visual como el del tab. Se retiro de `FormStep`,
-`RepeaterStep` y `EnvioActualizar`; los campos se colocan en orden estricto (si
-uno no cabe en la fila, baja y deja el hueco).
-
-Nuevo `layout.newRow`: cuando es `true`, el campo abre una fila nueva
-(`md:col-start-1`). Sustituye al hack de campos `info` con label vacio usados
-como espaciadores. Requiere mariachi api >= 1.84.0.
-
----
-
 ## [1.39.0] - 2026-07-24
 
 ### Cambiado: en una lista repetible con pestañas, cada campo vive en una sola
@@ -646,6 +630,22 @@ modo que un campo modificado siempre marca la pestaña donde realmente está.
 
 Del lado del CMS (mariachi 1.83.0) desaparece la pestaña «Comunes» del
 constructor y `tab` pasa a ser obligatorio en los pasos con pestañas.
+
+---
+
+## [1.38.0] - 2026-07-24
+
+### Ordenamiento del grid: fin de `grid-flow-row-dense` + `layout.newRow`
+
+El grid de 6 columnas dejaba de respetar el orden de la definicion por usar
+`grid-flow-row-dense`, que reacomodaba campos hacia atras para rellenar huecos y
+rompia tanto el orden visual como el del tab. Se retiro de `FormStep`,
+`RepeaterStep` y `EnvioActualizar`; los campos se colocan en orden estricto (si
+uno no cabe en la fila, baja y deja el hueco).
+
+Nuevo `layout.newRow`: cuando es `true`, el campo abre una fila nueva
+(`md:col-start-1`). Sustituye al hack de campos `info` con label vacio usados
+como espaciadores. Requiere mariachi api >= 1.84.0.
 
 ---
 
@@ -919,33 +919,6 @@ El botón **Actualizar formulario** desaparece: cuando el admin publica un cambi
 
 ---
 
-## [1.23.4] - 2026-07-13
-
-### Corregido
-
-- **`frontend/src/forms/renderer/FormStep.jsx`**: agrega `grid-flow-row-dense` al grid de 6 columnas para rellenar huecos que dejaban los campos con `colSpan` mayor a 1, mejorando el acomodo visual.
-- **`frontend/src/forms/renderer/RepeaterStep.jsx`**: agrega `grid-flow-row-dense` al grid del repeater y `pt-1` al contenedor para que el header sticky no solape el ring de la pestaña activa.
-
----
-
-## [1.23.3] - 2026-07-13
-
-### Cambiado
-
-- **`frontend/src/forms/renderer/FieldRenderer.jsx`**: se elimina el envoltorio del badge "Condicionado" en la vista de contestación. Los campos condicionales ahora renderizan directamente como cualquier otro campo, conservando su `col-span` vía `DynamicDiv`. El badge solo aplicaba en el preview del admin (mariachi).
-
----
-
-## [1.23.2] - 2026-07-13
-
-### Corregido
-
-- **`frontend/src/components/Radio.jsx`**: el radio ahora respeta su `colSpan` configurado. Antes, cuando el valor seleccionado era `'true'`, `additionalInputType` forzaba `col-span-2` ignorando el layout definido, y además escribía campos fantasma `desc_`/`archivo_`/`nombre_`/`url_` en los datos del envío. Se eliminó esa maquinaria.
-
----
-
-## [1.23.1] - 2026-07-10
-
 ## [1.24.0] - 2026-07-13
 
 ### wizard: grid de columnas homologado, encabezado con nombre/descripción y botonera responsive
@@ -975,6 +948,33 @@ Ronda de mejoras al wizard de captura. Homologa el ancho de los campos en pasos 
 - Agrega comportamiento visible nuevo (encabezado con nombre/descripción, botonera responsive con labels adaptativos) y corrige el layout de columnas del grid. Compatible hacia atrás. Los envíos ya iniciados renderizan su `definicion_snapshot` congelado (no se ven afectados hasta que mariachi refresque el snapshot).
 
 ---
+
+## [1.23.4] - 2026-07-13
+
+### Corregido
+
+- **`frontend/src/forms/renderer/FormStep.jsx`**: agrega `grid-flow-row-dense` al grid de 6 columnas para rellenar huecos que dejaban los campos con `colSpan` mayor a 1, mejorando el acomodo visual.
+- **`frontend/src/forms/renderer/RepeaterStep.jsx`**: agrega `grid-flow-row-dense` al grid del repeater y `pt-1` al contenedor para que el header sticky no solape el ring de la pestaña activa.
+
+---
+
+## [1.23.3] - 2026-07-13
+
+### Cambiado
+
+- **`frontend/src/forms/renderer/FieldRenderer.jsx`**: se elimina el envoltorio del badge "Condicionado" en la vista de contestación. Los campos condicionales ahora renderizan directamente como cualquier otro campo, conservando su `col-span` vía `DynamicDiv`. El badge solo aplicaba en el preview del admin (mariachi).
+
+---
+
+## [1.23.2] - 2026-07-13
+
+### Corregido
+
+- **`frontend/src/components/Radio.jsx`**: el radio ahora respeta su `colSpan` configurado. Antes, cuando el valor seleccionado era `'true'`, `additionalInputType` forzaba `col-span-2` ignorando el layout definido, y además escribía campos fantasma `desc_`/`archivo_`/`nombre_`/`url_` en los datos del envío. Se eliminó esa maquinaria.
+
+---
+
+## [1.23.1] - 2026-07-10
 
 ## [1.23.1] - 2026-07-10
 
