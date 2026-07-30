@@ -46,7 +46,7 @@ npm run test         # vitest (suite logica pura)
 npm run test:watch
 ```
 
-### Build para staging/produccion
+### Build para produccion
 
 ```bash
 cp .env.example .env.production
@@ -73,7 +73,7 @@ make build
 
 Ver `.env.example`. Las clave:
 
-- `VITE_BASE_PATH` — `/` en dev, `/sieej/` en staging/prod.
+- `VITE_BASE_PATH` — `/` en dev, `/sieej/` en produccion.
 - `VITE_BACKEND_API_HOST` — `/api/administrador` (apunta a las rutas de mariachi).
 - `BACKEND_DEV_TARGET` — `http://host.docker.internal:8000` (mariachi-api en dev).
 - `VITE_DISABLED_EDITION` — bandera para mostrar `ClosePage` en lugar del listado.
@@ -102,7 +102,7 @@ Vite Dev (:5174)
                             Acervo (MinIO) para diccionarios
 ```
 
-### Staging / produccion
+### Produccion
 
 ```
 Browser HTTPS

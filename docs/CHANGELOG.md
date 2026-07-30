@@ -8,6 +8,26 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.53.3] - 2026-07-30
+
+### Se va la documentacion de un staging que nunca existio
+
+`docs/CONTRIBUTING.md` documentaba `make staging` y `make down-staging`, y el `.env.example`
+sugeria copiarse a `.env.staging`. Ninguno de esos targets existio nunca en el Makefile de este
+repo, y el entorno staging se retiro de todo el ecosistema.
+
+#### Eliminado
+
+- El bloque de comandos `make staging` / `make down-staging` de la guia de contribucion.
+- `.env.staging` del `.gitignore` y de las instrucciones de copia del `.env.example`.
+
+#### Cambiado
+
+- Los encabezados y notas que decian «staging/produccion» ahora dicen solo «produccion», que es
+  donde el `dist/` lo sirve gateway-hub en `/sieej/`.
+
+---
+
 ## [1.53.0] - 2026-07-30
 
 ### Capturar formularios largos deja de estorbar

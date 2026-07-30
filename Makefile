@@ -25,7 +25,7 @@ help:
 	@echo "  make clean        - Detener servicios y limpiar todo"
 	@echo ""
 	@echo "Nota: el backend de SIEEJ vive en mariachi/api (modulo formularios)."
-	@echo "      En staging/produccion el dist/ es servido por gateway-hub en /sieej/."
+	@echo "      En produccion el dist/ es servido por gateway-hub en /sieej/."
 
 ensure-env:
 	@if [ ! -f .env.development ]; then \

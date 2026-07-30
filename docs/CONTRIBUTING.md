@@ -80,11 +80,6 @@ make dev
 # Detener
 make down-dev
 
-# Staging (simula produccion)
-cp .env.example .env.staging
-make staging
-make down-staging
-
 # Limpieza total
 make clean
 ```
