@@ -6,6 +6,38 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [1.56.0] - 2026-07-30
+
+### Eliminado: Sentry, con un ErrorBoundary propio en su lugar
+
+Sentry se retiró del ecosistema el 2026-07-22 por costo y en MapaLab se eliminó en su 1.97.0, pero
+SIEEJ seguía cargando `@sentry/react` 10 en el bundle. Se van la dependencia, el `Sentry.init()`
+de `main.jsx`, la variable `VITE_SENTRY_DSN` (del `.env.example`, los dos compose, el `Dockerfile`
+y los `.env` locales) y sus menciones en README y `docs/frontend.md`.
+
+Lo que sí hacía falta conservar era el `Sentry.ErrorBoundary` que envolvía la aplicación: sin él,
+un error de render deja pantalla blanca. Su lugar lo toma `components/RootErrorBoundary.jsx`,
+mismo patrón que el de MapaLab —`getDerivedStateFromError` + `componentDidCatch` que loguea a
+consola—, renderizando el `ErrorPage` que ya existía. Cubierto por dos tests nuevos.
+
+### Corregido: `ErrorPage` reventaba fuera de un data router
+
+`ErrorPage` llamaba a `useRouteError()`, que hace `invariant` sobre el contexto del data router y
+**lanza** cuando no lo hay. SIEEJ usa `BrowserRouter` con `<Routes>`, no `createBrowserRouter`, así
+que el hook fallaba siempre: tanto en la ruta `/error` como en el fallback del ErrorBoundary, que
+era justo el camino que debía atrapar el fallo. El error se veía como pantalla blanca en vez de la
+pantalla de error.
+
+El hook se retiró: el error llega por prop desde el boundary, que es como ya lo esperaba el
+componente (`error ?? routeError`, donde la prop tenía precedencia).
+
+### Cambiado: React Router 8 por el advisory GHSA-qwww-vcr4-c8h2
+
+El advisory (bypass de CSRF que permite ejecutar acciones antes de un 400) cubre `>=7.12.0 <8.3.0`:
+no hay corrección dentro de la línea 7. Sube a 8.3.0. El agujero está en el modo RSC, que SIEEJ no
+usa; la migración no tocó imports, porque el repo ya tenía prohibido `react-router-dom` por regla
+de ESLint y ese es el paquete que desaparece en la v8.
+
 ## [1.55.0] - 2026-07-30
 
 ### Cambiado: Vite 6 a Vite 8 con Rolldown, y React 19.2.8

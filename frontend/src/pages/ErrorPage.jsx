@@ -1,10 +1,7 @@
-import { useRouteError, Link } from 'react-router';
+import { Link } from 'react-router';
 import errorImg from '@assets/svg/404.svg';
 
-const ErrorPage = ({ title: titleProp, description, error: errorProp, resetError }) => {
-    const routeError = useRouteError();
-    const error = errorProp ?? routeError;
-
+const ErrorPage = ({ title: titleProp, description, error, resetError }) => {
     if (error) {
         console.error('Error capturado:', error);
     }

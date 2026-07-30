@@ -213,7 +213,6 @@ para el badge de incompletos.
 | `VITE_NODE_ENV` | `development` | Lo lee `GlobalContext` para `isDevelopment` |
 | `VITE_APP_ENV` | `dev` | `dev` / `beta` / `prod` (afecta `EnvBadge`) |
 | `VITE_DISABLED_EDITION` | `false` | Si truthy → MainLayout muestra ClosePage |
-| `VITE_SENTRY_DSN` | (vacio) | Si vacio, Sentry no se inicializa |
 | `BACKEND_DEV_TARGET` | `http://host.docker.internal:8000` | Solo dev, target del proxy de Vite |
 
 ## ESLint

@@ -11,7 +11,6 @@ services:
         VITE_NODE_ENV: ${VITE_NODE_ENV:?Falta VITE_NODE_ENV en el .env}
         VITE_APP_ENV: ${VITE_APP_ENV:?Falta VITE_APP_ENV en el .env}
         VITE_DISABLED_EDITION: ${VITE_DISABLED_EDITION:?Falta VITE_DISABLED_EDITION en el .env}
-        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN?Falta VITE_SENTRY_DSN en el .env (puede ir vacio)}
         VITE_COLIBRI_SOURCE_APP: ${VITE_COLIBRI_SOURCE_APP:?Falta VITE_COLIBRI_SOURCE_APP en el .env}
         VITE_COLIBRI_API_KEY: ${VITE_COLIBRI_API_KEY?Falta VITE_COLIBRI_API_KEY en el .env (puede ir vacio)}
     volumes:

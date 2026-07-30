@@ -78,7 +78,6 @@ Ver `.env.example`. Las clave:
 - `BACKEND_DEV_TARGET` — `http://host.docker.internal:8000` (mariachi-api en dev).
 - `VITE_DISABLED_EDITION` — bandera para mostrar `ClosePage` en lugar del listado.
 - `VITE_APP_ENV` — `dev`/`beta`/`prod` (controla el `EnvBadge`).
-- `VITE_SENTRY_DSN` — opcional; si vacio, Sentry no se inicializa.
 
 GA4 se inyecta por `gateway-hub` via GTM; no requiere variable en el
 frontend.
@@ -121,7 +120,6 @@ gateway-hub (:443)
   (`--color-sieej-primary`, `--color-sieej-bg`, etc.)
 - **react-hook-form** para formularios multi-paso
 - **@react-pdf/renderer** (chunk on-demand, no en initial bundle)
-- **@sentry/react** para error tracking (opcional)
 - **vitest** + **@testing-library/react** para tests
 - **GTM** inyectado por `gateway-hub` (no SDK de GA en el bundle)
 
