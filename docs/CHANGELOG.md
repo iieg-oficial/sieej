@@ -19,9 +19,10 @@ el morado primario y hablaban en identificadores internos.
 #### Agregado
 
 - **Campos de texto expandibles.** Cuando el contenido no cabe aparece un boton que expande el
-  campo a un area de texto multilinea editable, y vuelve a contraerlo. Sin foco, un campo
-  desbordado muestra el inicio del texto con puntos suspensivos en vez de dejar el final a la
-  vista.
+  campo a un area de texto multilinea editable, y vuelve a contraerlo. En reposo un campo de texto
+  largo ocupa lo mismo que uno normal (40 px, una sola linea); crece solo cuando el usuario lo
+  pide. Sin foco, un campo desbordado muestra el inicio del texto con puntos suspensivos en vez de
+  dejar el final a la vista.
 - **Limpiar campo.** Los campos con respuesta muestran una equis al pasar el cursor (o al llegar
   con el tabulador) que los deja sin respuesta. Vive en `FieldClearButton` y el hook
   `useFieldClear`, asi que aparece en cualquier lugar donde se reutilicen los componentes de campo,
@@ -41,8 +42,9 @@ el morado primario y hablaban en identificadores internos.
 - El boton «Entendido» del aviso usa el boton primario en vez del verde plano.
 - El distintivo «Actualizado» se movio de encima de la reja de campos a la misma fila del titulo
   del paso; en movil cae a su propia fila. Los pasos repetidores tambien lo muestran.
-- El titulo del paso quedo nivelado con el titulo del formulario en escritorio (medido: 0 px de
-  diferencia).
+- La barra del titulo del paso pierde el aire de mas: pasa de 40 px arriba y 20 abajo a 24 px
+  simetricos, con el titulo centrado verticalmente respecto a los botones.
+- El asterisco de campo obligatorio pasa a rojo, el mismo de los mensajes de error.
 - Titulo y descripcion se alinean arriba en las tarjetas de «Mis formularios».
 - El area de contenido gana el mismo margen inferior que hay entre la pagina y el encabezado, para
   que al llegar al final del scroll no quede pegada al borde.
@@ -57,6 +59,19 @@ el morado primario y hablaban en identificadores internos.
 - **Los campos de tipo `textarea` nunca fueron multilinea.** Se renderizaban como
   `<input type="textarea">`, un tipo que no existe en HTML y que el navegador degrada a una sola
   linea. Ahora son un `<textarea>` real.
+- **El texto del area de texto se metia debajo de los botones.** El espacio reservado a la derecha
+  se daba con `padding`, pero un `<textarea>` con `overflow: hidden` recorta en el borde del
+  *padding box*, no del content box, asi que el texto se dibujaba encima de la equis y del boton de
+  expandir (el `<input>` se salvaba porque su elipsis corta antes). En reposo el area de texto usa
+  ahora una caja de una sola linea, de modo que el texto respeta la reserva y la segunda linea
+  queda fuera. Los botones ganan realce al pasar el cursor para distinguirlos del contenido.
+- **El boton de expandir parpadeaba sin parar** al dejar el cursor sobre el. El borde solo existia
+  en `:hover` y, al ser `border-box`, restaba 2 px a la caja de contenido: con la linea ocupando
+  el alto completo eso fingia un desbordamiento. El ciclo se realimentaba solo — cursor sobre el
+  campo, aparece el boton bajo el cursor, el campo pierde el `:hover`, se va el borde, ya no
+  desborda, desaparece el boton. Ahora el borde existe siempre en transparente y solo cambia de
+  color, la linea deja libres esos 2 px, y la medicion tiene banda muerta. De paso desaparece el
+  salto de 2 px que daban todos los campos al pasar el cursor.
 
 ---
 

@@ -18,7 +18,7 @@ const FieldClearButton = ({ label, onClear, className = '' }) => (
             group-hover/field:opacity-100 group-focus-within/field:opacity-100
             focus-visible:opacity-100 focus-visible:outline-none
             focus-visible:ring-1 focus-visible:ring-[#5C2472]
-            hover:text-[#5C2472]
+            hover:text-[#5C2472] hover:bg-[#F0E2F5]!
         `}
     >
         <ClearIcon />

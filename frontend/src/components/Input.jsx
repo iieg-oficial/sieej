@@ -16,7 +16,7 @@ import FieldClearButton from './FieldClearButton';
 import TextControl from './TextControl';
 import Typography from './Typography';
 
-const FILAS_COLAPSADO = 2;
+const FILAS_COLAPSADO = 1;
 const FILAS_EXPANDIDO = 8;
 
 const Input = ({
@@ -95,6 +95,10 @@ const Input = ({
         },
     });
 
+    const reservas = (hasValue && !isPassword ? 1 : 0)
+        + (admiteExpansion && hasValue ? 1 : 0)
+        + (isPassword || (filled && watchedValue && !error) ? 1 : 0);
+
     const acciones = [];
     if (hasValue && !isPassword) {
         acciones.push(<FieldClearButton key="clear" label={label} onClear={clear} />);
@@ -111,6 +115,7 @@ const Input = ({
                 className="
                     inline-flex items-center justify-center shrink-0 w-[22px] h-[22px] rounded-full
                     border-none! bg-transparent p-0! cursor-pointer
+                    hover:bg-[#F0E2F5]!
                     focus:outline-none focus-visible:ring-1 focus-visible:ring-[#5C2472]
                 "
             >
@@ -162,9 +167,11 @@ const Input = ({
             />
             <TextControl
                 multiline={multiline}
+                expandido={expandido}
                 rows={expandido ? FILAS_EXPANDIDO : FILAS_COLAPSADO}
                 error={error}
                 acciones={acciones}
+                reservas={reservas}
                 className={className}
                 type={isPassword && showPassword ? 'text' : (multiline ? undefined : type || 'text')}
                 id={name}

@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 
+const ENTRA = 2;
+const SALE = -4;
+
 const useOverflow = (ref, value, axis = 'x') => {
     const [desbordado, setDesbordado] = useState(false);
 
@@ -7,9 +10,12 @@ const useOverflow = (ref, value, axis = 'x') => {
         const el = ref.current;
         if (!el) return undefined;
 
-        const medir = () => setDesbordado(axis === 'y'
-            ? el.scrollHeight > el.clientHeight + 1
-            : el.scrollWidth > el.clientWidth + 1);
+        const medir = () => setDesbordado((previo) => {
+            const exceso = axis === 'y'
+                ? el.scrollHeight - el.clientHeight
+                : el.scrollWidth - el.clientWidth;
+            return previo ? exceso > SALE : exceso > ENTRA;
+        });
 
         medir();
         if (typeof ResizeObserver === 'undefined') return undefined;
