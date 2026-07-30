@@ -45,3 +45,8 @@ secrets/
 # Logs
 logs/
 *.log
+
+secrets/*
+!secrets/.gitkeep
+!secrets/*.example
+compose.local.yaml

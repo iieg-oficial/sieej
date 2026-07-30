@@ -5,8 +5,9 @@ export UID := $(shell id -u)
 export GID := $(shell id -g)
 
 # Compose base commands por entorno
-COMPOSE_DEV   = docker compose -p sieej-dev --env-file .env.development
-COMPOSE_BUILD = docker compose -p sieej-build -f docker-compose.yml --env-file .env.production
+COMPOSE_BASE  = compose.yaml
+COMPOSE_DEV   = docker compose --env-file .env.development -f $(COMPOSE_BASE) -f compose.dev.yaml
+COMPOSE_BUILD = docker compose --env-file .env.production -f $(COMPOSE_BASE) -f compose.prod.yaml
 
 help:
 	@echo "SIEEJ frontend - Comandos disponibles:"
@@ -37,7 +38,7 @@ ensure-env:
 dev: ensure-env
 	@echo ""
 	@echo "Levantando frontend de desarrollo..."
-	@$(COMPOSE_DEV) --profile dev up -d --build
+	@$(COMPOSE_DEV) up -d --build
 	@echo ""
 	@echo "Frontend (Vite):  http://localhost:5174"
 	@echo "Backend (mariachi): http://localhost:8000/api/administrador"
@@ -47,24 +48,24 @@ dev: ensure-env
 build:
 	@echo ""
 	@echo "Construyendo frontend para produccion..."
-	@$(COMPOSE_BUILD) --profile build run --rm --build frontend-build
+	@$(COMPOSE_BUILD) run --rm --build frontend-build
 	@echo ""
 	@echo "Build listo en ./frontend/dist/"
 	@echo "Para servir: gateway-hub monta este dist en /sieej/"
 
 down:
-	@$(COMPOSE_DEV) --profile dev down 2>/dev/null || true
+	@$(COMPOSE_DEV) down 2>/dev/null || true
 	@echo "Servicios de desarrollo detenidos"
 
 clean: down
-	@$(COMPOSE_DEV) --profile dev down -v --remove-orphans 2>/dev/null || true
-	@$(COMPOSE_BUILD) --profile build down -v --remove-orphans 2>/dev/null || true
+	@$(COMPOSE_DEV) down -v --remove-orphans 2>/dev/null || true
+	@$(COMPOSE_BUILD) down -v --remove-orphans 2>/dev/null || true
 	@docker run --rm -v $(CURDIR)/frontend/dist:/dist alpine sh -c "rm -rf /dist/*" 2>/dev/null || true
 	@rm -rf frontend/dist frontend/node_modules
 	@echo "Limpieza completada"
 
 logs:
-	@$(COMPOSE_DEV) --profile dev logs -f
+	@$(COMPOSE_DEV) logs -f
 
 status:
 	@$(COMPOSE_DEV) ps 2>/dev/null || echo "  No hay servicios corriendo"

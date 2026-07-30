@@ -1,0 +1,6 @@
+volumes:
+  frontend-node-modules:
+
+networks:
+  default:
+    name: ${NETWORK_NAME:?Falta NETWORK_NAME en el .env}

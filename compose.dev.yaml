@@ -1,9 +1,10 @@
+name: sieej-dev
+
 services:
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
-    profiles: ["dev"]
     init: true
     environment:
       VITE_BACKEND_API_HOST: ${VITE_BACKEND_API_HOST:?Falta VITE_BACKEND_API_HOST en el .env}
@@ -25,38 +26,17 @@ services:
       - ./frontend/vite.config.js:/app/vite.config.js:ro
       - frontend-node-modules:/app/node_modules
     ports:
-      - "${FRONTEND_PORT:?Falta FRONTEND_PORT en el .env}:${VITE_PORT}"
+      - "${FRONTEND_BIND_ADDR:?Falta FRONTEND_BIND_ADDR en el .env}:${FRONTEND_PORT:?Falta FRONTEND_PORT en el .env}:${VITE_PORT:?}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${VITE_PORT}/ > /dev/null || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${VITE_PORT:?}/ > /dev/null || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 30s
-    restart: unless-stopped
-
-  frontend-build:
-    build:
-      context: ./frontend
-      args:
-        VITE_BASE_PATH: ${VITE_BASE_PATH:?Falta VITE_BASE_PATH en el .env}
-        VITE_BACKEND_API_HOST: ${VITE_BACKEND_API_HOST:?Falta VITE_BACKEND_API_HOST en el .env}
-        VITE_SITE_URL: ${VITE_SITE_URL:?Falta VITE_SITE_URL en el .env}
-        VITE_NODE_ENV: ${VITE_NODE_ENV:?Falta VITE_NODE_ENV en el .env}
-        VITE_APP_ENV: ${VITE_APP_ENV:?Falta VITE_APP_ENV en el .env}
-        VITE_DISABLED_EDITION: ${VITE_DISABLED_EDITION:?Falta VITE_DISABLED_EDITION en el .env}
-        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN?Falta VITE_SENTRY_DSN en el .env (puede ir vacio)}
-        VITE_COLIBRI_SOURCE_APP: ${VITE_COLIBRI_SOURCE_APP:?Falta VITE_COLIBRI_SOURCE_APP en el .env}
-        VITE_COLIBRI_API_KEY: ${VITE_COLIBRI_API_KEY?Falta VITE_COLIBRI_API_KEY en el .env (puede ir vacio)}
-    profiles: ["build"]
-    volumes:
-      - ./frontend/dist:/output
-    entrypoint: ["sh", "-c", "uid=$$(stat -c %u /output); gid=$$(stat -c %g /output); rm -rf /output/* /output/.[!.]* 2>/dev/null; cp -a /app/dist/. /output/ && chown -R $$uid:$$gid /output"]
-
-volumes:
-  frontend-node-modules:
-
-networks:
-  default:
-    name: ${NETWORK_NAME:?Falta NETWORK_NAME en el .env}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

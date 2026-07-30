@@ -1,0 +1,19 @@
+name: sieej
+
+services:
+  frontend-build:
+    build:
+      context: ./frontend
+      args:
+        VITE_BASE_PATH: ${VITE_BASE_PATH:?Falta VITE_BASE_PATH en el .env}
+        VITE_BACKEND_API_HOST: ${VITE_BACKEND_API_HOST:?Falta VITE_BACKEND_API_HOST en el .env}
+        VITE_SITE_URL: ${VITE_SITE_URL:?Falta VITE_SITE_URL en el .env}
+        VITE_NODE_ENV: ${VITE_NODE_ENV:?Falta VITE_NODE_ENV en el .env}
+        VITE_APP_ENV: ${VITE_APP_ENV:?Falta VITE_APP_ENV en el .env}
+        VITE_DISABLED_EDITION: ${VITE_DISABLED_EDITION:?Falta VITE_DISABLED_EDITION en el .env}
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN?Falta VITE_SENTRY_DSN en el .env (puede ir vacio)}
+        VITE_COLIBRI_SOURCE_APP: ${VITE_COLIBRI_SOURCE_APP:?Falta VITE_COLIBRI_SOURCE_APP en el .env}
+        VITE_COLIBRI_API_KEY: ${VITE_COLIBRI_API_KEY?Falta VITE_COLIBRI_API_KEY en el .env (puede ir vacio)}
+    volumes:
+      - ./frontend/dist:/output
+    entrypoint: ["sh", "-c", "uid=$$(stat -c %u /output); gid=$$(stat -c %g /output); rm -rf /output/* /output/.[!.]* 2>/dev/null; cp -a /app/dist/. /output/ && chown -R $$uid:$$gid /output"]
