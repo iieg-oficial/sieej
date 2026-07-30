@@ -4,6 +4,35 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
+## [No publicado]
+
+## [1.55.0] - 2026-07-30
+
+### Cambiado: Vite 6 a Vite 8 con Rolldown, y React 19.2.8
+
+SIEEJ era el repo más rezagado del ecosistema: seguía en Vite 6 y `@vitejs/plugin-react` 4 cuando
+el resto ya estaba en 7 y 5. Sube directo a **Vite 8**, que reemplaza esbuild y Rollup por
+**Rolldown** (bundler en Rust) y **Oxc**. El build pasa de **1.36 s a 193 ms** y el dev server
+arranca en 155 ms. Suben con él `@vitejs/plugin-react` a 6.0.5, React y React-DOM a 19.2.8,
+Vitest a 4.1.10 y Tailwind a 4.3.3.
+
+De los dos majors saltados, el único cambio con efecto real es el piso de navegadores: el
+`build.target` por defecto sube a Chrome 111, Edge 111, Firefox 114 y Safari 16.4. El plugin
+`sieej-ontoy` no necesitó cambios —`generateBundle` y `emitFile` funcionan igual en Rolldown— y
+`dist/ontoy.json` se sigue emitiendo con la versión del `package.json`.
+
+El chunking se migró de `manualChunks` a `build.rolldownOptions.output.codeSplitting.groups`, con
+`vendor-react` en la prioridad más alta: los grupos de Rolldown arrastran las dependencias de lo
+que capturan, así que con el orden anterior React habría terminado dentro de `vendor-form`. Los
+tres chunks quedan como estaban (`vendor-react` 190 kB, `vendor-router` 34 kB, `vendor-form`
+32 kB).
+
+El CSS ahora lo minifica Lightning CSS en vez de esbuild y sale **10 kB más pequeño**. Los 94
+tests siguen pasando.
+
+Requiere reconstruir la imagen del frontend. El cambio de bundler cambia todos los hashes de los
+assets: conviene desplegar fuera de horario pico.
+
 ## [1.54.0] - 2026-07-30
 
 ### Cambiado: Makefile homologado con el resto del ecosistema
@@ -19,10 +48,6 @@ contexto.
 
 `deploy` sigue sin levantar servicios: construye el `dist` que sirve gateway-hub, y ahora recuerda
 al terminar que hay que recargar el gateway. `ensure-env` pasa a llamarse `setup`.
-
----
-
-## [No publicado]
 
 ---
 

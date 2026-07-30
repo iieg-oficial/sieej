@@ -47,14 +47,26 @@ export default defineConfig(({ mode }) => {
             css: false,
         },
         build: {
-            rollupOptions: {
+            rolldownOptions: {
                 output: {
-                    manualChunks: (id) => {
-                        if (id.includes('node_modules')) {
-                            if (id.includes('react-hook-form')) return 'vendor-form';
-                            if (id.includes('react-router')) return 'vendor-router';
-                            if (id.includes('react-dom') || id.includes('/react/') || id.includes('scheduler')) return 'vendor-react';
-                        }
+                    codeSplitting: {
+                        groups: [
+                            {
+                                name: 'vendor-react',
+                                test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+                                priority: 30,
+                            },
+                            {
+                                name: 'vendor-router',
+                                test: /node_modules[\\/]react-router/,
+                                priority: 20,
+                            },
+                            {
+                                name: 'vendor-form',
+                                test: /node_modules[\\/]react-hook-form[\\/]/,
+                                priority: 10,
+                            },
+                        ],
                     },
                 },
             },
