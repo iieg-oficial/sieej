@@ -8,6 +8,58 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ---
 
+## [1.53.0] - 2026-07-30
+
+### Capturar formularios largos deja de estorbar
+
+Nueve ajustes sobre el llenado de formularios. El hilo comun: los campos de texto largo eran
+ilegibles, no habia forma de retirar una respuesta ya dada, y las senales de «esto cambio» usaban
+el morado primario y hablaban en identificadores internos.
+
+#### Agregado
+
+- **Campos de texto expandibles.** Cuando el contenido no cabe aparece un boton que expande el
+  campo a un area de texto multilinea editable, y vuelve a contraerlo. Sin foco, un campo
+  desbordado muestra el inicio del texto con puntos suspensivos en vez de dejar el final a la
+  vista.
+- **Limpiar campo.** Los campos con respuesta muestran una equis al pasar el cursor (o al llegar
+  con el tabulador) que los deja sin respuesta. Vive en `FieldClearButton` y el hook
+  `useFieldClear`, asi que aparece en cualquier lugar donde se reutilicen los componentes de campo,
+  incluido «Actualizar informacion». Radio y checkbox no llevan equis: se deseleccionan volviendo
+  a elegir la opcion activa.
+- El diff de definiciones de mariachi ahora viaja con `step_title` y `field_label`, y el aviso de
+  actualizacion los usa. Los campos y pasos eliminados solo se pueden nombrar en el momento del
+  diff, porque el snapshot del envio ya fue reescrito con la definicion vigente.
+
+#### Cambiado
+
+- **Las reglas del campo solo se ven mientras se edita.** El formato exigido, el minimo y el
+  contador aparecen al enfocar; los errores siguen visibles siempre que existan, incluidos los de
+  formato al salir del campo, que antes quedaban ocultos.
+- Las marcas de cambio pasan al naranja institucional: punto pulsante del aviso, punto de los pasos
+  y de las sub-pestanas, y distintivo de cada campo. En los campos queda solo la etiqueta de texto.
+- El boton «Entendido» del aviso usa el boton primario en vez del verde plano.
+- El distintivo «Actualizado» se movio de encima de la reja de campos a la misma fila del titulo
+  del paso; en movil cae a su propia fila. Los pasos repetidores tambien lo muestran.
+- El titulo del paso quedo nivelado con el titulo del formulario en escritorio (medido: 0 px de
+  diferencia).
+- Titulo y descripcion se alinean arriba en las tarjetas de «Mis formularios».
+- El area de contenido gana el mismo margen inferior que hay entre la pagina y el encabezado, para
+  que al llegar al final del scroll no quede pegada al borde.
+
+#### Corregido
+
+- **El placeholder salia como `[object Object]`.** `FieldRenderer` pasaba el distintivo de cambio
+  incrustado en la etiqueta, y `Input` usa la etiqueta como placeholder de respaldo cuando la
+  definicion no trae uno; React serializaba el elemento al atributo. El distintivo viaja ahora en
+  su propia prop (`badge` en `Typography`) y la etiqueta vuelve a ser siempre texto. Se veia, entre
+  otros, en «Nombre del ente de gobierno».
+- **Los campos de tipo `textarea` nunca fueron multilinea.** Se renderizaban como
+  `<input type="textarea">`, un tipo que no existe en HTML y que el navegador degrada a una sola
+  linea. Ahora son un `<textarea>` real.
+
+---
+
 ## [1.52.3] - 2026-07-29
 
 ### Una sola fuente de verdad para la version, y el contexto al repo central

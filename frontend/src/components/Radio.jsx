@@ -1,14 +1,25 @@
 import React from 'react';
+import { useWatch } from 'react-hook-form';
 import ErrorsRequired from '@helpers/ErrorsRequired';
 import { getFieldError } from '@helpers/formErrors';
 import DynamicDiv from '@helpers/DynamicDiv';
 import Typography from './Typography';
 
 const Radio = ({
-    name, options, label, required, description, tooltip, colSpan, col,
+    name, options, label, badge, required, description, tooltip, colSpan, col,
     wDiv, methods, ...rest
 }) => {
-    const { register, formState: { errors } } = methods;
+    const { register, setValue, control, formState: { errors } } = methods;
+    const seleccionado = useWatch({ control, name });
+
+    const alternar = (value) => {
+        if (seleccionado !== value) return;
+        setValue(name, '', {
+            shouldDirty: true,
+            shouldTouch: true,
+            shouldValidate: true,
+        });
+    };
 
     return (
         <DynamicDiv colSpan={colSpan} col={col} wDiv={wDiv} className="mt-[15px]">
@@ -18,6 +29,7 @@ const Radio = ({
                 tooltip={tooltip}
                 name={name}
                 required={required}
+                badge={badge}
             />
             {description && (<Typography as="h5" titleName={description} className='mt-2'/>)}
 
@@ -30,6 +42,8 @@ const Radio = ({
                             value={option.value}
                             {...rest}
                             {...register(name, { required: required ? 'Este campo es obligatorio' : false })}
+                            onClick={() => alternar(option.value)}
+                            title="Vuelve a dar clic para quitar la respuesta"
                             className={`
                                 h-[20px] w-[20px] border-[#5C2472] border cursor-pointer rounded-full appearance-none
                                 checked:bg-[#5C2472] checked:border-[#5C2472] checked:before:flex checked:before:items-center

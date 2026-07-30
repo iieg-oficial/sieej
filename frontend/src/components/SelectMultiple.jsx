@@ -4,10 +4,12 @@ import arrowDown from '@assets/icons/ico_down_arrow.svg';
 import ErrorsRequired from '@helpers/ErrorsRequired';
 import { getFieldError } from '@helpers/formErrors';
 import DynamicDiv from '@helpers/DynamicDiv';
+import useFieldClear from '@helpers/useFieldClear';
+import FieldClearButton from './FieldClearButton';
 import Typography from './Typography';
 
 const SelectMultiple = ({
-    name, options, label, required, tooltip,
+    name, options, label, badge, required, tooltip,
     placeholder, colSpan, col, wDiv, methods, pattern, ...rest
 }) => {
     const { register, setValue, control, getValues } = methods;
@@ -16,6 +18,10 @@ const SelectMultiple = ({
     const [ showDropdown, setShowDropdown ] = useState(false);
     const dropdownRef = useRef(null);
     const hasThingSelected = selectedValues.length > 0;
+    const vaciarSeleccion = useCallback(() => setSelectedValues([]), []);
+    const { clear } = useFieldClear({
+        methods, name, empty: [], onClear: vaciarSeleccion,
+    });
 
     const handleSelect = (value) => {
         let newValues;
@@ -53,13 +59,14 @@ const SelectMultiple = ({
     }, [getValues, name]);
 
     return (
-        <DynamicDiv colSpan={colSpan} col={col} wDiv={wDiv} className="mt-[15px]" ref={dropdownRef}>
+        <DynamicDiv colSpan={colSpan} col={col} wDiv={wDiv} className="mt-[15px] group/field" ref={dropdownRef}>
             <Typography
                 as="label"
-                titleName={label} 
-                tooltip={tooltip} 
+                titleName={label}
+                tooltip={tooltip}
                 name={name}
                 required={required}
+                badge={badge}
             />
             <div
                 id={name}
@@ -137,7 +144,10 @@ const SelectMultiple = ({
                         {placeholder || 'Selecciona una o más opciónes'}
                     </span>
                 )}
-                <img src={arrowDown} alt="seleccion multiple icono drop"/>
+                <div className="flex items-center gap-1 shrink-0">
+                    {hasThingSelected && <FieldClearButton label={label} onClear={clear} />}
+                    <img src={arrowDown} alt="seleccion multiple icono drop"/>
+                </div>
             </div>
 
             {showDropdown && (

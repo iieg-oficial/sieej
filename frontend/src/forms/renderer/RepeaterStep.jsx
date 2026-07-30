@@ -159,7 +159,7 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], ma
                                 {tabsConCambios.has(tab.id) && !subTabsVistas.has(tab.id) && (
                                     <span
                                         aria-label="Tiene cambios sin revisar"
-                                        className="absolute -top-0.5 -right-2 w-1.5 h-1.5 rounded-full bg-[#5C2472]"
+                                        className="absolute -top-0.5 -right-2 w-1.5 h-1.5 rounded-full bg-[#FF8300]"
                                     />
                                 )}
                             </span>

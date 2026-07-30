@@ -8,7 +8,7 @@ import Button from '@components/Button';
 import useGlobal from '@context/useGlobal';
 
 const NavigateStep = ({
-    step, isFirst, isLast, isLastTab,
+    step, isFirst, isLast, isLastTab, tieneCambios = false,
     nextDisabled = false, nextTooltip = null, saveDisabled = false,
     onPrev, onSubmit, onSave,
 }) => {
@@ -26,18 +26,25 @@ const NavigateStep = ({
         <div
             className="
                 sticky flex flex-col space-y-4 w-full py-4 top-0 bg-white z-9
-                md:pt-10 md:pb-5 md:flex-row md:justify-between md:items-center
+                md:pt-10 md:pb-5 xl:pt-[41px] md:flex-row md:justify-between md:items-center
             "
         >
-            <div className="min-w-0">
+            <div className="min-w-0 flex flex-wrap items-center gap-x-3 gap-y-2">
                 <Typography
                     as="h2"
                     titleName={step?.title || ''}
                     icon={!isSmall && step?.icon}
                     tooltip={step?.tooltip}
                     tooltipPlacement="bottom"
-                    className="md:text-[26px] lg:text-[30px]"
+                    className="md:text-[26px]/[36px] lg:text-[30px]/[36px]"
                 />
+                {tieneCambios && (
+                    <div className="w-full md:w-auto">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-garetbold bg-[#FEDAB2] text-[#FF8300]">
+                            Actualizado
+                        </span>
+                    </div>
+                )}
             </div>
             <div className="flex flex-row items-center justify-center md:justify-end space-x-3 md:space-x-4 shrink-0">
                 <Button

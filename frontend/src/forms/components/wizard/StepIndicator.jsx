@@ -87,7 +87,7 @@ const StepIndicator = ({
                                     {numCambios > 0 && !stepsVistos.has(index) && (
                                         <span
                                             aria-label="Tiene actualizaciones sin revisar"
-                                            className="mt-1 w-1.5 h-1.5 rounded-full bg-[#5C2472] shrink-0"
+                                            className="mt-1 w-1.5 h-1.5 rounded-full bg-[#FF8300] shrink-0"
                                         />
                                     )}
                                 </div>

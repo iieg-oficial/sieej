@@ -5,7 +5,7 @@ import DynamicDiv from '@helpers/DynamicDiv';
 import Typography from './Typography';
 
 const Checkbox = ({
-    name, label, required, tooltip,
+    name, label, badge, required, tooltip,
     colSpan, col, wDiv, methods, ...rest
 }) => {
     const { register, control } = methods;
@@ -36,6 +36,7 @@ const Checkbox = ({
                     tooltip={tooltip}
                     name={name}
                     required={required}
+                    badge={badge}
                 />
             </div>
             <ErrorsRequired name={name} errors={errors} />

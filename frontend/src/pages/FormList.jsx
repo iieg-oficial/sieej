@@ -81,7 +81,7 @@ const FormCard = ({ formulario, onClick, onDownloadPdf, onUpdateFields, onContac
 
     return (
         <div className="rounded-[16px] border border-[#E2E2E2] bg-white shadow-sm hover:shadow-lg hover:border-[#5C2473] hover:-translate-y-px transition duration-200 flex flex-col overflow-hidden">
-            <button type="button" onClick={onClick} className="text-left p-5 pb-5 flex-1">
+            <button type="button" onClick={onClick} className="text-left p-5 flex-1 flex flex-col justify-start">
                 <Typography as="h2" className="!text-[#5C2473]" titleName={formulario.nombre} />
                 {formulario.descripcion && <Typography as="p" className="text-[#7C7C7C] font-garetregular mt-1" titleName={formulario.descripcion} />}
                 {formulario.periodico ? (

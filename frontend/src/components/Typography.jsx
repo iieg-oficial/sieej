@@ -23,6 +23,7 @@ const Typography = ({
     tooltipModal,
     tooltipPlacement = 'top',
     required,
+    badge,
     children,
 }) => {
     const content = children ?? titleName;
@@ -35,6 +36,7 @@ const Typography = ({
             <Tag style={style} className={`${tagClass} ${className} tracking-normal`}>
                 {content}
                 {required && <span className="text-[#5C2472] ml-1">*</span>}
+                {badge}
             </Tag>
             {tooltip && <Tooltip text={tooltip} size={tooltipModal && 'full'} placement={tooltipPlacement}/>}
         </div>

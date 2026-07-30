@@ -8,7 +8,7 @@ import useGlobal from '@context/useGlobal';
 import Typography from './Typography';
 
 const Dragger = ({
-    idItem, name, label, multiple, accept = 'image/*', maxSizeMB = 2,
+    idItem, name, label, badge, multiple, accept = 'image/*', maxSizeMB = 2,
     required, tooltip, colSpan, col, wDiv, clean, methods, onFile, ...rest
 }) => {
     const { control, setValue, getValues } = methods;
@@ -78,7 +78,7 @@ const Dragger = ({
 
     return (
         <DynamicDiv colSpan={colSpan} col={col} wDiv={wDiv}>
-            <Typography as="label" titleName={label} tooltip={tooltip} name={name} required={required} />
+            <Typography as="label" titleName={label} tooltip={tooltip} name={name} required={required} badge={badge} />
             <Controller
                 name={name}
                 control={control}

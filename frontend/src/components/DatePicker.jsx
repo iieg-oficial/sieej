@@ -5,11 +5,12 @@ import { getErrorMessage } from '@helpers/formErrors';
 import DynamicDiv from '@helpers/DynamicDiv';
 import icoArrow from '@assets/icons/ico_down_arrow.svg';
 import { formatDisplay } from '@helpers/dateFormat';
+import FieldClearButton from './FieldClearButton';
 import Typography from './Typography';
 import Calendar from './Calendar';
 
 const DatePicker = ({
-    name, label, required,
+    name, label, badge, required,
     minDate, maxDate, placeholder, tooltip,
     colSpan, col, wDiv, methods, inline, validate, deps, onFocus, disabled,
     options = [], optionValue, onSelectOption, ...rest
@@ -48,6 +49,16 @@ const DatePicker = ({
         setOpen((prev) => !prev);
     };
 
+    const limpiar = () => {
+        setValue(name, '', {
+            shouldDirty: true,
+            shouldTouch: true,
+            shouldValidate: true,
+        });
+        onSelectOption?.('');
+        setOpen(false);
+    };
+
     const triggerClass = [
         label ? 'mt-[12px]' : '',
         'flex items-center justify-between w-full h-[40px] px-4 py-2 rounded-[8px] font-garetmedium text-[13px]',
@@ -74,8 +85,9 @@ const DatePicker = ({
                 tooltip={tooltip}
                 name={name}
                 required={required}
+                badge={badge}
             />
-            <div ref={wrapRef} className="relative">
+            <div ref={wrapRef} className="relative group/field">
                 <div
                     id={name}
                     role="button"
@@ -107,12 +119,17 @@ const DatePicker = ({
                             ? formatDisplay(value)
                             : (placeholder || 'Selecciona una fecha...'))}
                     </span>
-                    <img
-                        src={icoArrow}
-                        alt=""
-                        className={`w-[10px] h-[7px] ml-2 shrink-0 transition-transform
-                            ${open ? 'rotate-180' : ''} ${disabled ? 'opacity-40' : ''}`}
-                    />
+                    <div className="flex items-center gap-1 shrink-0">
+                        {!disabled && (value || optionValue) && (
+                            <FieldClearButton label={label} onClear={limpiar} />
+                        )}
+                        <img
+                            src={icoArrow}
+                            alt=""
+                            className={`w-[10px] h-[7px] ml-2 shrink-0 transition-transform
+                                ${open ? 'rotate-180' : ''} ${disabled ? 'opacity-40' : ''}`}
+                        />
+                    </div>
                 </div>
                 {open && !disabled && (
                     <Calendar

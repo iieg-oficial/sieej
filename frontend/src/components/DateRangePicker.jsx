@@ -38,7 +38,7 @@ const RangeExtremo = ({
 };
 
 const DateRangePicker = ({
-    name, label, required,
+    name, label, badge, required,
     minDate, maxDate, tooltip, disabled,
     colSpan, col, wDiv, methods, field, opciones = [],
     placeholder: _placeholder, ...rest
@@ -86,6 +86,7 @@ const DateRangePicker = ({
                 tooltip={tooltip}
                 name={name}
                 required={required}
+                badge={badge}
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 mt-[12px]">
                 <RangeExtremo

@@ -1,25 +1,37 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useFormState } from 'react-hook-form';
 import icoFilled from '@assets/icons/ico_filled.svg';
 import icoNotFilled from '@assets/icons/ico_not_filled.svg';
 import icoShow from '@assets/icons/ico_show.svg';
 import icoHidden from '@assets/icons/ico_hidden.svg';
+import icoArrow from '@assets/icons/ico_down_arrow.svg';
 import ErrorsRequired from '@helpers/ErrorsRequired';
 import DynamicDiv from '@helpers/DynamicDiv';
 import FieldHints from '@helpers/FieldHints';
 import { buildFieldHints, HINT_TYPES } from '@helpers/fieldHints';
 import { getFieldError } from '@helpers/formErrors';
+import useOverflow from '@helpers/useOverflow';
+import useFieldClear from '@helpers/useFieldClear';
+import FieldClearButton from './FieldClearButton';
+import TextControl from './TextControl';
 import Typography from './Typography';
 
+const FILAS_COLAPSADO = 2;
+const FILAS_EXPANDIDO = 8;
+
 const Input = ({
-    name, type, pattern, patternMessage, placeholder, label, required, colSpan, col,
+    name, type, pattern, patternMessage, placeholder, label, badge, required, colSpan, col,
     wDiv, tooltip, methods, _inside, clean, className, normalize = 'normal',
     filled, minLength, maxLength, ...rest
 }) => {
     const { register, control, setValue, watch } = methods;
     const { errors } = useFormState({ control, name });
     const [ showPassword, setShowPassword ] = useState(false);
+    const [ focused, setFocused ] = useState(false);
+    const [ expandido, setExpandido ] = useState(false);
+    const controlRef = useRef(null);
     const isPassword = type === 'password';
+    const esTextarea = type === 'textarea';
     const watchedValue = watch(name);
     const error = getFieldError(errors, name);
     const hints = buildFieldHints({
@@ -27,6 +39,12 @@ const Input = ({
     });
     const errorEnHint = !!error && hints.length > 0 && HINT_TYPES.includes(error.type);
     const patternOk = hints.find((hint) => hint.id === 'pattern')?.state !== 'error';
+    const { hasValue, clear } = useFieldClear({ methods, name });
+
+    const desbordado = useOverflow(controlRef, watchedValue, esTextarea ? 'y' : 'x');
+    const admiteExpansion = !isPassword && type !== 'number';
+    const mostrarExpandir = admiteExpansion && (expandido || desbordado);
+    const multiline = esTextarea || expandido;
 
     useEffect(() => {
         if (!watchedValue) return;
@@ -48,12 +66,89 @@ const Input = ({
         if (clean) setValue(name, '');
     }, [clean, setValue, name]);
 
+    useEffect(() => setExpandido(false), [name]);
+
+    useEffect(() => {
+        if (expandido) controlRef.current?.focus();
+    }, [expandido]);
+
     const handleInput = (e) => {
         if (normalize === 'number') {
             e.target.value = e.target.value.replace(/\D/g, '');
-            setValue(name, e.target.value); // También actualizamos en react-hook-form
+            setValue(name, e.target.value);
         }
     };
+
+    const { ref: registerRef, onBlur: registerBlur, ...registered } = register(name, {
+        required: required && 'Este campo es obligatorio',
+        pattern: pattern && {
+            value: pattern,
+            message: patternMessage || 'Formato inválido'
+        },
+        minLength: minLength && {
+            value: minLength,
+            message: `Mínimo ${minLength} caracteres`
+        },
+        maxLength: maxLength && {
+            value: maxLength,
+            message: `Máximo ${maxLength} caracteres permitidos`
+        },
+    });
+
+    const acciones = [];
+    if (hasValue && !isPassword) {
+        acciones.push(<FieldClearButton key="clear" label={label} onClear={clear} />);
+    }
+    if (mostrarExpandir) {
+        acciones.push(
+            <button
+                key="expandir"
+                type="button"
+                onClick={() => setExpandido((v) => !v)}
+                aria-label={expandido ? 'Contraer campo' : 'Ver el campo completo'}
+                aria-expanded={expandido}
+                title={expandido ? 'Contraer campo' : 'Ver el campo completo'}
+                className="
+                    inline-flex items-center justify-center shrink-0 w-[22px] h-[22px] rounded-full
+                    border-none! bg-transparent p-0! cursor-pointer
+                    focus:outline-none focus-visible:ring-1 focus-visible:ring-[#5C2472]
+                "
+            >
+                <img
+                    src={icoArrow}
+                    alt=""
+                    className={`w-[10px] h-[7px] transition-transform ${expandido ? 'rotate-180' : ''}`}
+                />
+            </button>
+        );
+    }
+    if (isPassword) {
+        acciones.push(
+            <button
+                key="password"
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                aria-pressed={showPassword}
+                className="
+                    inline-flex items-center justify-center shrink-0 w-[22px] h-[22px]
+                    border-none! bg-transparent p-0! text-[#5C2472] cursor-pointer
+                    focus:outline-none focus-visible:ring-1 focus-visible:ring-[#5C2472] rounded
+                "
+            >
+                <img src={showPassword ? icoShow : icoHidden} alt="" className="w-[22px] h-[22px]" />
+            </button>
+        );
+    } else if (filled && watchedValue && !error) {
+        acciones.push(
+            <img
+                key="filled"
+                src={patternOk ? icoFilled : icoNotFilled}
+                alt={patternOk ? 'Valido' : 'No valido'}
+                className="w-[22px] h-[22px] shrink-0"
+            />
+        );
+    }
 
     return (
         <DynamicDiv colSpan={colSpan} col={col} wDiv={wDiv} className="mt-4">
@@ -63,70 +158,49 @@ const Input = ({
                 tooltip={tooltip}
                 name={name}
                 required={required}
+                badge={badge}
             />
-            <div className="relative">
-                <input
-                    type={isPassword && showPassword ? 'text' : type || 'text'}
-                    id={name}
-                    name={name}
-                    placeholder={placeholder || label}
-                    maxLength={maxLength}
-                    inputMode={normalize === 'number' ? 'numeric' : undefined}
-                    onInput={handleInput}
-                    {...rest}
-                    {...register(name, {
-                        required: required && 'Este campo es obligatorio',
-                        pattern: pattern && {
-                            value: pattern,
-                            message: patternMessage || 'Formato inválido'
-                        },
-                        minLength: minLength && {
-                            value: minLength,
-                            message: `Mínimo ${minLength} caracteres`
-                        },
-                        maxLength: maxLength && {
-                            value: maxLength,
-                            message: `Máximo ${maxLength} caracteres permitidos`
-                        },
-                    })}
-                    className={`
-                        ${className || ''}
-                        ${error ? 'border border-[#EA4336] placeholder-[#EA4336] bg-white' : ''}
-                        mt-[12px] block w-full h-[40px] px-4 py-2 rounded-[8px] bg-[#F8F8F8] text-[#5C2472]
-                        font-garetmedium text-[13px] cursor-auto
-                        placeholder-[#8E8E8E] placeholder:font-garetregular
-                        hover:shadow-[0px_2px_24px_#B6A6BC98] hover:bg-white hover:border-[#5C2472] hover:border
-                        focus:outline-none focus:ring-1 focus:ring-[#5C2472] focus:bg-white
-                    `}
-                    style={{ marginBottom: error && 0 }}
-                />
-                {isPassword && (
-                    <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-                        aria-pressed={showPassword}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5C2472] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5C2472] rounded"
-                    >
-                        <img
-                            src={showPassword ? icoShow : icoHidden}
-                            alt=""
-                            className="w-[22px] h-[22px]"
-                        />
-                    </button>
+            <TextControl
+                multiline={multiline}
+                rows={expandido ? FILAS_EXPANDIDO : FILAS_COLAPSADO}
+                error={error}
+                acciones={acciones}
+                className={className}
+                type={isPassword && showPassword ? 'text' : (multiline ? undefined : type || 'text')}
+                id={name}
+                name={name}
+                defaultValue={watchedValue ?? ''}
+                placeholder={placeholder || label}
+                maxLength={maxLength}
+                inputMode={normalize === 'number' ? 'numeric' : undefined}
+                onInput={handleInput}
+                {...rest}
+                {...registered}
+                ref={(el) => {
+                    registerRef(el);
+                    controlRef.current = el;
+                }}
+                onFocus={(e) => {
+                    setFocused(true);
+                    rest.onFocus?.(e);
+                }}
+                onBlur={(e) => {
+                    setFocused(false);
+                    if (controlRef.current) controlRef.current.scrollLeft = 0;
+                    registerBlur(e);
+                    rest.onBlur?.(e);
+                }}
+                onKeyDown={(e) => {
+                    if (multiline && !esTextarea && e.key === 'Enter') e.preventDefault();
+                    rest.onKeyDown?.(e);
+                }}
+            />
+            <div className={hints.length > 0 ? 'min-h-[18px]' : ''}>
+                {!!error && !(focused && errorEnHint) && (
+                    <ErrorsRequired name={name} errors={errors} />
                 )}
-                {filled && watchedValue && !error && (
-                    <span className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                        <img
-                            src={patternOk ? icoFilled : icoNotFilled}
-                            alt={patternOk ? 'Valido' : 'No valido'}
-                            className="w-[22px] h-[22px]"
-                        />
-                    </span>
-                )}
+                {focused && hints.length > 0 && <FieldHints items={hints} />}
             </div>
-            {!errorEnHint && <ErrorsRequired name={name} errors={errors}/>}
-            <FieldHints items={hints} />
         </DynamicDiv>
     );
 };

@@ -148,7 +148,7 @@ const Body = () => {
     const { isDisabledEdition } = useGlobal();
 
     return (
-        <main className="overflow-y-auto grow md:mx-5 min-w-0">
+        <main className="overflow-y-auto grow md:mx-5 md:mb-5 min-w-0">
             <div className="mx-auto">
                 {isDisabledEdition ? <ClosePage/> : <Outlet/>}
             </div>

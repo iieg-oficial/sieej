@@ -14,23 +14,12 @@ const FormStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcar
         return map;
     }, [cambiosStep]);
 
-    const tieneCambiosStep = useMemo(() => {
-        return cambiosStep.some((c) => !c.field_name) || cambiosStep.length > 0;
-    }, [cambiosStep]);
-
     const scope = methods.getValues(step.id) || {};
     const visibles = step.fields.filter((field) => evaluarShowWhen(field.showWhen, scope));
     const slots = layoutSlots(visibles);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-            {tieneCambiosStep && (
-                <div className="md:col-span-6">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-garetbold bg-[#F0E2F5] text-[#5C2472]">
-                        Actualizado
-                    </span>
-                </div>
-            )}
             {slots.map((slot, i) => {
                 if (slot.kind === 'spacer') {
                     return <div key={`spacer-${i}`} aria-hidden className={spacerClass(slot.units)} />;

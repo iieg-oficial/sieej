@@ -23,11 +23,7 @@ const toRegExp = (raw) => {
 };
 
 
-const BADGE_CAMBIO = {
-    nuevo: 'bg-[#EAF6ED] text-[#34A853]',
-    eliminado: 'bg-[#FEDAB2] text-[#FF8300]',
-    modificado: 'bg-[#FEDAB2] text-[#FF8300]',
-};
+const CLASE_BADGE = 'inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-garetbold ml-2 bg-[#FEDAB2] text-[#FF8300]';
 
 const LABEL_CAMBIO = { nuevo: 'Nuevo', eliminado: 'Cambió', modificado: 'Cambió' };
 
@@ -46,11 +42,7 @@ const FieldRenderer = ({ field, placement, methods, catalogos, onUpload, cambioF
     }, [onInteract]);
 
     const badge = cambioField && LABEL_CAMBIO[cambioField.tipo]
-        ? (
-            <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-garetbold ml-2 ${BADGE_CAMBIO[cambioField.tipo]}`}>
-                {LABEL_CAMBIO[cambioField.tipo]}
-            </span>
-        )
+        ? <span className={CLASE_BADGE}>{LABEL_CAMBIO[cambioField.tipo]}</span>
         : null;
 
     if (type === 'info') {
@@ -62,7 +54,7 @@ const FieldRenderer = ({ field, placement, methods, catalogos, onUpload, cambioF
     }
 
     const baseProps = {
-        name, label, required, placeholder, tooltip, methods, colSpan: gridSpan,
+        name, label, badge, required, placeholder, tooltip, methods, colSpan: gridSpan,
         col: startCol,
     };
 
@@ -72,41 +64,30 @@ const FieldRenderer = ({ field, placement, methods, catalogos, onUpload, cambioF
         minLength: validation?.minLength,
     };
 
-    const labelWithBadge = badge ? (
-        <span className="inline-flex items-center">
-            {label || name}
-            {badge}
-        </span>
-    ) : undefined;
-
     switch (type) {
     case 'text':
     case 'email':
     case 'tel':
         return (
             <Input {...baseProps} {...patternProps} type="text" maxLength={validation?.maxLength}
-                label={labelWithBadge || label} onFocus={notifyInteract} />
+                onFocus={notifyInteract} />
         );
     case 'textarea':
         return (
             <Input {...baseProps} {...patternProps} type="textarea" maxLength={validation?.maxLength}
-                label={labelWithBadge || label} onFocus={notifyInteract} />
+                onFocus={notifyInteract} />
         );
     case 'number':
         return (
-            <Input {...baseProps} type="number"
-                label={labelWithBadge || label} onFocus={notifyInteract} />
+            <Input {...baseProps} type="number" onFocus={notifyInteract} />
         );
     case 'date':
         return (
-            <DatePicker {...baseProps}
-                label={labelWithBadge || label}
-                onFocus={notifyInteract} />
+            <DatePicker {...baseProps} onFocus={notifyInteract} />
         );
     case 'date_range':
         return (
             <DateRangePicker {...baseProps}
-                label={labelWithBadge || label}
                 field={field}
                 opciones={openRangeOptions(field, catalogos)}
                 disabled={field.disabled}
@@ -115,26 +96,21 @@ const FieldRenderer = ({ field, placement, methods, catalogos, onUpload, cambioF
     case 'select':
         return (
             <Select {...baseProps} options={resolveOptions(field, catalogos)}
-                label={labelWithBadge || label}
                 onFocus={notifyInteract} />
         );
     case 'select_multiple':
         return (
             <SelectMultiple {...baseProps} options={resolveOptions(field, catalogos)}
-                label={labelWithBadge || label}
                 onFocus={notifyInteract} />
         );
     case 'radio':
         return (
             <Radio {...baseProps} options={resolveOptions(field, catalogos)}
-                label={labelWithBadge || label}
                 onChange={notifyInteract} />
         );
     case 'checkbox':
         return (
-            <Checkbox {...baseProps}
-                label={labelWithBadge || label}
-                onChange={notifyInteract} />
+            <Checkbox {...baseProps} onChange={notifyInteract} />
         );
     case 'file':
         return (
@@ -142,7 +118,6 @@ const FieldRenderer = ({ field, placement, methods, catalogos, onUpload, cambioF
                 {...baseProps}
                 accept={field.accept?.join(',')}
                 maxSizeMB={field.maxSizeMB}
-                label={labelWithBadge || label}
                 onFile={async (files) => {
                     const file = Array.isArray(files) ? files[0] : files;
                     if (!file) return null;
@@ -154,7 +129,7 @@ const FieldRenderer = ({ field, placement, methods, catalogos, onUpload, cambioF
     default:
         return (
             <Input {...baseProps} {...patternProps} type="text" maxLength={validation?.maxLength}
-                label={labelWithBadge || label} onFocus={notifyInteract} />
+                onFocus={notifyInteract} />
         );
     }
 };

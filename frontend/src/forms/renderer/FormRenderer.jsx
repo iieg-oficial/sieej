@@ -121,6 +121,7 @@ const FormRenderer = ({
                 isLast={isLast}
                 isLastTab={isLastTab}
                 isMobile={isMobile}
+                tieneCambios={(cambiosPorStep.get(step.id) ?? []).length > 0}
                 nextDisabled={!!pendienteMsg || !!bloqueoEnvio}
                 nextTooltip={pendienteMsg || bloqueoEnvio}
                 saveDisabled={isReadOnly || !isDirty}

@@ -3,14 +3,17 @@ import { useFormState } from 'react-hook-form';
 import ErrorsRequired from '@helpers/ErrorsRequired';
 import { getFieldError } from '@helpers/formErrors';
 import DynamicDiv from '@helpers/DynamicDiv';
+import useFieldClear from '@helpers/useFieldClear';
+import FieldClearButton from './FieldClearButton';
 import Typography from './Typography';
 
 const Select = ({
-    name, options, label, required, _defaultValue, placeholder, colSpan, col,
+    name, options, label, badge, required, _defaultValue, placeholder, colSpan, col,
     wDiv, tooltip, tooltipModal, methods, pattern, enableSearch, ...rest
 }) => {
     const { register, setValue, control, watch } = methods;
     const { errors } = useFormState({ control, name });
+    const { hasValue, clear } = useFieldClear({ methods, name });
     const [ selectedValue, setSelectedValue ] = useState('');
     const [ showDropdown, setShowDropdown ] = useState(false);
     const [ searchTerm, setSearchTerm ] = useState('');
@@ -45,14 +48,15 @@ const Select = ({
     useEffect(() => setSelectedValue(watchedValue), [watchedValue]);
 
     return (
-        <DynamicDiv colSpan={colSpan} col={col} wDiv={wDiv} className="mt-[15px]" ref={dropdownRef}>
+        <DynamicDiv colSpan={colSpan} col={col} wDiv={wDiv} className="mt-[15px] group/field" ref={dropdownRef}>
             <Typography
                 as="label"
-                titleName={label} 
-                tooltip={tooltip} 
+                titleName={label}
+                tooltip={tooltip}
                 tooltipModal={tooltipModal}
                 name={name}
                 required={required}
+                badge={badge}
             />
             <div
                 id={name}
@@ -70,7 +74,7 @@ const Select = ({
                     }
                 }}
                 className={`
-                    mt-[12px] block w-full min-h-[40px] px-3 py-2 rounded-[10px] text-[#5C2472] overflow-hidden
+                    mt-[12px] flex items-center justify-between gap-2 w-full min-h-[40px] px-3 py-2 rounded-[10px] text-[#5C2472] overflow-hidden
                     ${showDropdown
             ? 'rounded-t-lg shadow-[0px_4px_20px_#A8A8A899]'
             : 'rounded-lg hover:shadow-[0px_4px_20px_#A8A8A899] hover:bg-[#FFFFFF] hover:border-[#4A148C] hover:border'
@@ -88,7 +92,7 @@ const Select = ({
                 })}
             >   
                 {selectedValue ? (
-                    <span>{options.find(option => option.value === selectedValue)?.label}</span>
+                    <span className="min-w-0 truncate">{options.find(option => option.value === selectedValue)?.label}</span>
                 ) : (
                     <span 
                         className={`
@@ -100,6 +104,7 @@ const Select = ({
                         {placeholder || 'Selecciona una opción'}
                     </span>
                 )}
+                {hasValue && <FieldClearButton label={label} onClear={clear} />}
                 {showDropdown && (
                     <div
                         id={`${name}-listbox`}

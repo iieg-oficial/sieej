@@ -1,11 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import arrowDown from '@assets/icons/ico_down_arrow.svg';
-
-const TIPO_BADGE = {
-    nuevo: 'bg-[#EAF6ED] text-[#34A853]',
-    eliminado: 'bg-[#FEDAB2] text-[#FF8300]',
-    modificado: 'bg-[#FEDAB2] text-[#FF8300]',
-};
+import Button from '@components/Button';
 
 const TIPO_LABEL = { nuevo: 'Nuevo', eliminado: 'Eliminado', modificado: 'Modificado' };
 
@@ -21,7 +16,7 @@ const buildLabelMap = (definicion) => {
 };
 
 const Badge = ({ tipo }) => (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-garetbold ${TIPO_BADGE[tipo] || 'bg-[#F0E2F5] text-[#5C2472]'}`}>
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-garetbold bg-[#FEDAB2] text-[#FF8300]">
         {TIPO_LABEL[tipo] || tipo}
     </span>
 );
@@ -34,7 +29,8 @@ const UpdateBanner = ({ cambios, definicion, onEntendido }) => {
     const grupos = useMemo(() => {
         const porStep = new Map();
         (cambios ?? []).forEach((c) => {
-            const grupo = porStep.get(c.step_id) || { stepCambio: null, items: [] };
+            const grupo = porStep.get(c.step_id) || { stepTitle: null, stepCambio: null, items: [] };
+            grupo.stepTitle = grupo.stepTitle || c.step_title || null;
             if (c.field_name) grupo.items.push(c);
             else grupo.stepCambio = c;
             porStep.set(c.step_id, grupo);
@@ -60,17 +56,17 @@ const UpdateBanner = ({ cambios, definicion, onEntendido }) => {
                 <span className="ml-1 text-sm font-garetbold text-[#5C2472] flex-1 min-w-0">
                     El formulario se actualizó
                 </span>
-                <span aria-hidden="true" className="w-2 h-2 mr-2 rounded-full bg-[#5C2472] animate-pulse-soft shrink-0" />
+                <span aria-hidden="true" className="w-2 h-2 mr-2 rounded-full bg-[#FF8300] animate-pulse-soft shrink-0" />
             </button>
 
             {mostrando && (
                 <>
                     <div className="mx-2 p-3 rounded-[12px] bg-[#F8F8F8] max-h-48 overflow-y-auto space-y-2">
-                        {grupos.map(({ stepId, stepCambio, items }) => (
+                        {grupos.map(({ stepId, stepTitle, stepCambio, items }) => (
                             <div key={stepId}>
                                 <div className="flex items-center gap-1.5">
                                     <span className={`text-xs font-garetbold text-[#191919] ${stepCambio?.tipo === 'eliminado' ? 'line-through text-[#7C7C7C]' : ''}`}>
-                                        {labelMap[stepId] || stepId}
+                                        {stepTitle || labelMap[stepId] || stepId}
                                     </span>
                                     {stepCambio && <Badge tipo={stepCambio.tipo} />}
                                 </div>
@@ -79,7 +75,7 @@ const UpdateBanner = ({ cambios, definicion, onEntendido }) => {
                                         {items.map((c, i) => (
                                             <li key={i} className="flex items-center gap-1.5 break-words">
                                                 <span className={`text-xs font-garetregular ${c.tipo === 'eliminado' ? 'line-through text-[#7C7C7C]' : 'text-[#191919]'}`}>
-                                                    {labelMap[`${stepId}.${c.field_name}`] || c.field_name}
+                                                    {c.field_label || labelMap[`${stepId}.${c.field_name}`] || c.field_name}
                                                 </span>
                                                 <Badge tipo={c.tipo} />
                                             </li>
@@ -89,15 +85,9 @@ const UpdateBanner = ({ cambios, definicion, onEntendido }) => {
                             </div>
                         ))}
                     </div>
-                    <div className="mx-2 my-0.5 flex justify-end gap-2">
+                    <div className="mx-2 my-2 flex justify-end gap-2">
                         {onEntendido && (
-                            <button
-                                type="button"
-                                onClick={onEntendido}
-                                className="cursor-pointer border-none text-xs font-garetbold px-3 py-1 rounded-full bg-transparent text-[#34A853]"
-                            >
-                                Entendido
-                            </button>
+                            <Button label="Entendido" variant="primary" fit onClick={onEntendido} />
                         )}
                     </div>
                 </>
