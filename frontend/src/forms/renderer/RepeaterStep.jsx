@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import Button from '@components/Button';
+import PlusIcon from '@components/icons/PlusIcon';
 import Tooltip from '@components/Tooltip';
 import Typography from '@components/Typography';
 import Tabs from '@forms/components/wizard/Tabs';
@@ -8,7 +9,7 @@ import useWizard from '@forms/context/useWizard';
 import useGlobal from '@context/useGlobal';
 import FieldRenderer from './FieldRenderer';
 import { evaluarShowWhen } from './conditional';
-import { buildRepeaterItems, resolverTabDeCampo } from './repeaterItems';
+import { buildRepeaterItems, renderItemLabel, resolverTabDeCampo } from './repeaterItems';
 import { layoutSlots, spacerClass } from '@helpers/gridLayout';
 
 const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcarVisto }) => {
@@ -68,6 +69,12 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], ma
         setSubTabsVistas(new Set(tabs?.[0]?.id ? [tabs[0].id] : []));
     }, [step.id, tabs, onActiveTab]);
 
+    const etiquetaAgregar = step.itemLabel
+        ? `Agregar ${renderItemLabel(step.itemLabel, count)}`
+        : step.title
+            ? `Agregar otro elemento a «${step.title}»`
+            : 'Agregar otro elemento';
+
     const handleAdd = () => {
         append({});
         onActiveTab?.(count);
@@ -124,18 +131,18 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], ma
                     />
                 </div>
                 {(maxItems === null || count < maxItems) && (
-                    <Tooltip text="Agregar" showIcon={false} size="small">
+                    <Tooltip text={etiquetaAgregar} showIcon={false} size="small">
                         <button
                             type="button"
                             onClick={handleAdd}
-                            aria-label="Agregar"
+                            aria-label={etiquetaAgregar}
                             className="
-                                flex items-center justify-center flex-shrink-0 w-[30px] h-[30px] rounded-full
-                                bg-[#F8F8F8] border border-[#5C2472] text-[#5C2472] text-lg leading-none font-garetbold
+                                flex items-center justify-center shrink-0 w-[38px] h-[38px] rounded-full p-0!
+                                bg-[#F8F8F8] border-none! text-[#5C2472]
                                 hover:bg-white hover:shadow-[0px_8px_16px_#6E6E6E29]
                             "
                         >
-                            +
+                            <PlusIcon size={24} className="shrink-0" />
                         </button>
                     </Tooltip>
                 )}

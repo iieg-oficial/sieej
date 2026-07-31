@@ -5,16 +5,28 @@ import DynamicDiv from '@helpers/DynamicDiv';
 import ErrorsRequired from '@helpers/ErrorsRequired';
 import extractFileName from '@helpers/extractFileName';
 import useGlobal from '@context/useGlobal';
+import TrashIcon from './icons/TrashIcon';
 import Typography from './Typography';
 
+const formatosPermitidos = (accept) => {
+    const exts = String(accept || '')
+        .split(',')
+        .map(item => item.trim().replace(/^\./, ''))
+        .filter(item => item && !item.includes('/'));
+    if (!exts.length) return '';
+    if (exts.length === 1) return `(Formato permitido ${exts[0]})`;
+    return `(Formatos permitidos ${exts.slice(0, -1).join(', ')} y ${exts[exts.length - 1]})`;
+};
+
 const Dragger = ({
-    idItem, name, label, badge, multiple, accept = 'image/*', maxSizeMB = 2,
+    idItem, name, label, badge, multiple, accept, maxSizeMB = 2,
     required, tooltip, colSpan, col, wDiv, clean, methods, onFile, ...rest
 }) => {
     const { control, setValue, getValues } = methods;
     const { errors } = useFormState({ control, name });
     const { openModal } = useGlobal();
     const [ fileList, setFileList ] = useState([]);
+    const formatos = formatosPermitidos(accept);
 
     const handleFiles = async (files, onChange) => {
         const oversize = [];
@@ -102,10 +114,12 @@ const Dragger = ({
                                 <div className="text-xl/6 font-garetbold text-[#5C2472] line-clamp-3"> 
                                     Sube tu archivo<br/>
                                     <span className="text-xs font-garetmedium text-[#465055]">
-                                        Da clic o arrastra tu archivo dentro de este recuadro 
-                                        <span className="text-[10px] font-garetmedium text-[#465055]">
-                                            &nbsp;&nbsp;(Formato permitido csv, xlsx y pdf)
-                                        </span>
+                                        Da clic o arrastra tu archivo dentro de este recuadro
+                                        {formatos && (
+                                            <span className="text-[10px] font-garetmedium text-[#465055]">
+                                                &nbsp;&nbsp;{formatos}
+                                            </span>
+                                        )}
                                     </span>
                                 </div>
                                 <input
@@ -132,10 +146,12 @@ const Dragger = ({
                                         </span>
                                         <button
                                             type="button"
-                                            className="ml-2 text-[#EA4335] hover:text-red-600"
+                                            aria-label="Quitar archivo"
+                                            title="Quitar archivo"
+                                            className="ml-2 inline-flex items-center justify-center shrink-0 p-0! border-none! bg-transparent text-[#EA4335] hover:text-red-600 cursor-pointer"
                                             onClick={() => removeFile(index, field.onChange)}
                                         >
-                                            ❌
+                                            <TrashIcon className="shrink-0" />
                                         </button>
                                     </li>
                                 ))}

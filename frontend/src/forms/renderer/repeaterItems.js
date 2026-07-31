@@ -1,4 +1,4 @@
-const renderItemLabel = (template, index) => {
+export const renderItemLabel = (template, index) => {
     if (!template) return `Item ${index + 1}`;
     return template.replace('{{index}}', String(index + 1));
 };
