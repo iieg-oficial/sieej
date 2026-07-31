@@ -6,6 +6,44 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [1.57.0] - 2026-07-31
+
+### Cambiado: el «+» de las listas repetibles y el botón de quitar archivo
+
+El botón que agrega elementos —pestañas— en un step `repeater` (otra base de datos, otro enlace)
+dibujaba el signo como un carácter tipográfico a `text-lg`: dentro de un círculo de 30 px el glifo
+se leía diminuto y descentrado. Ahora es un SVG de 24 px con trazo de 3
+(`components/icons/PlusIcon.jsx`, mismo patrón que `ClearIcon`) en un círculo de 38 px sin borde,
+así que el ícono ocupa el botón y hereda el color en hover.
+
+Su tooltip —y su `aria-label`— dejan de decir «Agregar» a secas y nombran lo que se va a crear,
+reusando el `itemLabel` con que la definición ya etiqueta cada pestaña: «Agregar Base de datos 3»
+para el siguiente elemento. Sin `itemLabel`, cae al título del paso («Agregar otro elemento a
+"Bases de datos"»). `renderItemLabel` pasó a exportarse desde `repeaterItems.js`.
+
+**Por qué lleva `p-0!` y `border-[#5C2472]!`:** `index.css` declara `button { padding: 0.6em 1.2em;
+border: 1px solid transparent }` **fuera de toda capa**, y en la cascada las reglas sin capa ganan a
+cualquier `@layer` — o sea, a todas las utilidades de Tailwind 4. Con ~19 px de padding por lado en
+un botón de 38 px, el SVG (que sí encoge como flex item, a diferencia del glifo de texto que había
+antes) quedaba aplastado hasta desaparecer, y el borde se pintaba transparente en vez de morado. Es
+el mismo motivo por el que `FieldClearButton` ya usaba `border-none!` y `p-0!`. Los íconos llevan
+además `shrink-0`. La regla global no se tocó: la usan todos los botones de `components/Button.jsx`.
+
+El archivo ya cargado en un campo `file` se quitaba con un emoji ❌, que se veía distinto en cada
+sistema operativo y no comunicaba «eliminar». Lo sustituye un bote de basura
+(`components/icons/TrashIcon.jsx`, el mismo trazo de `ico_borrar.svg`) con `aria-label` y `title`.
+
+### Corregido: el Dragger anunciaba formatos que no eran los del campo
+
+El recuadro de subida decía siempre «(Formato permitido csv, xlsx y pdf)», un texto fijo heredado
+del wizard original, aunque el campo aceptara otra cosa. Ahora la lista se arma con el `accept` que
+manda la definición y desaparece cuando el campo no restringe extensiones. Sin esto, un campo
+configurado para GeoPackage (mariachi 1.118.0) seguiría diciendo que solo acepta csv, xlsx y pdf.
+
+También se quitó el `accept = 'image/*'` que el componente aplicaba por omisión: un campo `file`
+sin `accept` en la definición abría el diálogo del navegador filtrando imágenes, cuando el CMS
+promete —y el backend valida— que vacío acepta todos los formatos.
+
 ## [1.56.0] - 2026-07-30
 
 ### Eliminado: Sentry, con un ErrorBoundary propio en su lugar
