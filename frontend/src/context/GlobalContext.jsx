@@ -25,7 +25,7 @@ const GlobalProvider = ({ children }) => {
     const isTablet = screenSize.md;
     const isDesktop = !isMobile && !isTablet;
     const patternMessageEmail = 'El formato del correo electrónico es inválido';
-    const linkPrivacity = 'https://www.iieg.gob.mx/ns/wp-content/uploads/2025/02/Aviso_Privacidad_Integral_IIEG_01_2025.pdf';
+    const linkPrivacity = 'https://iieg.jalisco.gob.mx/aviso-de-privacidad';
     const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const regexTel = /^(\d{2}-?){4}\d{2}$/;
     const regexExt = /^\d{1,9}$/;
