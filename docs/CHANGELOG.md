@@ -6,6 +6,118 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [1.58.1] - 2026-08-05
+
+### Corregido: el aviso de privacidad respondía 404
+
+`linkPrivacity` apuntaba a `www.iieg.gob.mx/.../2025/02/Aviso_Privacidad_Integral_IIEG_01_2025.pdf`,
+el PDF de enero de 2025. El IIEG publicó la versión de junio en otra ruta y retiró la anterior, así
+que el enlace llevaba meses respondiendo **404** — desde la pantalla de aceptación de términos,
+donde se pide aceptar condiciones cuyo aviso no se podía leer, y desde el pie de `CardPage`.
+
+Ahora apunta a `https://iieg.jalisco.gob.mx/aviso-de-privacidad`, servido desde
+una ruta reservada del dominio que el gateway sirve desde acervo. **No lleva fecha a propósito**:
+publicar una versión nueva es reemplazar el archivo en el bucket, sin tocar este repo ni los otros
+cinco frontends que lo enlazan. La fecha incrustada en la URL es justo lo que causó esta falla.
+
+## [1.58.0] - 2026-08-05
+
+### Agregado: los campos de fecha respetan los límites de la definición
+
+`Calendar` aceptaba `min`/`max` desde que sustituyó al `<input type=date>` nativo y
+`DatePicker`/`DateRangePicker` los exponían como `minDate`/`maxDate`, pero nadie se los pasaba: el
+renderer dinámico ignoraba por completo esa capacidad y todo campo `date` o `date_range` aceptaba
+cualquier fecha, incluida mañana. Ahora `FieldRenderer` lee `validation.minDate` y
+`validation.maxDate` de la definición y los traduce con `resolveDateLimit` (`helpers/dateFormat.js`),
+que resuelve el literal `hoy` contra la fecha del navegador y descarta un límite mal formado en vez
+de propagarlo al calendario.
+
+El caso que motivó el cambio es «que no puedan capturar fechas futuras»: se configura desde el CMS
+como límite máximo «Fecha de llenado» y llega aquí como `validation.maxDate: "hoy"`. En un
+`date_range` el límite aplica a los dos extremos.
+
+**Lo que queda fuera de rango no se puede alcanzar**, no solo elegir: los días salen
+deshabilitados, los meses del selector rápido también, el selector de año ya recortaba su lista, y
+las flechas de mes se apagan cuando todo el mes destino cae fuera —así no se navega a un febrero
+entero en gris—. La lógica vive en `helpers/calendarRange.js` (`buildRangeGuards`, `saltoDeVista`),
+separada del componente, que rebasaba las 300 líneas; el chevron salió a
+`components/icons/ChevronIcon.jsx`.
+
+**Aviso en vivo bajo el campo**, con el mismo mecanismo que ya usan los campos de texto para el
+patrón y la longitud (`FieldHints`): al abrir el calendario aparece «No se aceptan fechas futuras»
+—o «Hasta el 31/12/2025» si el límite es una fecha fija— en gris, y pasa a verde cuando la fecha
+elegida cumple. Si el valor queda fuera de rango el aviso se pinta en rojo y **se queda visible
+aunque el calendario esté cerrado**, porque ese es el caso que el usuario no puede provocar
+haciendo clic pero sí existe: un valor capturado antes de que el admin pusiera el límite. El
+`DatePicker` además valida el rango en react-hook-form, así que el envío se detiene con el mismo
+texto en vez de esperar al error del servidor.
+
+El calendario es la primera barrera, no la única: mariachi valida los mismos límites al guardar el
+envío, así que un valor precargado o un `PUT` armado a mano tampoco pasa.
+
+### Agregado: buscador en los campos de selección con catálogo largo
+
+`Select` tenía el filtrado implementado tras la prop `enableSearch` desde hace varias versiones,
+pero ningún llamador la encendía. Ahora `Select` y `SelectMultiple` deciden solos: a partir de 8
+opciones el campo se vuelve escribible y filtra por etiqueta conforme se escribe, sin distinguir
+mayúsculas ni acentos sobrantes, y muestra «No se encontraron opciones» cuando nada coincide. La
+prop sigue existiendo para forzar o apagar el buscador en un caso puntual.
+
+**El buscador es el campo, no una fila extra.** El control principal pasa a ser un `<input>`
+(`components/SelectSearchInput.jsx`) en lugar de un `<span>` con la etiqueta, así que escribir no
+roba una línea al desplegable. Al elegir una opción su etiqueta **sobrescribe** lo tecleado y el
+filtro se suelta: la lista vuelve completa con la opción marcada, para no perder la referencia de
+dónde quedó la selección. El foco entra solo al input al abrir, `Enter` toma la primera
+coincidencia y `Escape` cierra; con menos de 8 opciones el control sigue siendo el `<span>` de
+antes, con su manejo de `Enter`/espacio.
+
+**Al reabrir, el campo se vacía y la etiqueta elegida pasa a ser el placeholder**, en morado. Así
+se escribe la siguiente búsqueda de una vez, sin borrar a punta de retroceso lo que quedó escrito,
+y la selección sigue a la vista. El estado distingue tres situaciones con un solo valor:
+`searchTerm === null` es «no se está buscando» (el input muestra la etiqueta), `''` es «abierto sin
+teclear» (input vacío, lista completa) y cualquier otro texto filtra.
+
+**La opción seleccionada se resalta en morado** (`text-[#5C2472]` sobre `bg-[#FBF1FF]`, los mismos
+tonos de las etiquetas del selector múltiple) en vez de solo ponerse en negrita.
+
+**La lista se despegó del campo**: baja 8 px y ambos tienen esquinas redondeadas completas, así se
+alcanza a ver la sombra del control. Antes iba pegada, con el campo en `rounded-t-lg` y la lista en
+`rounded-b-lg` para simular una sola pieza.
+
+En `SelectMultiple` el input va **junto a las etiquetas ya elegidas** y se vacía tras cada
+selección sin cerrar la lista, que es como se encadenan varias.
+
+De paso se corrigió que al elegir una opción el desplegable se quedaba abierto: el clic burbujeaba
+del `[role=option]` al contenedor, que lo volvía a abrir en el mismo evento. Antes no se notaba
+porque `handleSelect` no cerraba nada y el toggle del padre hacía las veces de cierre.
+
+Aplica retroactivamente a los formularios ya publicados —el umbral se calcula sobre las opciones
+que el campo termina resolviendo, vengan inline o de un catálogo— y no cambia el contrato de la
+definición: nadie tiene que editar nada en el CMS. El umbral y el filtro viven en
+`helpers/selectSearch.js` y el input en `components/SelectSearchInput.jsx`, compartido por ambos
+componentes.
+
+### Cambiado: el textarea se despliega al enfocarlo
+
+Un campo `textarea` se dibujaba con una sola fila y había que pulsar el botón de expandir para ver
+las ocho. Ahora se despliega solo al enfocarlo y vuelve a una fila al salir, que es el
+comportamiento que ya insinuaba el botón. El botón sigue ahí y **gana mientras el campo está
+enfocado**: sirve para contraer sin salir del campo. Los campos de una línea no cambian —su
+expansión sigue siendo manual y solo aparece cuando el texto desborda.
+
+### Corregido: el manifest y los favicons se pedían a la raíz del dominio
+
+`index.html` enlazaba `/site.webmanifest`, `/favicon.svg`, `/favicon-96x96.png` y
+`/apple-touch-icon.png` con rutas absolutas a la raíz. En producción el `dist` se sirve bajo
+`/sieej/`, así que esas peticiones no llegaban a nuestros archivos sino a `location /` del gateway
+—que desde el 2026-07-31 es **sitio2026**—: la consola mostraba un 404 y, para el manifest, un
+`Manifest: Line: 1, column: 1, Syntax error`, porque el navegador recibía HTML donde esperaba JSON.
+
+Los `href` pasan a `%BASE_URL%…`, el marcador que Vite sustituye por el `base` del build
+(`VITE_BASE_PATH`), y los iconos declarados dentro de `site.webmanifest` pasan a rutas relativas
+(`./web-app-manifest-192x192.png`), que el navegador resuelve contra la URL del propio manifest. En
+dev (`base: /`) el resultado es idéntico al de antes.
+
 ## [1.57.0] - 2026-07-31
 
 ### Cambiado: el «+» de las listas repetibles y el botón de quitar archivo

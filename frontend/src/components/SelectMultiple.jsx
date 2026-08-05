@@ -5,18 +5,24 @@ import ErrorsRequired from '@helpers/ErrorsRequired';
 import { getFieldError } from '@helpers/formErrors';
 import DynamicDiv from '@helpers/DynamicDiv';
 import useFieldClear from '@helpers/useFieldClear';
+import { filterOptions, shouldSearch } from '@helpers/selectSearch';
 import FieldClearButton from './FieldClearButton';
+import SelectSearchInput from './SelectSearchInput';
 import Typography from './Typography';
 
 const SelectMultiple = ({
     name, options, label, badge, required, tooltip,
-    placeholder, colSpan, col, wDiv, methods, pattern, ...rest
+    placeholder, colSpan, col, wDiv, methods, pattern, enableSearch, ...rest
 }) => {
     const { register, setValue, control, getValues } = methods;
     const { errors } = useFormState({ control, name });
     const [ selectedValues, setSelectedValues ] = useState([]);
     const [ showDropdown, setShowDropdown ] = useState(false);
+    const [ searchTerm, setSearchTerm ] = useState('');
     const dropdownRef = useRef(null);
+    const searchRef = useRef(null);
+    const searchEnabled = enableSearch ?? shouldSearch(options);
+    const filteredOptions = searchEnabled ? filterOptions(options, searchTerm) : options;
     const hasThingSelected = selectedValues.length > 0;
     const vaciarSeleccion = useCallback(() => setSelectedValues([]), []);
     const { clear } = useFieldClear({
@@ -32,6 +38,8 @@ const SelectMultiple = ({
         }
         setSelectedValues(newValues);
         setValue(name, newValues);
+        setSearchTerm('');
+        searchRef.current?.focus();
     };
 
     const handleRemoveTag = (value) => {
@@ -43,6 +51,7 @@ const SelectMultiple = ({
     const handleClickOutside = useCallback((event) => {
         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
             setShowDropdown(false);
+            setSearchTerm('');
         }
     }, []);
     
@@ -58,6 +67,11 @@ const SelectMultiple = ({
         if (fieldValue) setSelectedValues(fieldValue);
     }, [getValues, name]);
 
+    useEffect(() => {
+        if (showDropdown && searchEnabled) searchRef.current?.focus();
+        if (!showDropdown) setSearchTerm('');
+    }, [showDropdown, searchEnabled]);
+
     return (
         <DynamicDiv colSpan={colSpan} col={col} wDiv={wDiv} className="mt-[15px] group/field" ref={dropdownRef}>
             <Typography
@@ -72,18 +86,20 @@ const SelectMultiple = ({
                 id={name}
                 name={name}
                 role="combobox"
-                tabIndex={0}
+                tabIndex={searchEnabled ? -1 : 0}
                 aria-controls={`${name}-listbox`}
                 aria-expanded={showDropdown}
                 onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === 'Escape') {
+                        setShowDropdown(false);
+                    } else if (!searchEnabled && (e.key === 'Enter' || e.key === ' ')) {
                         e.preventDefault();
                         setShowDropdown((prev) => !prev);
                     }
                 }}
                 className={`
-                    mt-[12px] block w-full min-h-[40px] px-3 py-2 flex items-center justify-between 
-                    ${showDropdown ? 'rounded-t-lg' : 'rounded-lg '}
+                    mt-[12px] block w-full min-h-[40px] px-3 py-2 flex items-center justify-between rounded-lg
+                    ${showDropdown ? 'shadow-[0px_4px_20px_#A8A8A899]' : ''}
                     ${hasThingSelected ? 'bg-white' : 'bg-[#F8F8F8] cursor-pointer hover:border-[#5C2472] hover:border-1'}
                     focus:outline-none focus:ring-1 focus:ring-[#5C2472] 
                     hover:shadow-lg hover:shadow-[#CECECE33] hover:bg-white
@@ -96,8 +112,8 @@ const SelectMultiple = ({
                 })}
                 {...rest}
             >
-                {hasThingSelected ? (
-                    <div className="flex flex-wrap gap-2">
+                {hasThingSelected || searchEnabled ? (
+                    <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
                         {selectedValues.map((value) => {
                             const optionLabel = options.find((option) => option.value === value)?.label;
                             return (
@@ -132,15 +148,30 @@ const SelectMultiple = ({
                                 </div>
                             );
                         })}
+                        {searchEnabled && (
+                            <SelectSearchInput
+                                ref={searchRef}
+                                value={searchTerm}
+                                placeholder={hasThingSelected
+                                    ? 'Busca otra opción'
+                                    : (placeholder || 'Busca o selecciona una o más opciones')}
+                                onChange={setSearchTerm}
+                                onOpen={() => setShowDropdown(true)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Escape') setShowDropdown(false);
+                                }}
+                                activo={hasThingSelected}
+                            />
+                        )}
                     </div>
                 ) : (
-                    <span 
+                    <span
                         className={`
-                            font-garetregular text-[13px] 
+                            font-garetregular text-[13px]
                             ${showDropdown ? 'text-[#5C2472] font-garetmedium' : 'text-[#191919]'}
                             hover:text-[#5C2472] hover:font-garetmedium
                         `}
-                    > 
+                    >
                         {placeholder || 'Selecciona una o más opciónes'}
                     </span>
                 )}
@@ -153,14 +184,17 @@ const SelectMultiple = ({
             {showDropdown && (
                 <div
                     className="
-                        absolute z-2 bg-white shadow-lg shadow-[#B6A6BC99]
-                        rounded-b-lg w-full max-h-120 overflow-auto
+                        absolute z-2 mt-2 bg-white shadow-lg shadow-[#B6A6BC99]
+                        rounded-lg w-full max-h-120 overflow-auto py-1
                     "
                 >
-                    {options.map(({ value, label }) => (
+                    {filteredOptions.map(({ value, label }) => (
                         <div
                             key={value}
-                            className="flex items-center px-3 py-1 hover:bg-gray-100"
+                            className={`
+                                flex items-center px-3 py-1
+                                ${selectedValues.includes(value) ? 'bg-[#FBF1FF]' : 'hover:bg-gray-100'}
+                            `}
                         >
                             <input
                                 type="checkbox"
@@ -179,14 +213,21 @@ const SelectMultiple = ({
                             <label
                                 htmlFor={`${name}-${value}`}
                                 className={`
-                                    cursor-pointer text-[13px] text-[#191919]
-                                    ${selectedValues.includes(value) ? 'font-garetbold' : 'font-garetregular'
+                                    cursor-pointer text-[13px]
+                                    ${selectedValues.includes(value)
+                            ? 'font-garetbold text-[#5C2472]'
+                            : 'font-garetregular text-[#191919]'
                         }`}
                             >
                                 {label}
                             </label>
                         </div>
                     ))}
+                    {filteredOptions.length === 0 && (
+                        <div className="flex items-center font-garetregular w-full px-3 py-2 text-[#8E8E8E]">
+                            No se encontraron opciones
+                        </div>
+                    )}
                 </div>
             )}
 

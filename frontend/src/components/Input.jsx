@@ -189,10 +189,12 @@ const Input = ({
                 }}
                 onFocus={(e) => {
                     setFocused(true);
+                    if (esTextarea) setExpandido(true);
                     rest.onFocus?.(e);
                 }}
                 onBlur={(e) => {
                     setFocused(false);
+                    if (esTextarea) setExpandido(false);
                     if (controlRef.current) controlRef.current.scrollLeft = 0;
                     registerBlur(e);
                     rest.onBlur?.(e);

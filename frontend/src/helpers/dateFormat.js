@@ -20,6 +20,14 @@ export const todayISO = () => {
     return toISO(now.getFullYear(), now.getMonth(), now.getDate());
 };
 
+export const LIMITE_HOY = 'hoy';
+
+export const resolveDateLimit = (limite) => {
+    if (typeof limite !== 'string' || !limite) return undefined;
+    if (limite === LIMITE_HOY) return todayISO();
+    return parseISO(limite) ? limite.slice(0, 10) : undefined;
+};
+
 export const buildDays = (year, month) => {
     const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
     const daysInMonth = new Date(year, month + 1, 0).getDate();

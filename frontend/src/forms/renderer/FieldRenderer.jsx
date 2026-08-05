@@ -64,6 +64,11 @@ const FieldRenderer = ({ field, placement, methods, catalogos, onUpload, cambioF
         minLength: validation?.minLength,
     };
 
+    const dateProps = {
+        minDate: validation?.minDate,
+        maxDate: validation?.maxDate,
+    };
+
     switch (type) {
     case 'text':
     case 'email':
@@ -83,11 +88,11 @@ const FieldRenderer = ({ field, placement, methods, catalogos, onUpload, cambioF
         );
     case 'date':
         return (
-            <DatePicker {...baseProps} onFocus={notifyInteract} />
+            <DatePicker {...baseProps} {...dateProps} onFocus={notifyInteract} />
         );
     case 'date_range':
         return (
-            <DateRangePicker {...baseProps}
+            <DateRangePicker {...baseProps} {...dateProps}
                 field={field}
                 opciones={openRangeOptions(field, catalogos)}
                 disabled={field.disabled}

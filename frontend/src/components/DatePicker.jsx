@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useFormState } from 'react-hook-form';
 import ErrorsRequired from '@helpers/ErrorsRequired';
+import FieldHints from '@helpers/FieldHints';
+import { buildDateHints } from '@helpers/fieldHints';
 import { getErrorMessage } from '@helpers/formErrors';
 import DynamicDiv from '@helpers/DynamicDiv';
 import icoArrow from '@assets/icons/ico_down_arrow.svg';
-import { formatDisplay } from '@helpers/dateFormat';
+import { formatDisplay, resolveDateLimit } from '@helpers/dateFormat';
 import FieldClearButton from './FieldClearButton';
 import Typography from './Typography';
 import Calendar from './Calendar';
@@ -20,7 +22,22 @@ const DatePicker = ({
     const [open, setOpen] = useState(false);
     const wrapRef = useRef(null);
     const value = watch(name);
-    const hasError = !!getErrorMessage(errors, name);
+
+    const minISO = resolveDateLimit(minDate);
+    const maxISO = resolveDateLimit(maxDate);
+    const hints = buildDateHints({ minDate, maxDate, value });
+    const hintFueraDeRango = hints.some((hint) => hint.state === 'error');
+    const hasError = !!getErrorMessage(errors, name) || hintFueraDeRango;
+
+    const validarLimites = (valor) => {
+        const fuera = buildDateHints({ minDate, maxDate, value: valor })
+            .find((hint) => hint.state === 'error');
+        return fuera ? fuera.text : true;
+    };
+
+    const reglaValidacion = (minISO || maxISO)
+        ? { limites: validarLimites, ...(validate ? { propia: validate } : {}) }
+        : validate;
 
     const handleClickOutside = useCallback((event) => {
         if (wrapRef.current && !wrapRef.current.contains(event.target)) setOpen(false);
@@ -109,7 +126,7 @@ const DatePicker = ({
                     {...rest}
                     {...register(name, {
                         required: required ? 'Este campo es obligatorio' : false,
-                        validate,
+                        validate: reglaValidacion,
                         deps,
                     })}
                     className={triggerClass}
@@ -134,8 +151,8 @@ const DatePicker = ({
                 {open && !disabled && (
                     <Calendar
                         value={value}
-                        min={minDate}
-                        max={maxDate}
+                        min={minISO}
+                        max={maxISO}
                         options={options}
                         optionValue={optionValue}
                         onSelectOption={handleSelectOption}
@@ -144,7 +161,9 @@ const DatePicker = ({
                     />
                 )}
             </div>
-            <ErrorsRequired name={name} errors={errors} />
+            <ErrorsRequired name={name} errors={errors} mostrar={!hintFueraDeRango}>
+                {hints.length > 0 && (open || hintFueraDeRango) && <FieldHints items={hints} />}
+            </ErrorsRequired>
         </DynamicDiv>
     );
 };

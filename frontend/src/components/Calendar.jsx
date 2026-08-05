@@ -2,6 +2,8 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import useGlobal from '@context/useGlobal';
 import icoClose from '@assets/icons/ico_x_slow.svg';
 import { buildDays, parseISO, toISO, todayISO } from '@helpers/dateFormat';
+import { buildRangeGuards, saltoDeVista } from '@helpers/calendarRange';
+import ChevronIcon from './icons/ChevronIcon';
 import CalendarOptions from './CalendarOptions';
 
 const WEEKDAYS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'];
@@ -16,24 +18,6 @@ const MONTHS_SHORT = [
 const YEAR_SPAN_BACK = 100;
 const YEAR_SPAN_FWD = 10;
 
-const Chevron = ({ direction }) => (
-    <svg
-        width="14"
-        height="14"
-        viewBox="0 0 16 16"
-        fill="none"
-        aria-hidden="true"
-    >
-        <path
-            d={direction === 'left' ? 'M10 3 L5 8 L10 13' : 'M6 3 L11 8 L6 13'}
-            stroke="#5C2472"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        />
-    </svg>
-);
-
 const dayClassName = ({ isSelected, disabled, isToday }) => {
     const base = 'w-9 h-9 p-0 flex items-center justify-center rounded-full font-garetmedium text-[13px] '
         + 'transition focus:outline-none focus-visible:ring-1 focus-visible:ring-[#5C2472] ';
@@ -43,12 +27,21 @@ const dayClassName = ({ isSelected, disabled, isToday }) => {
     return `${base}text-[#191919] hover:bg-[#F0E2F5] hover:text-[#5C2472]`;
 };
 
-const chipClassName = (active) => {
+const chipClassName = (active, disabled) => {
     const base = 'px-2 py-2 rounded-[8px] font-garetmedium text-[13px] transition '
         + 'focus:outline-none focus-visible:ring-1 focus-visible:ring-[#5C2472] ';
+    if (disabled) return `${base}text-[#CBCBCB] cursor-not-allowed`;
     return active
         ? `${base}bg-[#5C2472] text-white`
         : `${base}text-[#191919] hover:bg-[#F0E2F5] hover:text-[#5C2472]`;
+};
+
+const arrowClassName = (disabled) => {
+    const base = 'w-8 h-8 !p-0 flex items-center justify-center rounded-full transition '
+        + 'focus:outline-none focus-visible:ring-1 focus-visible:ring-[#5C2472] ';
+    return disabled
+        ? `${base}opacity-30 cursor-not-allowed`
+        : `${base}hover:bg-[#F0E2F5]`;
 };
 
 const headerButtonClassName = (active) => {
@@ -131,10 +124,18 @@ const Calendar = ({
         setMode('days');
     };
 
-    const isDisabled = (iso) => (min && iso < min) || (max && iso > max);
+    const { diaFuera, mesFuera, anioFuera } = buildRangeGuards(min, max);
+    const porAnio = mode === 'months';
+    const destinoFuera = (paso) => {
+        const { year, month } = saltoDeVista(view, paso, porAnio);
+        return porAnio ? anioFuera(year) : mesFuera(year, month);
+    };
+
     const today = todayISO();
     const days = buildDays(view.year, view.month);
     const showArrows = mode !== 'years';
+    const prevFuera = destinoFuera(-1);
+    const nextFuera = destinoFuera(1);
 
     const body = (
         <>
@@ -143,12 +144,11 @@ const Calendar = ({
                     <button
                         type="button"
                         onClick={goPrev}
+                        disabled={prevFuera}
                         aria-label="Anterior"
-                        className="
-                            w-8 h-8 !p-0 flex items-center justify-center rounded-full transition
-                            hover:bg-[#F0E2F5] focus:outline-none focus-visible:ring-1 focus-visible:ring-[#5C2472]"
+                        className={arrowClassName(prevFuera)}
                     >
-                        <Chevron direction="left" />
+                        <ChevronIcon direction="left" />
                     </button>
                 ) : <span className="w-8 h-8" />}
                 <div className="flex items-center gap-1">
@@ -171,12 +171,11 @@ const Calendar = ({
                     <button
                         type="button"
                         onClick={goNext}
+                        disabled={nextFuera}
                         aria-label="Siguiente"
-                        className="
-                            w-8 h-8 !p-0 flex items-center justify-center rounded-full transition
-                            hover:bg-[#F0E2F5] focus:outline-none focus-visible:ring-1 focus-visible:ring-[#5C2472]"
+                        className={arrowClassName(nextFuera)}
                     >
-                        <Chevron direction="right" />
+                        <ChevronIcon direction="right" />
                     </button>
                 ) : <span className="w-8 h-8" />}
             </div>
@@ -198,7 +197,7 @@ const Calendar = ({
                             if (!day) return <span key={`empty-${index}`} className="w-9 h-9" />;
                             const iso = toISO(view.year, view.month, day);
                             const isSelected = iso === value;
-                            const disabled = isDisabled(iso);
+                            const disabled = diaFuera(iso);
                             const isToday = iso === today;
                             return (
                                 <button
@@ -219,16 +218,20 @@ const Calendar = ({
 
             {mode === 'months' && (
                 <div className="grid grid-cols-3 gap-2">
-                    {MONTHS_SHORT.map((monthName, index) => (
-                        <button
-                            key={monthName}
-                            type="button"
-                            onClick={() => pickMonth(index)}
-                            className={chipClassName(index === view.month)}
-                        >
-                            {monthName}
-                        </button>
-                    ))}
+                    {MONTHS_SHORT.map((monthName, index) => {
+                        const fuera = mesFuera(view.year, index);
+                        return (
+                            <button
+                                key={monthName}
+                                type="button"
+                                disabled={fuera}
+                                onClick={() => pickMonth(index)}
+                                className={chipClassName(index === view.month, fuera)}
+                            >
+                                {monthName}
+                            </button>
+                        );
+                    })}
                 </div>
             )}
 
