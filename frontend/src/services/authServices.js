@@ -35,11 +35,7 @@ const fetchJson = async (url, options = {}) => {
     return data;
 };
 
-export const postLogin = async ({ username, password }) =>
-    fetchJson(buildUrl('/autenticacion/iniciar-sesion'), {
-        method: 'POST',
-        body: JSON.stringify({ username, password }),
-    });
+export const buildLoginUrl = () => buildUrl('/autenticacion/login');
 
 export const postLogout = async () =>
     fetchJson(buildUrl('/autenticacion/cerrar-sesion'), { method: 'POST' });

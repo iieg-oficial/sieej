@@ -6,6 +6,32 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [2.0.0] - 2026-08-10
+
+### Cambiado: el inicio de sesión pasa a minerva, con mariachi 2.0.0
+
+**Incompatible, y no se puede desplegar solo.** Mariachi retiró
+`POST /autenticacion/iniciar-sesion` y `POST /autenticacion/cambiar-contrasena` al migrar su
+autenticación a minerva (OIDC). SIEEJ posteaba credenciales a esos dos endpoints, así que su
+pantalla de login respondería 404 en cuanto mariachi 2.0.0 salga.
+
+La sesión en sí **no cambia**: misma cookie, mismo origen, `GET /autenticacion/perfil` y
+`POST /autenticacion/refrescar` siguen exactamente igual, incluida la renovación ante 401. Lo único
+que cambia es cómo se obtiene esa sesión: el botón «Iniciar sesión» ahora redirige a
+`{api}/autenticacion/login`, que lleva a minerva y vuelve con la sesión puesta.
+
+Quien llegue sin un rol de la aplicación en minerva aterriza en `/inicio-sesion?auth_error=access_denied`
+con el motivo escrito, en vez de un formulario que nunca va a funcionar.
+
+**Se despliega junto con mariachi 2.0.0**, no antes ni después: entre uno y otro, el login queda roto.
+
+### Eliminado
+
+- La pantalla de cambio de contraseña y su ruta `/cambiar-contrasena`, con todo el flujo de
+  `must_change_password`. Minerva es quien administra las credenciales.
+- El campo de contraseña de la pantalla de inicio de sesión.
+
+
 ## [1.58.1] - 2026-08-05
 
 ### Corregido: el aviso de privacidad respondía 404

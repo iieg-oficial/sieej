@@ -3,7 +3,7 @@ import {
 } from 'react';
 import useGlobal from './useGlobal';
 import { useLocation, useNavigate } from 'react-router';
-import { postLogin, postLogout, postRefresh, getProfile } from '@services/authServices';
+import { buildLoginUrl, postLogout, postRefresh, getProfile } from '@services/authServices';
 import { pushAnalyticsEvent } from '@helpers/analytics';
 import { normalizeUser } from '@helpers/normalizeUser';
 import { runExclusiveRefresh } from '@helpers/sessionRefresh';
@@ -12,13 +12,13 @@ const AuthContext = createContext();
 
 export const CSRF_KEY = 'sieej_csrf_token';
 const MUTATION_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
-const AUTH_PATHS = ['/autenticacion/refrescar', '/autenticacion/iniciar-sesion'];
+const AUTH_PATHS = ['/autenticacion/refrescar'];
 
 const isAuthEndpoint = (url) =>
     typeof url === 'string' && AUTH_PATHS.some((path) => url.includes(path));
 
 const AuthProvider = ({ children }) => {
-    const { onMessage, hostBackend } = useGlobal();
+    const { hostBackend } = useGlobal();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -180,34 +180,16 @@ const AuthProvider = ({ children }) => {
         }
     }, [refreshCsrfToken, refreshSession]);
 
-    const handleLogin = async ({ username, password }) => {
-        safeSet(setAuthLoading)(true);
-        safeSet(setAuthError)(null);
-
-        try {
-            const { csrf_token, user: loginUser } = await postLogin({ username, password });
-            sessionStorage.setItem(CSRF_KEY, csrf_token);
-
-            const profile = await getProfile();
-            const finalUser = normalizeUser(profile || loginUser);
-            safeSet(setUser)(finalUser);
-            safeSet(setIsAuthenticated)(true);
-            authAnalyticsEvent('Iniciar sesión', 'Inicio de sesión exitoso');
-
-            const target = finalUser?.must_change_password ? '/cambiar-contrasena' : originPage;
-            navigate(target);
-        } catch (error) {
-            safeSet(setAuthError)(error.message || 'Error al iniciar sesión');
-            onMessage(true);
-            throw error;
-        } finally {
-            safeSet(setAuthLoading)(false);
-        }
+    const handleLogin = () => {
+        authAnalyticsEvent('Iniciar sesión', 'Redirección a Minerva');
+        window.location.href = buildLoginUrl();
     };
 
     const handleLogout = async () => {
+        let logoutUrl = null;
         try {
-            await postLogout();
+            const data = await postLogout();
+            logoutUrl = data?.logout_url || null;
         } catch {
             /* ignorar fallo de logout server-side */
         }
@@ -216,6 +198,10 @@ const AuthProvider = ({ children }) => {
         safeSet(setIsAuthenticated)(false);
         safeSet(setAuthError)(null);
         authAnalyticsEvent('Cerrar sesión', 'Sesión cerrada manualmente');
+        if (logoutUrl) {
+            window.location.href = logoutUrl;
+            return;
+        }
         navigate('/inicio-sesion');
     };
 
