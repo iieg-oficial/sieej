@@ -19,7 +19,7 @@ entreguen información estructurada al IIEG.
 
 - Docker >= v28.2.2
 - Docker Compose >= v2.36.2
-- Node.js 24 (si quieres correr fuera de Docker)
+- Node.js 26 (si quieres correr fuera de Docker)
 - Git >= 2.48
 - Mariachi corriendo en `localhost:8000` (la api lo provee)
 

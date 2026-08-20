@@ -10,7 +10,7 @@ formularios cuyas definiciones viven en `mariachi/api`.
 
 ## Requisitos
 
-- Node.js 24 (recomendado, mismo que mapalab).
+- Node.js 26 (recomendado, mismo que mapalab).
 - npm 11+.
 - Mariachi corriendo localmente (provee la API).
 
@@ -47,7 +47,7 @@ npm run dev
 
 ```
 frontend/
-├── Dockerfile               # Build prod (node 24 alpine)
+├── Dockerfile               # Build prod (node 26 alpine)
 ├── Dockerfile.dev           # Vite dev
 ├── eslint.config.js         # Flat config + plugin react
 ├── index.html               # Title=SIEEJ, theme-color #5C2472
