@@ -7,6 +7,7 @@ import {
     uploadArchivo,
     actualizarVersionEnvio,
     capturarCampos as capturarCamposApi,
+    sincronizarEnvio,
 } from '@services/formulariosServices';
 import { aplanarDatos, camposCambiados, pathsDeArchivo } from '@helpers/fieldPath';
 
@@ -52,6 +53,14 @@ export const SubmissionProvider = ({ slug, children }) => {
 
     const capturarCampos = useCallback(async (campos) => {
         const r = await capturarCamposApi(onFetch, slug, campos, versionRef.current);
+        versionRef.current = r?.datos_version ?? versionRef.current;
+        return r;
+    }, [onFetch, slug]);
+
+    const sincronizar = useCallback(async (seccion, opciones = {}) => {
+        const r = await sincronizarEnvio(onFetch, slug, {
+            desde: versionRef.current, seccion, ...opciones,
+        });
         versionRef.current = r?.datos_version ?? versionRef.current;
         return r;
     }, [onFetch, slug]);
@@ -126,7 +135,7 @@ export const SubmissionProvider = ({ slug, children }) => {
         <SubmissionContext.Provider value={{
             definicion, nombre, descripcion, envio, loading, error, saving,
             guardar, enviar, subirArchivo, recargar: cargar,
-            marcarVisto, capturarCampos,
+            marcarVisto, capturarCampos, sincronizar,
         }}>
             {children}
         </SubmissionContext.Provider>

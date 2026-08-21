@@ -65,6 +65,17 @@ export const capturarCampos = async (onFetch, slug, campos, desde = 0) => {
     return parseJson(r);
 };
 
+export const sincronizarEnvio = async (
+    onFetch, slug, { desde = 0, seccion = null, salir = false, keepalive = false } = {},
+) => {
+    const r = await onFetch(buildUrl(`/formularios/${encodeURIComponent(slug)}/envio/sync`), {
+        method: 'POST',
+        body: { desde, seccion, salir },
+        keepalive,
+    });
+    return parseJson(r);
+};
+
 export const actualizarVersionEnvio = async (onFetch, slug) => {
     const r = await onFetch(buildUrl(`/formularios/${encodeURIComponent(slug)}/envio/actualizar-version`), {
         method: 'POST',

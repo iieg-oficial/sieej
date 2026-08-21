@@ -52,3 +52,13 @@ export const camposCambiados = (anteriores, actuales, pathsArchivo) => {
     });
     return cambios;
 };
+
+export const autoriaDesdeHistorial = (historial = []) => {
+    const autoria = {};
+    [...historial]
+        .sort((a, b) => new Date(a.cambiado_en) - new Date(b.cambiado_en))
+        .forEach(({ field_path: path, actor_nombre: actor, cambiado_en: fecha }) => {
+            autoria[path] = { actor_nombre: actor ?? null, cambiado_en: fecha };
+        });
+    return autoria;
+};

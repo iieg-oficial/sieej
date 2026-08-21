@@ -3,6 +3,7 @@ import {
     aNombreRHF,
     aPathBackend,
     aplanarDatos,
+    autoriaDesdeHistorial,
     camposCambiados,
     pathsDeArchivo,
 } from '@helpers/fieldPath';
@@ -84,5 +85,40 @@ describe('campos cambiados', () => {
             steps: [{ id: 'anexos', fields: [{ name: 'doc', type: 'file' }] }],
         });
         expect(camposCambiados({}, { 'anexos[2].doc': { url_publica: 'x' } }, archivos)).toEqual({});
+    });
+});
+
+describe('autoria derivada del historial', () => {
+    it('se queda con la ultima entrada de cada campo', () => {
+        const historial = [
+            { field_path: 'general.razon_social', actor_nombre: 'Ana', cambiado_en: '2026-08-21T10:00:00Z' },
+            { field_path: 'general.razon_social', actor_nombre: 'Beto', cambiado_en: '2026-08-21T11:00:00Z' },
+            { field_path: 'general.contacto', actor_nombre: 'Ana', cambiado_en: '2026-08-21T10:30:00Z' },
+        ];
+        const autoria = autoriaDesdeHistorial(historial);
+        expect(autoria['general.razon_social'].actor_nombre).toBe('Beto');
+        expect(autoria['general.contacto'].actor_nombre).toBe('Ana');
+    });
+
+    it('no depende de que el historial venga ordenado', () => {
+        const historial = [
+            { field_path: 'general.x', actor_nombre: 'Beto', cambiado_en: '2026-08-21T11:00:00Z' },
+            { field_path: 'general.x', actor_nombre: 'Ana', cambiado_en: '2026-08-21T10:00:00Z' },
+        ];
+        expect(autoriaDesdeHistorial(historial)['general.x'].actor_nombre).toBe('Beto');
+    });
+
+    it('en un envio individual deja el nombre vacio y conserva la fecha', () => {
+        const autoria = autoriaDesdeHistorial([
+            { field_path: 'general.x', actor_nombre: null, cambiado_en: '2026-08-21T10:00:00Z' },
+        ]);
+        expect(autoria['general.x']).toEqual({
+            actor_nombre: null,
+            cambiado_en: '2026-08-21T10:00:00Z',
+        });
+    });
+
+    it('sin historial no hay autoria', () => {
+        expect(autoriaDesdeHistorial()).toEqual({});
     });
 });

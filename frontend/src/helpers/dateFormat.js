@@ -36,3 +36,19 @@ export const buildDays = (year, month) => {
     while (cells.length % 7 !== 0) cells.push(null);
     return cells;
 };
+
+const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+export const formatFechaHora = (valor) => {
+    if (!valor) return '';
+    const fecha = new Date(valor);
+    if (Number.isNaN(fecha.getTime())) return '';
+    return `${fecha.getDate()} ${MESES[fecha.getMonth()]} ${pad(fecha.getHours())}:${pad(fecha.getMinutes())}`;
+};
+
+export const formatFechaCorta = (valor) => {
+    if (!valor) return '';
+    const fecha = new Date(valor);
+    if (Number.isNaN(fecha.getTime())) return '';
+    return `${fecha.getDate()} ${MESES[fecha.getMonth()]}`;
+};

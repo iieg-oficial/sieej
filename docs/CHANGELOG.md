@@ -6,6 +6,46 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [2.2.0] - 2026-08-21
+
+### Agregado: se ve quién está capturando y lo que va escribiendo
+
+Quinta de las seis fases de los envíos colaborativos. Requiere mariachi con el mapa `autoria` en la
+respuesta del envío y `actor_nombre` en el historial del respondent.
+
+El formulario late contra `POST /envio/sync` y con cada latido trae tres cosas: quién más está
+dentro, en qué sección anda cada quien, y los campos que cambiaron desde la versión que el cliente
+tenía. Los avatares con iniciales salen arriba del formulario y el tooltip dice si la persona está
+en tu misma sección.
+
+**La cadencia se adapta.** Diez segundos cuando hay alguien más, treinta en solitario, con jitter
+para que los pulsos del equipo no se sincronicen y peguen todos juntos contra la misma cuota de IP.
+Con la pestaña oculta no late, y al volver a ella late de inmediato en vez de esperar el turno. Al
+cerrar la pestaña se da de baja con `keepalive`, así que el avatar desaparece del otro lado sin
+esperar los treinta segundos del TTL.
+
+**Lo que llega no pisa lo que estás escribiendo.** Un campo enfocado nunca se toca, y uno con
+cambios que todavía no viajan tampoco: el hook sabe qué mandó y compara contra eso, así que un
+campo con edición local pendiente se salta hasta que su valor esté confirmado. El resto entra con
+`shouldDirty: false` para no ensuciar el estado del formulario.
+
+### Agregado: cada campo dice quién lo llenó y cuándo
+
+Un distintivo junto a la etiqueta, en el formulario y en el paso de resumen. En un envío de grupo
+son las iniciales de quien lo dejó así, con «Modificado por Ana López · 21 ago 14:30» en el tooltip;
+en uno individual es solo la fecha, porque el único actor posible es quien está mirando.
+
+Cuelga de la prop `badge` que `FieldRenderer` ya repartía a los nueve controles para los cambios de
+versión, que pasó de admitir un nodo a admitir un fragmento. `Text.jsx` no reenviaba `badge` aunque
+`Typography` ya lo soportara: era una línea, y con ella el resumen quedó cubierto.
+
+### Corregido: el detalle del envío no cargaba su historial
+
+`EnvioDetalle` nunca llamaba a `getMiEnvioHistorial`, así que su resumen no tenía de dónde sacar la
+autoría. Ahora lo carga y deriva el último autor de cada campo. `HistorialCampos` muestra el nombre
+junto a la fecha cuando viene, y `EventTimeline` dejó de ignorar el evento `actualizado`, que existe
+en el backend desde que hay corrección post-envío y no aparecía en la línea de tiempo.
+
 ## [2.1.0] - 2026-08-21
 
 ### Agregado: captura en equipo, con lo escrito viajando solo

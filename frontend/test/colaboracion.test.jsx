@@ -16,22 +16,34 @@ const definicion = {
 };
 
 let metodos = null;
+let ultimosPresentes = [];
 
-const Sonda = ({ defaults, capturar, activo, onError }) => {
+const Sonda = ({ defaults, capturar, activo, onError, sincronizar }) => {
     const methods = useForm({ defaultValues: defaults });
     metodos = methods;
-    useColaboracion(methods, { activo, definicion, capturar, onError });
+    const { presentes } = useColaboracion(methods, {
+        activo, definicion, capturar, sincronizar, seccion: 'general', onError,
+    });
+    ultimosPresentes = presentes;
     return null;
 };
 
-const montar = ({ defaults = { general: {} }, activo = true, capturar, onError } = {}) => {
+const montar = ({
+    defaults = { general: {} }, activo = true, capturar, onError, sincronizar,
+} = {}) => {
     const espia = capturar ?? vi.fn().mockResolvedValue({ datos_version: 1 });
     const contenedor = document.createElement('div');
     document.body.appendChild(contenedor);
     const root = createRoot(contenedor);
     act(() => {
         root.render(
-            <Sonda defaults={defaults} capturar={espia} activo={activo} onError={onError} />,
+            <Sonda
+                defaults={defaults}
+                capturar={espia}
+                activo={activo}
+                onError={onError}
+                sincronizar={sincronizar}
+            />,
         );
     });
     return { capturar: espia, desmontar: () => act(() => root.unmount()) };
@@ -157,6 +169,110 @@ describe('autosave por campo', () => {
         await esperarDebounce();
 
         expect(capturar).not.toHaveBeenCalled();
+        desmontar();
+    });
+});
+
+describe('delta en vivo y presencia', () => {
+    beforeEach(() => {
+        vi.useFakeTimers();
+        metodos = null;
+        ultimosPresentes = [];
+    });
+    afterEach(() => vi.useRealTimers());
+
+    const respuesta = (cambios = [], presentes = []) => ({
+        datos_version: 2, estado: 'en_proceso', cambios, presentes,
+    });
+
+    it('escribe en el formulario lo que capturo el companero', async () => {
+        const sincronizar = vi.fn().mockResolvedValue(respuesta([
+            { field_path: 'general.contacto', valor_nuevo: 'Beto' },
+        ]));
+        const { desmontar } = montar({ sincronizar });
+
+        await act(async () => { await Promise.resolve(); });
+
+        expect(metodos.getValues('general.contacto')).toBe('Beto');
+        desmontar();
+    });
+
+    it('traduce el path del repeater al nombre que usa el wizard', async () => {
+        const sincronizar = vi.fn().mockResolvedValue(respuesta([
+            { field_path: 'bases_datos[0].diccionario', valor_nuevo: 'si' },
+        ]));
+        const { desmontar } = montar({
+            defaults: { bases_datos: [{ diccionario: '' }] },
+            sincronizar,
+        });
+
+        await act(async () => { await Promise.resolve(); });
+
+        expect(metodos.getValues('bases_datos.0.diccionario')).toBe('si');
+        desmontar();
+    });
+
+    it('no pisa un campo con cambios que todavia no viajan', async () => {
+        const capturar = vi.fn().mockRejectedValue(new Error('sin red'));
+        const sincronizar = vi.fn()
+            .mockResolvedValueOnce(respuesta())
+            .mockResolvedValue(respuesta([
+                { field_path: 'general.contacto', valor_nuevo: 'Beto' },
+            ]));
+        const { desmontar } = montar({ capturar, sincronizar, onError: vi.fn() });
+        await act(async () => { await Promise.resolve(); });
+
+        await escribir('general.contacto', 'Ana');
+        await act(async () => { await vi.advanceTimersByTimeAsync(40000); });
+
+        expect(metodos.getValues('general.contacto')).toBe('Ana');
+        desmontar();
+    });
+
+    it('deja de latir al desmontar', async () => {
+        const sincronizar = vi.fn().mockResolvedValue(respuesta());
+        const { desmontar } = montar({ sincronizar });
+        await act(async () => { await Promise.resolve(); });
+        const llamadas = sincronizar.mock.calls.length;
+
+        desmontar();
+        await act(async () => { await vi.advanceTimersByTimeAsync(120000); });
+
+        expect(sincronizar.mock.calls.length).toBe(llamadas);
+    });
+
+    it('expone a quien esta viendo el mismo envio', async () => {
+        const sincronizar = vi.fn().mockResolvedValue(respuesta([], [
+            { username: 'beto', name: 'Beto Ruiz', seccion: 'general' },
+        ]));
+        const { desmontar } = montar({ sincronizar });
+
+        await act(async () => { await Promise.resolve(); });
+
+        expect(ultimosPresentes).toEqual([
+            { username: 'beto', name: 'Beto Ruiz', seccion: 'general' },
+        ]);
+        desmontar();
+    });
+
+    it('en solitario late mas espaciado que acompanado', async () => {
+        const sincronizar = vi.fn().mockResolvedValue(respuesta());
+        const { desmontar } = montar({ sincronizar });
+        await act(async () => { await Promise.resolve(); });
+        expect(sincronizar).toHaveBeenCalledTimes(1);
+
+        await act(async () => { await vi.advanceTimersByTimeAsync(11000); });
+        expect(sincronizar).toHaveBeenCalledTimes(1);
+
+        await act(async () => { await vi.advanceTimersByTimeAsync(25000); });
+        expect(sincronizar).toHaveBeenCalledTimes(2);
+        desmontar();
+    });
+
+    it('sin sincronizar no hay latido', async () => {
+        const { desmontar } = montar({});
+        await act(async () => { await vi.advanceTimersByTimeAsync(60000); });
+        expect(ultimosPresentes).toEqual([]);
         desmontar();
     });
 });

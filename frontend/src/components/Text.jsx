@@ -3,12 +3,12 @@ import formatText from '@helpers/formatText';
 import Typography from './Typography';
 import DynamicDiv from '@helpers/DynamicDiv';
 
-const Text = ({ label, text, tooltip, colSpan, wDiv, clean, ...rest }) => {
+const Text = ({ label, text, tooltip, badge, colSpan, wDiv, clean, ...rest }) => {
     const cleanText = formatText(text, label, clean);
     
     return (
         <DynamicDiv colSpan={colSpan} wDiv={wDiv}>
-            <Typography as="label" titleName={label} tooltip={tooltip} />
+            <Typography as="label" titleName={label} tooltip={tooltip} badge={badge} />
             <p 
                 className={`
                     font-garetmedium text-[13px] my-2 break-words whitespace-pre-line

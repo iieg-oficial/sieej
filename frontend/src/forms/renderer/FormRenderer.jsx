@@ -6,6 +6,7 @@ import NavigateStep from '@forms/components/wizard/NavigateStep';
 import useWizard from '@forms/context/useWizard';
 import useSubmission from '@forms/context/useSubmission';
 import useColaboracion from '@forms/hooks/useColaboracion';
+import PresenciaEditores from '@forms/components/PresenciaEditores';
 import useGlobal from '@context/useGlobal';
 import { requisitosPendientes, stepIncompleto, stepsConPendientes } from './completeness';
 import { tieneCamposEditables } from './editableFields';
@@ -23,7 +24,7 @@ const FormRenderer = ({
     const { handleSubmit, reset, getValues, formState: { isDirty } } = methods;
     const { currentStep, goNext, goPrev, activeTab } = useWizard();
     const { openModal, closeModal, onMessage } = useGlobal();
-    const { marcarVisto, capturarCampos } = useSubmission();
+    const { marcarVisto, capturarCampos, sincronizar } = useSubmission();
 
     useEffect(() => {
         if (envio?.datos) reset(envio.datos);
@@ -48,10 +49,12 @@ const FormRenderer = ({
             : 'No se pudo guardar automáticamente; sigue capturando');
     }, [onMessage]);
 
-    useColaboracion(methods, {
+    const { presentes } = useColaboracion(methods, {
         activo: colaborativo && !isReadOnly,
         definicion,
         capturar: capturarCampos,
+        sincronizar,
+        seccion: steps[currentStep]?.id,
         onError: avisarFalloCaptura,
     });
 
@@ -132,6 +135,15 @@ const FormRenderer = ({
 
     return (
         <div className="w-full">
+            {colaborativo && (
+                <div className="mb-3 flex justify-end">
+                    <PresenciaEditores
+                        presentes={presentes}
+                        seccionActual={step.id}
+                        tituloSeccion={step.title}
+                    />
+                </div>
+            )}
             <NavigateStep
                 step={step}
                 isFirst={isFirst}
@@ -160,6 +172,7 @@ const FormRenderer = ({
                 onUpload={onUpload}
                 cambiosStep={cambiosPorStep.get(step.id) ?? []}
                 marcarVisto={marcarVisto}
+                autoria={envio?.autoria}
                 envioId={enviado ? envio?.id : undefined}
                 puedeActualizar={puedeActualizar}
             />

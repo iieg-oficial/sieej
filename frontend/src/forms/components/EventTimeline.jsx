@@ -7,6 +7,7 @@ const EVENT_LABEL = {
     enviado: 'Enviaste el formulario',
     expirado: 'El formulario expiró',
     reabierto: 'El formulario fue reabierto',
+    actualizado: 'Se corrigieron campos del envío',
 };
 
 const EVENT_COLOR = {
@@ -15,6 +16,7 @@ const EVENT_COLOR = {
     enviado: 'bg-emerald-100 text-emerald-800',
     expirado: 'bg-red-100 text-red-700',
     reabierto: 'bg-blue-100 text-blue-700',
+    actualizado: 'bg-violet-100 text-violet-700',
 };
 
 const formatDate = (iso) => {

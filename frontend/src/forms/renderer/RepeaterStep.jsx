@@ -12,7 +12,9 @@ import { evaluarShowWhen } from './conditional';
 import { buildRepeaterItems, renderItemLabel, resolverTabDeCampo } from './repeaterItems';
 import { layoutSlots, spacerClass } from '@helpers/gridLayout';
 
-const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcarVisto }) => {
+const RepeaterStep = ({
+    step, methods, catalogos, onUpload, cambiosStep = [], marcarVisto, autoria,
+}) => {
     const { append, remove } = useFieldArray({ control: methods.control, name: step.id });
     const { activeTab, visitedTabs, onActiveTab, onSizeTab } = useWizard();
     const { isMobile } = useGlobal();
@@ -192,6 +194,7 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], ma
                             catalogos={catalogos}
                             onUpload={(_n, file) => onUpload?.(`${step.id}[${currentIndex}].${field.name}`, file)}
                             cambioField={cambio}
+                            autoriaField={autoria?.[`${step.id}[${currentIndex}].${field.name}`]}
                             onInteract={marcarVisto ? () => marcarVisto(`${step.id}.${field.name}`) : undefined}
                         />
                     );
