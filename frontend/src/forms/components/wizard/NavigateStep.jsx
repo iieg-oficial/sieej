@@ -9,7 +9,7 @@ import useGlobal from '@context/useGlobal';
 
 const NavigateStep = ({
     step, isFirst, isLast, isLastTab, tieneCambios = false,
-    nextDisabled = false, nextTooltip = null, saveDisabled = false,
+    nextDisabled = false, nextTooltip = null, saveDisabled = false, saveTooltip = null,
     onPrev, onSubmit, onSave,
 }) => {
     const { screenSize } = useGlobal();
@@ -74,7 +74,9 @@ const NavigateStep = ({
                     variant="primary"
                     onClick={() => onSave?.()}
                     disabled={saveDisabled}
-                    tooltip={saveDisabled ? 'Sin cambios por guardar' : 'Guardar avance'}
+                    tooltip={saveDisabled
+                        ? 'Sin cambios por guardar'
+                        : (saveTooltip || 'Guardar avance')}
                     iconButton={saveIcon}
                     colSpan={isLast ? 0 : undefined}
                     fit

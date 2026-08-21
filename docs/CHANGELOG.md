@@ -6,6 +6,43 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [2.1.0] - 2026-08-21
+
+### Agregado: captura en equipo, con lo escrito viajando solo
+
+Cuarta de las seis fases de los envíos colaborativos; las tres anteriores fueron backend y viven en
+mariachi (2.9.0 a 2.12.0). Requiere mariachi con `colaborativo`, `grupo_id`, `datos_version` y
+`puede_enviar` en la respuesta del envío.
+
+Cuando el formulario es colaborativo el envío pertenece al grupo y varias personas capturan sobre el
+mismo. Eso obliga a cambiar cómo se guarda: el `PUT` manda `datos` completo y borraría de un golpe lo
+que escribió el resto, así que en ese modo `guardar()` sale por
+`PATCH /formularios/{slug}/envio/campos`, que hace merge campo por campo. En los formularios
+individuales no cambia nada.
+
+**Lo escrito se manda solo.** Un segundo y medio después de que la persona deja de teclear sale un
+lote con los campos que cambiaron desde el último envío. «Guardar avance» se queda como respaldo
+explícito y ahora dice en su tooltip que el guardado ya es automático.
+
+El disparador es la suscripción de react-hook-form y no el `onBlur` de cada campo, que era lo
+planeado. Dos razones: `onBlur` no toca ninguno de los nueve controles pero tampoco manda nada
+mientras alguien escribe un textarea largo sin salirse de él —justo el caso donde el compañero más
+necesita ver el avance—, y la suscripción cubre igual a los selects, checkboxes y calendarios sin
+tocar un solo control.
+
+**Los archivos nunca salen por ahí.** Su valor lo escribe la ruta de upload, que además mueve el
+objeto en el Acervo, así que el autosave los salta reconociéndolos por su tipo en la definición.
+
+**Enviar sigue siendo del coordinador.** En el último paso, quien no lo es ve el botón bloqueado con
+el motivo en el tooltip en vez de descubrirlo con un 403.
+
+### Agregado: traducción de paths entre el wizard y la API
+
+El wizard nombra los campos de un repeater `bases_datos.0.diccionario` y el backend los parsea como
+`bases_datos[0].diccionario`. Mientras los datos viajaban completos daba igual; ahora que viajan por
+campo, no. `helpers/fieldPath.js` traduce en ambos sentidos, aplana `datos` a paths y calcula el
+diff, con pruebas propias.
+
 ## [2.0.0] - 2026-08-10
 
 ### Cambiado: el inicio de sesión pasa a minerva, con mariachi 2.0.0

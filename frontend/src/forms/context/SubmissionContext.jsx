@@ -6,7 +6,9 @@ import {
     putEnvio,
     uploadArchivo,
     actualizarVersionEnvio,
+    capturarCampos as capturarCamposApi,
 } from '@services/formulariosServices';
+import { aplanarDatos, camposCambiados, pathsDeArchivo } from '@helpers/fieldPath';
 
 export const SubmissionContext = createContext(null);
 
@@ -20,6 +22,7 @@ export const SubmissionProvider = ({ slug, children }) => {
     const [error, setError] = useState(null);
     const [saving, setSaving] = useState(false);
     const cambiosVistosRef = useRef([]);
+    const versionRef = useRef(0);
 
     const cargar = useCallback(async () => {
         setLoading(true);
@@ -34,6 +37,7 @@ export const SubmissionProvider = ({ slug, children }) => {
                 e = await actualizarVersionEnvio(onFetch, slug).catch(() => e);
             }
             setEnvio(e);
+            versionRef.current = e?.datos_version ?? 0;
             cambiosVistosRef.current = [];
         } catch (e) {
             setError(e.message);
@@ -46,7 +50,27 @@ export const SubmissionProvider = ({ slug, children }) => {
         cargar();
     }, [cargar]);
 
+    const capturarCampos = useCallback(async (campos) => {
+        const r = await capturarCamposApi(onFetch, slug, campos, versionRef.current);
+        versionRef.current = r?.datos_version ?? versionRef.current;
+        return r;
+    }, [onFetch, slug]);
+
     const guardar = useCallback(async (datos, pasoActual) => {
+        if (envio?.colaborativo) {
+            const cambios = camposCambiados(
+                aplanarDatos(envio?.datos), aplanarDatos(datos), pathsDeArchivo(definicion),
+            );
+            if (!Object.keys(cambios).length) return envio;
+            setSaving(true);
+            try {
+                await capturarCampos(cambios);
+                setEnvio((prev) => (prev ? { ...prev, datos, datos_version: versionRef.current } : prev));
+                return envio;
+            } finally {
+                setSaving(false);
+            }
+        }
         setSaving(true);
         try {
             const vistos = cambiosVistosRef.current;
@@ -63,11 +87,12 @@ export const SubmissionProvider = ({ slug, children }) => {
                 return e;
             }
             setEnvio(e);
+            versionRef.current = e?.datos_version ?? versionRef.current;
             return e;
         } finally {
             setSaving(false);
         }
-    }, [onFetch, slug, cargar]);
+    }, [onFetch, slug, cargar, envio, definicion, capturarCampos]);
 
     const enviar = useCallback(async (datos) => {
         setSaving(true);
@@ -82,6 +107,7 @@ export const SubmissionProvider = ({ slug, children }) => {
                 cambios_vistos: vistos,
             });
             setEnvio(e);
+            versionRef.current = e?.datos_version ?? versionRef.current;
             return e;
         } finally {
             setSaving(false);
@@ -100,7 +126,7 @@ export const SubmissionProvider = ({ slug, children }) => {
         <SubmissionContext.Provider value={{
             definicion, nombre, descripcion, envio, loading, error, saving,
             guardar, enviar, subirArchivo, recargar: cargar,
-            marcarVisto,
+            marcarVisto, capturarCampos,
         }}>
             {children}
         </SubmissionContext.Provider>
