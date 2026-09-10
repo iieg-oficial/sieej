@@ -9,7 +9,9 @@ import useWizard from '@forms/context/useWizard';
 import useGlobal from '@context/useGlobal';
 import FieldRenderer from './FieldRenderer';
 import { evaluarShowWhen } from './conditional';
-import { buildRepeaterItems, renderItemLabel, resolverTabDeCampo } from './repeaterItems';
+import {
+    buildRepeaterItems, CLAVE_ETIQUETA, renderItemLabel, resolverTabDeCampo,
+} from './repeaterItems';
 import { layoutSlots, spacerClass } from '@helpers/gridLayout';
 
 const RepeaterStep = ({
@@ -129,6 +131,9 @@ const RepeaterStep = ({
                         visitedTabs={visitedTabs}
                         onTabClick={onActiveTab}
                         onTabRemove={(_item, idx) => handleRemove(idx)}
+                        onTabRename={(idx, nombre) => methods.setValue(
+                            `${step.id}.${idx}.${CLAVE_ETIQUETA}`, nombre || null, { shouldDirty: true },
+                        )}
                         isMobile={isMobile}
                     />
                 </div>
