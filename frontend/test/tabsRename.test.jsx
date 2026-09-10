@@ -52,6 +52,19 @@ describe('renombrar pestañas', () => {
         expect(lapices()[0].getAttribute('aria-label')).toBe('Cambiar el nombre de Planteles');
     });
 
+    it('el lápiz va dentro de la pestaña, como la ✕', () => {
+        montar({ onTabRename: vi.fn() });
+        expect(lapices()[0].closest('button[role="tab"]')).not.toBeNull();
+    });
+
+    it('presionar el lápiz no cuenta como elegir la pestaña', () => {
+        const onTabClick = vi.fn();
+        montar({ onTabRename: vi.fn(), onTabClick });
+        act(() => lapices()[0].click());
+        expect(onTabClick).not.toHaveBeenCalled();
+        expect(campo()).not.toBeNull();
+    });
+
     it('Enter confirma el nombre recortado', () => {
         const onTabRename = vi.fn();
         montar({ onTabRename });
@@ -81,6 +94,23 @@ describe('renombrar pestañas', () => {
 
     it('canRemove decide qué pestaña se puede quitar', () => {
         montar({ onTabRemove: vi.fn(), canRemove: () => false });
-        expect(contenedor.querySelector('img[src*="ico_delete"]')).toBeNull();
+        expect(contenedor.querySelector('[aria-label^="Quitar"]')).toBeNull();
+    });
+
+    it('la ✕ va dentro de la pestaña y quita sin elegir la pestaña', () => {
+        const onTabRemove = vi.fn();
+        const onTabClick = vi.fn();
+        montar({ onTabRemove, onTabClick, canRemove: () => true });
+        const x = contenedor.querySelector('[aria-label="Quitar Planteles"]');
+        expect(x.closest('button[role="tab"]')).not.toBeNull();
+        act(() => x.click());
+        expect(onTabRemove).toHaveBeenCalledWith(items[1], 1);
+        expect(onTabClick).not.toHaveBeenCalled();
+    });
+
+    it('con lápiz y ✕ juntos, los dos quedan dentro de la misma pestaña', () => {
+        montar({ onTabRename: vi.fn(), onTabRemove: vi.fn(), canRemove: () => true });
+        const pestana = lapices()[0].closest('button[role="tab"]');
+        expect(pestana.querySelector('[aria-label="Quitar Planteles"]')).not.toBeNull();
     });
 });

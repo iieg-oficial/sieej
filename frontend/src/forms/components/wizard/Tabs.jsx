@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import icoX from '@icons/ico_delete_predeterminada.svg';
 import Button from '@components/Button';
+import ClearIcon from '@components/icons/ClearIcon';
 import PencilIcon from '@components/icons/PencilIcon';
 
 const NOMBRE_MAX = 60;
@@ -87,7 +87,51 @@ const Tabs = ({
                     );
                 }
 
-                const boton = (
+                const lapiz = allowRename ? (
+                    <span
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Cambiar el nombre de ${itemLabel}`}
+                        title="Cambiar el nombre"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setEditando(index);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key !== 'Enter' && e.key !== ' ') return;
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setEditando(index);
+                        }}
+                        className="ml-3 inline-flex items-center justify-center w-[20px] h-[20px] rounded-full cursor-pointer text-[#FF8300] hover:bg-white"
+                    >
+                        <PencilIcon size={12} />
+                    </span>
+                ) : null;
+
+                const quitar = allowRemove ? (
+                    <span
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Quitar ${itemLabel}`}
+                        title="Quitar"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onTabRemove(item, index);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key !== 'Enter' && e.key !== ' ') return;
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onTabRemove(item, index);
+                        }}
+                        className={`${lapiz ? 'ml-1' : 'ml-3'} inline-flex items-center justify-center w-[20px] h-[20px] rounded-full cursor-pointer text-[#FF8300] hover:bg-white`}
+                    >
+                        <ClearIcon size={12} />
+                    </span>
+                ) : null;
+
+                return (
                     <Button
                         key={tabId}
                         role="tab"
@@ -95,34 +139,12 @@ const Tabs = ({
                         tabIndex={isActive ? 0 : -1}
                         variant="label"
                         label={!numbered ? itemLabel : isMobile ? index + 1 : `${index + 1}.  ${itemLabel}`}
-                        sufIcon={allowRemove ? icoX : null}
-                        sufIconButton={allowRemove}
-                        onSufClick={allowRemove ? () => onTabRemove(item, index) : undefined}
+                        sufExtra={lapiz || quitar ? <>{lapiz}{quitar}</> : null}
                         isActive={isActive}
                         isVisited={visitedTabs?.has(index)}
                         onClick={() => onTabClick?.(index)}
-                        className={`line-clamp-1 ${allowRename ? '' : margen}`}
+                        className={`line-clamp-1 ${margen}`}
                     />
-                );
-
-                if (!allowRename) return boton;
-
-                return (
-                    <span key={tabId} className={`inline-flex items-center gap-1 ${margen}`}>
-                        {boton}
-                        <button
-                            type="button"
-                            onClick={() => setEditando(index)}
-                            aria-label={`Cambiar el nombre de ${itemLabel}`}
-                            title="Cambiar el nombre"
-                            className="
-                                inline-flex items-center justify-center shrink-0 w-[26px] h-[26px] rounded-full
-                                p-0! border-none! bg-transparent text-[#FF8300] cursor-pointer hover:bg-[#FEDAB2]!
-                            "
-                        >
-                            <PencilIcon />
-                        </button>
-                    </span>
                 );
             })}
         </div>

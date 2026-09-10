@@ -6,6 +6,21 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [1.59.1] - 2026-09-10
+
+### Corregido: el lápiz de renombrar quedaba fuera de la pestaña
+
+El lápiz se dibujaba como un botón al lado de la pestaña y no dentro, como la ✕. `Button` pintaba un
+solo sufijo, así que ahora acepta uno extra (`sufExtra`) que las pestañas usan para el lápiz y la ✕
+juntos; las demás pantallas que usan `Button` no cambian. Presionar el lápiz o la ✕ ya no cuenta
+también como elegir la pestaña.
+
+### Cambiado: la ✕ de la pestaña es naranja, como el lápiz
+
+Era una imagen con el color fijo y el CSS no podía cambiarlo. Ahora es el `ClearIcon` en línea: toma
+el naranja de la pestaña activa y tiene el mismo hover que el lápiz. Aplica también a la ✕ de la
+captura, que usa las mismas pestañas.
+
 ## [1.59.0] - 2026-09-10
 
 ### Agregado: elegir, renombrar y agregar conjuntos al actualizar un envío

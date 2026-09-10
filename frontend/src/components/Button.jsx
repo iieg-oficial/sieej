@@ -14,6 +14,7 @@ const Button = ({
     sufIcon = null,         // React component
     sufIconButton = false,  // true | false
     onSufClick = () => {},  
+    sufExtra = null,
     onHoverIcon = null,     // React component
     fullWidth = false,      // true | false
     fit = false,            // ancho segun contenido en vez de fijo
@@ -131,6 +132,8 @@ const Button = ({
                             {label}
                         </span>
                     )}
+
+                    {sufExtra && !loading && sufExtra}
 
                     {sufIcon && !loading && (
                         <span
