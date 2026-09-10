@@ -6,6 +6,20 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [1.60.0] - 2026-09-10
+
+### Cambiado: un punto verde marca los conjuntos nuevos, también en la captura
+
+Al actualizar un envío, los conjuntos agregados llevaban «(nuevo)» pegado a la etiqueta: alargaba la
+pestaña y en celular ni se veía, porque ahí la pestaña solo muestra el número. Ahora un punto verde
+en la esquina de la pestaña los marca sin gastar ancho. En la captura sale en los conjuntos que se
+agregan con el «+» mientras la persona está en ese paso.
+
+### Agregado: renombrar pestañas desde el celular
+
+El lápiz para cambiar el nombre de la pestaña ya sale también en celular, aunque ahí la pestaña siga
+mostrando solo el número.
+
 ## [1.59.1] - 2026-09-10
 
 ### Corregido: el lápiz de renombrar quedaba fuera de la pestaña

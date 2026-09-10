@@ -30,9 +30,8 @@ const RepeaterActualizable = ({
     const maxItems = step.maxItems ?? null;
     const valoresItem = (Array.isArray(lista) ? lista[actual] : null) || {};
 
-    const items = buildRepeaterItems(step, lista || []).map((item, idx) => (
-        idx >= originales ? { ...item, label: `${item.label} (nuevo)` } : item
-    ));
+    const items = buildRepeaterItems(step, lista || []);
+    const esAgregado = (_item, idx) => idx >= originales;
 
     const etiquetaAgregar = `Agregar ${renderItemLabel(step.itemLabel || 'Elemento {{index}}', count)}`;
 
@@ -73,7 +72,8 @@ const RepeaterActualizable = ({
                         activeTab={actual}
                         onTabClick={elegir}
                         onTabRemove={(_item, idx) => quitar(idx)}
-                        canRemove={(_item, idx) => idx >= originales}
+                        canRemove={esAgregado}
+                        esNuevo={esAgregado}
                         onTabRename={renombrar}
                         isMobile={isMobile}
                     />

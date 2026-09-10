@@ -23,6 +23,7 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], ma
     const maxItems = step.maxItems ?? null;
     const tabs = Array.isArray(step.tabs) ? step.tabs : null;
     const [activeSubTab, setActiveSubTab] = React.useState(tabs?.[0]?.id);
+    const [desde, setDesde] = React.useState(null);
 
     const list = methods.watch(step.id);
     const count = Array.isArray(list) ? list.length : 0;
@@ -69,6 +70,7 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], ma
         onActiveTab?.(0);
         setActiveSubTab(tabs?.[0]?.id);
         setSubTabsVistas(new Set(tabs?.[0]?.id ? [tabs[0].id] : []));
+        setDesde(null);
     }, [step.id, tabs, onActiveTab]);
 
     const etiquetaAgregar = step.itemLabel
@@ -79,12 +81,14 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], ma
 
     const handleAdd = () => {
         append({});
+        setDesde((d) => (d === null ? count : d));
         onActiveTab?.(count);
         setActiveSubTab(tabs?.[0]?.id);
     };
 
     const handleRemove = (index) => {
         remove(index);
+        setDesde((d) => (d !== null && index < d ? d - 1 : d));
         const newActive = Math.max(0, Math.min(activeTab, count - 2));
         onActiveTab?.(newActive);
     };
@@ -129,6 +133,7 @@ const RepeaterStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], ma
                         visitedTabs={visitedTabs}
                         onTabClick={onActiveTab}
                         onTabRemove={(_item, idx) => handleRemove(idx)}
+                        esNuevo={desde === null ? undefined : (_item, idx) => idx >= desde}
                         onTabRename={(idx, nombre) => methods.setValue(
                             `${step.id}.${idx}.${CLAVE_ETIQUETA}`, nombre || null, { shouldDirty: true },
                         )}

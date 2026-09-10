@@ -113,4 +113,25 @@ describe('renombrar pestañas', () => {
         const pestana = lapices()[0].closest('button[role="tab"]');
         expect(pestana.querySelector('[aria-label="Quitar Planteles"]')).not.toBeNull();
     });
+
+    it('en celular también sale el lápiz', () => {
+        montar({ onTabRename: vi.fn(), isMobile: true });
+        expect(lapices().length).toBe(1);
+    });
+});
+
+describe('pestañas nuevas', () => {
+    const puntos = () => contenedor.querySelectorAll('[data-nuevo]');
+
+    it('sin esNuevo no hay punto', () => {
+        montar();
+        expect(puntos().length).toBe(0);
+    });
+
+    it('el punto sale solo en las pestañas nuevas y dentro de ellas', () => {
+        montar({ esNuevo: (_item, idx) => idx === 0 });
+        expect(puntos().length).toBe(1);
+        const pestana = puntos()[0].closest('button[role="tab"]');
+        expect(pestana.getAttribute('aria-label')).toMatch(/Conjunto de datos 1, nuevo$/);
+    });
 });
