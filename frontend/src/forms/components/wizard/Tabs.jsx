@@ -132,31 +132,31 @@ const Tabs = ({
                     </span>
                 ) : null;
 
-                const punto = nuevo ? (
-                    <span
-                        aria-hidden
-                        data-nuevo
-                        className="absolute top-[3px] right-[3px] w-2 h-2 rounded-full bg-[#32A752] shadow-[0_0_0_2px_#FFFFFF]"
-                    />
-                ) : null;
-
                 const label = !numbered ? itemLabel : isMobile ? index + 1 : `${index + 1}.  ${itemLabel}`;
 
                 return (
-                    <Button
-                        key={tabId}
-                        role="tab"
-                        aria-selected={isActive}
-                        tabIndex={isActive ? 0 : -1}
-                        variant="label"
-                        label={label}
-                        sufExtra={lapiz || quitar || punto ? <>{lapiz}{quitar}{punto}</> : null}
-                        isActive={isActive}
-                        isVisited={visitedTabs?.has(index)}
-                        onClick={() => onTabClick?.(index)}
-                        className={`relative line-clamp-1 ${margen}`}
-                        {...(nuevo && { 'aria-label': `${label}, nuevo` })}
-                    />
+                    <span key={tabId} className={`relative inline-flex ${margen}`}>
+                        <Button
+                            role="tab"
+                            aria-selected={isActive}
+                            tabIndex={isActive ? 0 : -1}
+                            variant="label"
+                            label={label}
+                            sufExtra={lapiz || quitar ? <>{lapiz}{quitar}</> : null}
+                            isActive={isActive}
+                            isVisited={visitedTabs?.has(index)}
+                            onClick={() => onTabClick?.(index)}
+                            className="line-clamp-1"
+                            {...(nuevo && { 'aria-label': `${label}, nuevo` })}
+                        />
+                        {nuevo && (
+                            <span
+                                aria-hidden
+                                data-nuevo
+                                className="absolute -top-[5px] -right-[5px] w-2 h-2 rounded-full bg-[#32A752] pointer-events-none"
+                            />
+                        )}
+                    </span>
                 );
             })}
         </div>

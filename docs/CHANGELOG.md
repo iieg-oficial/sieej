@@ -6,6 +6,14 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [1.60.1] - 2026-09-10
+
+### Cambiado: el punto de conjunto nuevo sale por la esquina de la pestaña
+
+El punto verde quedaba dentro de la pestaña, con un aro blanco. Ahora asoma por la esquina superior
+derecha, con un tercio adentro y el resto afuera, y sin aro. Sigue sin ocupar espacio. La pestaña
+recorta lo que se le sale, así que el punto pasó a un contenedor propio junto a ella.
+
 ## [1.60.0] - 2026-09-10
 
 ### Cambiado: un punto verde marca los conjuntos nuevos, también en la captura

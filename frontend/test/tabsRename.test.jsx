@@ -128,10 +128,11 @@ describe('pestañas nuevas', () => {
         expect(puntos().length).toBe(0);
     });
 
-    it('el punto sale solo en las pestañas nuevas y dentro de ellas', () => {
+    it('el punto sale solo en las pestañas nuevas, fuera del botón que recorta', () => {
         montar({ esNuevo: (_item, idx) => idx === 0 });
         expect(puntos().length).toBe(1);
-        const pestana = puntos()[0].closest('button[role="tab"]');
+        expect(puntos()[0].closest('button[role="tab"]')).toBeNull();
+        const pestana = puntos()[0].parentElement.querySelector('button[role="tab"]');
         expect(pestana.getAttribute('aria-label')).toMatch(/Conjunto de datos 1, nuevo$/);
     });
 });
