@@ -32,7 +32,7 @@ de la captura— y solo los campos actualizables del que esté elegido.
 El botón **+** agrega un elemento al final. El nuevo abre **todas** las pestañas del paso, no solo
 los campos actualizables: si solo abriera esos, el resto quedaría vacío para siempre. Se descarta
 con la ✕ antes de guardar, y sus archivos se suben al guardar, justo después de crearlo.
-Requiere mariachi 1.123.0.
+Requiere mariachi 1.124.0.
 
 ### Agregado: renombrar la pestaña de un elemento
 
