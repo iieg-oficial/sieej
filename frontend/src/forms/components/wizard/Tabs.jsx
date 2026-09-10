@@ -49,7 +49,7 @@ const CampoNombre = ({ inicial, placeholder, onConfirm, onCancel }) => {
 
 const Tabs = ({
     show, vertical, className, items = [],
-    activeTab, visitedTabs, onTabClick, onTabRemove, onTabRename, canRemove,
+    activeTab, visitedTabs, onTabClick, onTabRemove, onTabRename, canRemove, esNuevo,
     isMobile = false, numbered = true,
 }) => {
     const [editando, setEditando] = useState(null);
@@ -68,7 +68,8 @@ const Tabs = ({
                 const isActive = activeTab === index;
                 const allowRemove = isActive && typeof onTabRemove === 'function'
                     && (typeof canRemove !== 'function' || canRemove(item, index));
-                const allowRename = isActive && typeof onTabRename === 'function' && !isMobile;
+                const allowRename = isActive && typeof onTabRename === 'function';
+                const nuevo = typeof esNuevo === 'function' && esNuevo(item, index);
                 const tabId = item.id ?? item._id ?? `tab-${index}`;
                 const itemLabel = item.label || item.nombre_bd || item.nombre || `Item ${index + 1}`;
 
@@ -131,6 +132,16 @@ const Tabs = ({
                     </span>
                 ) : null;
 
+                const punto = nuevo ? (
+                    <span
+                        aria-hidden
+                        data-nuevo
+                        className="absolute top-[3px] right-[3px] w-2 h-2 rounded-full bg-[#32A752] shadow-[0_0_0_2px_#FFFFFF]"
+                    />
+                ) : null;
+
+                const label = !numbered ? itemLabel : isMobile ? index + 1 : `${index + 1}.  ${itemLabel}`;
+
                 return (
                     <Button
                         key={tabId}
@@ -138,12 +149,13 @@ const Tabs = ({
                         aria-selected={isActive}
                         tabIndex={isActive ? 0 : -1}
                         variant="label"
-                        label={!numbered ? itemLabel : isMobile ? index + 1 : `${index + 1}.  ${itemLabel}`}
-                        sufExtra={lapiz || quitar ? <>{lapiz}{quitar}</> : null}
+                        label={label}
+                        sufExtra={lapiz || quitar || punto ? <>{lapiz}{quitar}{punto}</> : null}
                         isActive={isActive}
                         isVisited={visitedTabs?.has(index)}
                         onClick={() => onTabClick?.(index)}
-                        className={`line-clamp-1 ${margen}`}
+                        className={`relative line-clamp-1 ${margen}`}
+                        {...(nuevo && { 'aria-label': `${label}, nuevo` })}
                     />
                 );
             })}
