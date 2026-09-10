@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useForm, FormProvider } from 'react-hook-form';
 import useAuth from '@context/useAuth';
@@ -11,7 +11,10 @@ import {
     getMiEnvioHistorial,
 } from '@services/formulariosServices';
 import { evaluarShowWhen } from '@forms/renderer/conditional';
-import { camposEditables } from '@forms/renderer/editableFields';
+import {
+    agruparActualizables, armarPayload, reindexarPendientes,
+} from '@forms/renderer/actualizacion';
+import RepeaterActualizable from '@forms/components/RepeaterActualizable';
 import CampoConHistorial from '@forms/components/CampoConHistorial';
 import Loading from '@components/Loading';
 import Typography from '@components/Typography';
@@ -20,33 +23,8 @@ import BackLink from '@components/BackLink';
 
 const AYUDA = 'Edita solo los campos habilitados. El resto del envío no cambia y cada '
     + 'modificación queda registrada en el historial. Los archivos se reemplazan en '
-    + 'cuanto los subes; el resto se guarda con el botón.';
-
-const itemLabel = (step, idx) => (step.itemLabel || `Elemento ${idx + 1}`)
-    .replace('{{index}}', String(idx + 1));
-
-const collectEditableFields = (definicion, datos) => {
-    const grupos = [];
-    (definicion?.steps || []).forEach((step) => {
-        const fields = camposEditables({ steps: [step] });
-        if (!fields.length) return;
-        if (step.type !== 'repeater') {
-            grupos.push({ step, fields, prefix: step.id, title: step.title });
-            return;
-        }
-        const items = Array.isArray(datos?.[step.id]) ? datos[step.id] : [];
-        items.forEach((_, idx) => {
-            grupos.push({
-                step,
-                fields,
-                prefix: `${step.id}[${idx}]`,
-                title: `${step.title} · ${itemLabel(step, idx)}`,
-                itemIndex: idx,
-            });
-        });
-    });
-    return grupos;
-};
+    + 'cuanto los subes; el resto se guarda con el botón. En un conjunto nuevo, todo se guarda '
+    + 'con el botón.';
 
 const StepGrupo = ({
     step, fields, prefix, title, itemIndex, methods, catalogos, onUpload, historialPorCampo,
@@ -101,12 +79,23 @@ const EnvioActualizarContent = ({ envio }) => {
     }, [historial]);
 
     const grupos = useMemo(
-        () => collectEditableFields(envio.definicion_snapshot || {}, envio.datos || {}),
-        [envio.definicion_snapshot, envio.datos],
+        () => agruparActualizables(envio.definicion_snapshot || {}),
+        [envio.definicion_snapshot],
     );
 
+    const originales = useMemo(() => Object.fromEntries(
+        grupos
+            .filter(({ step }) => step.type === 'repeater')
+            .map(({ step }) => [
+                step.id,
+                Array.isArray(envio.datos?.[step.id]) ? envio.datos[step.id].length : 0,
+            ]),
+    ), [grupos, envio.datos]);
+
+    const pendientesRef = useRef(new Map());
+
     const soloArchivos = grupos.every(
-        ({ fields }) => fields.every((f) => f.type === 'file'),
+        ({ step, fields }) => step.type !== 'repeater' && fields.every((f) => f.type === 'file'),
     );
 
     const cargarHistorial = useCallback(async () => {
@@ -134,21 +123,28 @@ const EnvioActualizarContent = ({ envio }) => {
     };
 
     const onSubmit = methods.handleSubmit(async () => {
-        const campos = {};
-        grupos.forEach(({ fields, prefix }) => {
-            fields.forEach((field) => {
-                if (field.type === 'file') return;
-                const path = `${prefix}.${field.name}`;
-                campos[path] = methods.getValues(path);
-            });
+        const campos = armarPayload({
+            grupos,
+            valores: methods.getValues(),
+            original: envio.datos || {},
         });
-        if (!Object.keys(campos).length) {
+        const archivos = [...pendientesRef.current.entries()];
+        if (!Object.keys(campos).length && !archivos.length) {
             volver();
             return;
         }
         setSaving(true);
         try {
-            await actualizarCamposEnvio(onFetch, envio.id, campos);
+            if (Object.keys(campos).length) {
+                await actualizarCamposEnvio(onFetch, envio.id, campos);
+            }
+            await archivos.reduce(
+                (previo, [ruta, archivo]) => previo.then(
+                    () => actualizarArchivoEnvio(onFetch, envio.id, ruta, archivo),
+                ),
+                Promise.resolve(),
+            );
+            pendientesRef.current.clear();
             onMessage?.(false, 'Información actualizada');
             volver();
         } catch (err) {
@@ -203,20 +199,32 @@ const EnvioActualizarContent = ({ envio }) => {
                         </div>
                     ) : (
                         <div className="space-y-8">
-                            {grupos.map(({ step, fields, prefix, title, itemIndex }) => (
-                                <StepGrupo
-                                    key={prefix}
+                            {grupos.map(({ step, fields }) => (step.type === 'repeater' ? (
+                                <RepeaterActualizable
+                                    key={step.id}
                                     step={step}
                                     fields={fields}
-                                    prefix={prefix}
-                                    title={title}
-                                    itemIndex={itemIndex}
+                                    methods={methods}
+                                    catalogos={catalogos}
+                                    onUpload={handleUpload}
+                                    historialPorCampo={historialPorCampo}
+                                    originales={originales[step.id] ?? 0}
+                                    onArchivoPendiente={(ruta, archivo) => pendientesRef.current.set(ruta, archivo)}
+                                    onQuitarElemento={(idx) => reindexarPendientes(pendientesRef.current, step.id, idx)}
+                                />
+                            ) : (
+                                <StepGrupo
+                                    key={step.id}
+                                    step={step}
+                                    fields={fields}
+                                    prefix={step.id}
+                                    title={step.title}
                                     methods={methods}
                                     catalogos={catalogos}
                                     onUpload={handleUpload}
                                     historialPorCampo={historialPorCampo}
                                 />
-                            ))}
+                            )))}
                         </div>
                     )}
 

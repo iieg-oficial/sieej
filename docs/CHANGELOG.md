@@ -6,6 +6,27 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [1.59.0] - 2026-09-10
+
+### Agregado: elegir, renombrar y agregar conjuntos al actualizar un envío
+
+«Actualizar información» dejó de apilar los elementos de un repeater uno debajo de otro, cada uno
+con el título del paso repetido. Ahora cada repeater muestra sus elementos en pestañas —las mismas
+de la captura— y solo los campos actualizables del que esté elegido.
+
+El botón **+** agrega un elemento al final. El nuevo abre **todas** las pestañas del paso, no solo
+los campos actualizables: si solo abriera esos, el resto quedaría vacío para siempre. Se descarta
+con la ✕ antes de guardar, y sus archivos se suben al guardar, justo después de crearlo.
+Requiere mariachi 1.123.0.
+
+### Agregado: renombrar la pestaña de un elemento
+
+La pestaña activa tiene un lápiz, en la captura y en la actualización: Enter guarda, Esc cancela,
+y un nombre vacío regresa a la etiqueta numerada. Se guarda en `__etiqueta` y `buildRepeaterItems`
+lo pone por delante de `nombre_bd`, `nombres` y `nombre`. `Tabs` lo ofrece solo a quien le pase
+`onTabRename`, así que las otras pantallas que usan pestañas no cambian. En móvil no aparece,
+porque ahí las pestañas muestran solo el número.
+
 ## [1.58.1] - 2026-08-05
 
 ### Corregido: el aviso de privacidad respondía 404
