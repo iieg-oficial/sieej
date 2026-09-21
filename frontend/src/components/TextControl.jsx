@@ -3,7 +3,7 @@ import React from 'react';
 const BASE = `
     block w-full px-4 py-2 rounded-[8px] bg-[#F8F8F8] text-[#5C2472]
     font-garetmedium text-[13px] cursor-auto border border-transparent
-    placeholder-[#8E8E8E] placeholder:font-garetregular
+    placeholder-[#6B6B6B] placeholder:font-garetregular
     hover:shadow-[0px_2px_24px_#B6A6BC98] hover:bg-white hover:border-[#5C2472]
     focus:outline-none focus:ring-1 focus:ring-[#5C2472] focus:bg-white
 `;
@@ -39,7 +39,7 @@ const TextControl = ({
         ${className}
         ${BASE}
         ${alto}
-        ${error ? 'border-[#EA4336]! placeholder-[#EA4336] bg-white' : ''}
+        ${error ? 'border-[#EA4336]! placeholder-[#B3261E] bg-white' : ''}
     `;
 
     const reserva = reservaDe(Math.max(reservas ?? 0, acciones.length));

@@ -5,7 +5,7 @@ import Tabs from './Tabs';
 const COLOR_TEXT = {
     Completada: 'text-[#34A853]',
     'En proceso': 'text-[#4285F4]',
-    'Datos incompletos': 'text-[#FF8300]',
+    'Datos incompletos': 'text-[#9E5200]',
     'No iniciada': 'text-[#7C7C7C]',
     default: 'text-[#7C7C7C]',
 };
@@ -13,7 +13,7 @@ const COLOR_TEXT = {
 const CIRCLE_STYLE = {
     Completada: 'bg-[#EAF6ED] text-[#34A853]',
     'En proceso': 'bg-[#5C2473] text-white border border-[#5C2473] inset-ring-4 ring-white',
-    'Datos incompletos': 'bg-[#FEDAB2] text-[#FF8300]',
+    'Datos incompletos': 'bg-[#FFE9CC] text-[#9E5200]',
     'No iniciada': 'bg-[#F0E2F5] text-[#5C2472]',
 };
 

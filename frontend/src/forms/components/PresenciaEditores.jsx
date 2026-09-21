@@ -2,7 +2,7 @@ import React from 'react';
 import Tooltip from '@components/Tooltip';
 import iniciales from '@helpers/iniciales';
 
-const COLORES = ['#5C2472', '#FF8300', '#1E7B7B', '#B23A6E', '#2F5FAF'];
+const COLORES = ['#5C2472', '#9E5200', '#1E7B7B', '#B23A6E', '#2F5FAF'];
 
 const colorDe = (username) => {
     const suma = String(username || '')
@@ -44,7 +44,7 @@ const PresenciaEditores = ({ presentes = [], seccionActual, tituloSeccion }) => 
                 </span>
             )}
             {aqui.length > 0 && (
-                <span className="rounded-full bg-[#FEDAB2] px-2 py-0.5 text-[10px] font-garetbold text-[#FF8300]">
+                <span className="rounded-full bg-[#FFE9CC] px-2 py-0.5 text-[10px] font-garetbold text-[#9E5200]">
                     {aqui.length === 1
                         ? `${aqui[0].name} en ${tituloSeccion || 'esta sección'}`
                         : `${aqui.length} personas en ${tituloSeccion || 'esta sección'}`}

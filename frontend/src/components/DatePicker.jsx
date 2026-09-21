@@ -92,7 +92,7 @@ const DatePicker = ({
 
     const valueClass = disabled
         ? 'text-[#CBCBCB]'
-        : ((value || optionLabel) ? 'text-[#5C2472]' : 'text-[#8E8E8E] font-garetregular');
+        : ((value || optionLabel) ? 'text-[#5C2472]' : 'text-[#6B6B6B] font-garetregular');
 
     return (
         <DynamicDiv inline={inline} colSpan={colSpan} col={col} wDiv={wDiv} className={inline ? '' : 'mt-4'}>

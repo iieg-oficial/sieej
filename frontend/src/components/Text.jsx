@@ -12,7 +12,7 @@ const Text = ({ label, text, tooltip, badge, colSpan, wDiv, clean, ...rest }) =>
             <p 
                 className={`
                     font-garetmedium text-[13px] my-2 break-words whitespace-pre-line
-                    ${text ? 'text-[#5C2472]' : 'text-[#8E8E8E]'}
+                    ${text ? 'text-[#5C2472]' : 'text-[#6B6B6B]'}
                 `}
                 {...rest}
             >

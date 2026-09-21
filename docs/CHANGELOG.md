@@ -6,6 +6,12 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [2.2.1] - 2026-09-21
+
+### Corregido
+
+- Contraste AA en textos de error, placeholders, tooltip chico y chip activo.
+
 ## [2.2.0] - 2026-08-21
 
 ### Agregado: se ve quién está capturando y lo que va escribiendo

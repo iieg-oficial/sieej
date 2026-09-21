@@ -41,7 +41,7 @@ const NavigateStep = ({
                 />
                 {tieneCambios && (
                     <div className="w-full md:w-auto">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-garetbold bg-[#FEDAB2] text-[#FF8300]">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-garetbold bg-[#FFE9CC] text-[#9E5200]">
                             Actualizado
                         </span>
                     </div>

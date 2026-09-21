@@ -66,7 +66,7 @@ const Button = ({
             bg-transparent text-[#5C2472] hover:underline
         `,
         delete: `
-            bg-transparent text-[#E63C35] border border-[#FCDBDA]
+            bg-transparent text-[#B3261E] border border-[#FCDBDA]
             hover:bg-[#FCDBDA] 
         `,
         danger: `
@@ -74,7 +74,7 @@ const Button = ({
             hover:bg-[#B40700] 
         `,
         label: isActive ? `
-            bg-[#FEDAB2] text-[#FF8300] ring ring-[#FF8300]
+            bg-[#FFE9CC] text-[#9E5200] ring ring-[#FF8300]
         ` : isVisited ? `text-[#32A752] bg-[#EAF6ED]`: `text-[#465055] bg-[#F8F8F8]`
         ,
         disabled: `

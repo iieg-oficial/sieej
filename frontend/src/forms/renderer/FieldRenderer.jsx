@@ -24,7 +24,7 @@ const toRegExp = (raw) => {
 };
 
 
-const CLASE_BADGE = 'inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-garetbold ml-2 bg-[#FEDAB2] text-[#FF8300]';
+const CLASE_BADGE = 'inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-garetbold ml-2 bg-[#FFE9CC] text-[#9E5200]';
 
 const LABEL_CAMBIO = { nuevo: 'Nuevo', eliminado: 'Cambió', modificado: 'Cambió' };
 
