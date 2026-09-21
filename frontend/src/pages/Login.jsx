@@ -43,6 +43,26 @@ export default function Login() {
         if (!termsAccepted) navigate('/exencion');
     }, [navigate]);
 
+    useEffect(() => {
+        const termsAccepted = sessionStorage.getItem('termsAccepted') === 'true';
+        if (termsAccepted && !authError && !isAuthenticated && !isAuthLoading && !redirecting) {
+            setRedirecting(true);
+            onLogin();
+        }
+    }, [authError, isAuthenticated, isAuthLoading, onLogin, redirecting]);
+
+    if (!authError) {
+        return (
+            <CardPage>
+                <div className="flex flex-col items-center justify-center w-full h-full gap-6">
+                    <ImageSIEEJ />
+                    <Typography as="span" titleName="Redirigiendo al inicio de sesión…"/>
+                    <EnvBadge />
+                </div>
+            </CardPage>
+        );
+    }
+
     return (
         <CardPage>
             <div className="md:grid md:grid-cols-2 w-full h-full lg:gap-5">

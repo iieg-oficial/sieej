@@ -35,7 +35,12 @@ const fetchJson = async (url, options = {}) => {
     return data;
 };
 
-export const buildLoginUrl = () => buildUrl('/autenticacion/login');
+export const buildLoginUrl = () => {
+    // Ruta absoluta del dominio (incluye el prefijo /sieej): mariachi la usa como
+    // `return_to` para devolver aquí tras el login, en vez de a su propio home.
+    const returnTo = `${window.location.pathname}${window.location.search}`;
+    return buildUrl(`/autenticacion/login?return_to=${encodeURIComponent(returnTo)}`);
+};
 
 export const postLogout = async () =>
     fetchJson(buildUrl('/autenticacion/cerrar-sesion'), { method: 'POST' });
