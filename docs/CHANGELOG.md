@@ -14,7 +14,8 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
   aparece si el SSO devuelve un error o si la sesión se cerró desde la aplicación.
 - Minerva muestra la identidad de SIEEJ cuando el acceso se origina aquí, en vez de la de mariachi.
 - El regreso respeta la ruta desde la que se pidió el acceso; antes caía siempre en el inicio de
-  mariachi.
+  mariachi. Vale para los dos extremos del ciclo: al entrar y al salir, porque el cierre de sesión
+  termina pidiendo credenciales de nuevo y ahí también hay que saber a dónde volver.
 
 ### Corregido
 
