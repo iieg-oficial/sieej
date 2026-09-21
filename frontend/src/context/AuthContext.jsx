@@ -194,15 +194,15 @@ const AuthProvider = ({ children }) => {
             /* ignorar fallo de logout server-side */
         }
         sessionStorage.removeItem(CSRF_KEY);
-        safeSet(setUser)(null);
-        safeSet(setIsAuthenticated)(false);
-        safeSet(setAuthError)(null);
         authAnalyticsEvent('Cerrar sesión', 'Sesión cerrada manualmente');
         if (logoutUrl) {
             window.location.href = logoutUrl;
             return;
         }
-        navigate('/inicio-sesion');
+        safeSet(setUser)(null);
+        safeSet(setIsAuthenticated)(false);
+        safeSet(setAuthError)(null);
+        navigate('/inicio-sesion?sesion_cerrada=1');
     };
 
     useEffect(() => {

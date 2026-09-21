@@ -22,6 +22,7 @@ export default function Login() {
     const [redirecting, setRedirecting] = useState(false);
 
     const authError = searchParams.get('auth_error');
+    const sesionCerrada = searchParams.get('sesion_cerrada');
     const errorMessage = authError
         ? (AUTH_ERRORS[authError] || 'No se pudo iniciar sesión.')
         : null;
@@ -45,13 +46,13 @@ export default function Login() {
 
     useEffect(() => {
         const termsAccepted = sessionStorage.getItem('termsAccepted') === 'true';
-        if (termsAccepted && !authError && !isAuthenticated && !isAuthLoading && !redirecting) {
+        if (termsAccepted && !authError && !sesionCerrada && !isAuthenticated && !isAuthLoading && !redirecting) {
             setRedirecting(true);
             onLogin();
         }
-    }, [authError, isAuthenticated, isAuthLoading, onLogin, redirecting]);
+    }, [authError, sesionCerrada, isAuthenticated, isAuthLoading, onLogin, redirecting]);
 
-    if (!authError) {
+    if (!authError && !sesionCerrada) {
         return (
             <CardPage>
                 <div className="flex flex-col items-center justify-center w-full h-full gap-6">
@@ -71,7 +72,7 @@ export default function Login() {
                         <Typography as="h2" titleName="Hola"/>
                         <Typography as="span" titleName="Inicia sesión con tu cuenta institucional."/>
                         <div className="mt-10">
-                            <Message type="error" message={errorMessage}/>
+                            {errorMessage && <Message type="error" message={errorMessage}/>}
                             <Button
                                 label="Iniciar sesión"
                                 variant="primary"

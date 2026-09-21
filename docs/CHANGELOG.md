@@ -6,6 +6,23 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [2.3.0] - 2026-09-21
+
+### Agregado
+
+- El acceso salta directo a minerva. Se quitó la pantalla intermedia con el botón, que ahora sólo
+  aparece si el SSO devuelve un error o si la sesión se cerró desde la aplicación.
+- Minerva muestra la identidad de SIEEJ cuando el acceso se origina aquí, en vez de la de mariachi.
+- El regreso respeta la ruta desde la que se pidió el acceso; antes caía siempre en el inicio de
+  mariachi.
+
+### Corregido
+
+- Cerrar sesión ya cierra de verdad. El estado local se limpiaba antes de navegar al cierre del SSO,
+  así que la pantalla de acceso se montaba y pedía un acceso nuevo que pisaba esa navegación; como
+  ese segundo acceso no forzaba credenciales, minerva reconocía la sesión viva y devolvía al usuario
+  dentro de la aplicación.
+
 ## [2.2.1] - 2026-09-21
 
 ### Corregido
