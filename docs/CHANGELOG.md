@@ -6,6 +6,13 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [2.4.0] - 2026-09-24
+
+### Corregido
+
+- Los adjuntos de un envío se descargan en vez de abrirse en otra pestaña. Un archivo subido por
+  otro colaborador, como un HTML o un SVG, podía ejecutarse con el origen del sitio.
+
 ## [2.3.0] - 2026-09-21
 
 ### Agregado
