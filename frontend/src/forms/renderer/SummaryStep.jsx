@@ -7,6 +7,7 @@ import FieldGrid from '@helpers/FieldLayout';
 import { formatFieldValue } from './fieldValue';
 import SummaryPdfButton from './pdf/SummaryPdfButton';
 import UpdateFieldsButton from '@forms/components/UpdateFieldsButton';
+import BadgeAutoria from '@forms/components/BadgeAutoria';
 
 const LARGO_RESPUESTA = 80;
 const TIPOS_LARGOS = [ 'textarea', 'select_multiple' ];
@@ -15,7 +16,7 @@ const colSpanDeRespuesta = (field, texto) => (
     TIPOS_LARGOS.includes(field.type) || texto.length > LARGO_RESPUESTA ? 4 : 2
 );
 
-const renderCampos = (fields, valores, catalogos) => fields
+const renderCampos = (fields, valores, catalogos, autoria, prefijo) => fields
     .filter((f) => f.type !== 'info')
     .map((field) => {
         const texto = formatFieldValue(field, valores?.[field.name], catalogos);
@@ -24,20 +25,21 @@ const renderCampos = (fields, valores, catalogos) => fields
                 key={field.name}
                 label={field.label}
                 text={texto}
+                badge={<BadgeAutoria autoria={autoria?.[`${prefijo}.${field.name}`]} />}
                 colSpan={colSpanDeRespuesta(field, texto)}
             />
         );
     });
 
-const renderFormStep = (step, datos, catalogos) => (
+const renderFormStep = (step, datos, catalogos, autoria) => (
     <div className="w-full my-6 md:ml-12">
         <FieldGrid col={4} align="start">
-            {renderCampos(step.fields, datos[step.id] || {}, catalogos)}
+            {renderCampos(step.fields, datos[step.id] || {}, catalogos, autoria, step.id)}
         </FieldGrid>
     </div>
 );
 
-const renderRepeaterStep = (step, datos, catalogos) => {
+const renderRepeaterStep = (step, datos, catalogos, autoria) => {
     const items = Array.isArray(datos[step.id]) ? datos[step.id] : [];
     if (items.length === 0) {
         return (
@@ -57,7 +59,9 @@ const renderRepeaterStep = (step, datos, catalogos) => {
                         style={{ color: '#5C2472' }}
                     />
                     <FieldGrid col={4} align="start">
-                        {renderCampos(step.fields, item || {}, catalogos)}
+                        {renderCampos(
+                            step.fields, item || {}, catalogos, autoria, `${step.id}[${idx}]`,
+                        )}
                     </FieldGrid>
                     {idx < items.length - 1 && <Divide />}
                 </React.Fragment>
@@ -68,7 +72,7 @@ const renderRepeaterStep = (step, datos, catalogos) => {
 
 const SummaryStep = ({
     definicion, methods, catalogos, summaryStep,
-    showPdfButton = true, envioId, puedeActualizar = false,
+    showPdfButton = true, envioId, puedeActualizar = false, autoria,
 }) => {
     const datos = useWatch({ control: methods.control }) || {};
     const realSteps = (definicion.steps || []).filter((s) => s.type !== 'summary');
@@ -89,8 +93,8 @@ const SummaryStep = ({
                         icon={!isMobile && step.icon}
                     />
                     {step.type === 'repeater'
-                        ? renderRepeaterStep(step, datos, catalogos)
-                        : renderFormStep(step, datos, catalogos)}
+                        ? renderRepeaterStep(step, datos, catalogos, autoria)
+                        : renderFormStep(step, datos, catalogos, autoria)}
                 </React.Fragment>
             ))}
 

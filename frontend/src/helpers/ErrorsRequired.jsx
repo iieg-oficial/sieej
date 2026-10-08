@@ -10,7 +10,7 @@ const ErrorsRequired = ({ name, errors, mostrar = true, children }) => {
             {mostrar && errorMessage && (
                 <div className="flex items-center">
                     <img src={icoError} alt="error" className="mr-2"/>
-                    <span role="alert" className="text-[#EA4336] text-[11px] font-garetmedium">
+                    <span role="alert" className="text-[#B3261E] text-[11px] font-garetmedium">
                         {errorMessage}
                     </span>
                 </div>

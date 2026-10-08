@@ -62,7 +62,7 @@ const SearchBox = ({ q, onQ }) => {
                 onChange={(e) => onQ(e.target.value)}
                 placeholder="Buscar..."
                 aria-label="Buscar formularios"
-                className="transition-all duration-200 bg-transparent text-[13px] font-garetmedium text-[#191919] placeholder-[#8E8E8E] placeholder:font-garetregular focus:outline-none w-full pr-2"
+                className="transition-all duration-200 bg-transparent text-[13px] font-garetmedium text-[#191919] placeholder-[#6B6B6B] placeholder:font-garetregular focus:outline-none w-full pr-2"
             />
         </>
     );
@@ -104,7 +104,7 @@ const FormCard = ({ formulario, onClick, onDownloadPdf, onUpdateFields, onContac
                         </span>
                     )}
                     {formulario.actualizacion_disponible && (
-                        <span className="text-xs font-garetbold px-3 py-1 rounded-full bg-[#FEDAB2] text-[#FF8300]">
+                        <span className="text-xs font-garetbold px-3 py-1 rounded-full bg-[#FFE9CC] text-[#9E5200]">
                             Actualización
                         </span>
                     )}

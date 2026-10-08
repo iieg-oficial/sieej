@@ -44,6 +44,7 @@ export default defineConfig(({ mode }) => {
             environment: 'jsdom',
             globals: true,
             setupFiles: ['./test/setup.js'],
+            execArgv: ['--no-experimental-webstorage'],
             css: false,
         },
         build: {

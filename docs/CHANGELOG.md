@@ -6,6 +6,139 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+## [2.4.0] - 2026-09-24
+
+### Corregido
+
+- Los adjuntos de un envío se descargan en vez de abrirse en otra pestaña. Un archivo subido por
+  otro colaborador, como un HTML o un SVG, podía ejecutarse con el origen del sitio.
+
+## [2.3.0] - 2026-09-21
+
+### Agregado
+
+- El acceso salta directo a minerva. Se quitó la pantalla intermedia con el botón, que ahora sólo
+  aparece si el SSO devuelve un error o si la sesión se cerró desde la aplicación.
+- Minerva muestra la identidad de SIEEJ cuando el acceso se origina aquí, en vez de la de mariachi.
+- El regreso respeta la ruta desde la que se pidió el acceso; antes caía siempre en el inicio de
+  mariachi. Vale para los dos extremos del ciclo: al entrar y al salir, porque el cierre de sesión
+  termina pidiendo credenciales de nuevo y ahí también hay que saber a dónde volver.
+
+### Corregido
+
+- Cerrar sesión ya cierra de verdad. El estado local se limpiaba antes de navegar al cierre del SSO,
+  así que la pantalla de acceso se montaba y pedía un acceso nuevo que pisaba esa navegación; como
+  ese segundo acceso no forzaba credenciales, minerva reconocía la sesión viva y devolvía al usuario
+  dentro de la aplicación.
+
+## [2.2.1] - 2026-09-21
+
+### Corregido
+
+- Contraste AA en textos de error, placeholders, tooltip chico y chip activo.
+
+## [2.2.0] - 2026-08-21
+
+### Agregado: se ve quién está capturando y lo que va escribiendo
+
+Quinta de las seis fases de los envíos colaborativos. Requiere mariachi con el mapa `autoria` en la
+respuesta del envío y `actor_nombre` en el historial del respondent.
+
+El formulario late contra `POST /envio/sync` y con cada latido trae tres cosas: quién más está
+dentro, en qué sección anda cada quien, y los campos que cambiaron desde la versión que el cliente
+tenía. Los avatares con iniciales salen arriba del formulario y el tooltip dice si la persona está
+en tu misma sección.
+
+**La cadencia se adapta.** Diez segundos cuando hay alguien más, treinta en solitario, con jitter
+para que los pulsos del equipo no se sincronicen y peguen todos juntos contra la misma cuota de IP.
+Con la pestaña oculta no late, y al volver a ella late de inmediato en vez de esperar el turno. Al
+cerrar la pestaña se da de baja con `keepalive`, así que el avatar desaparece del otro lado sin
+esperar los treinta segundos del TTL.
+
+**Lo que llega no pisa lo que estás escribiendo.** Un campo enfocado nunca se toca, y uno con
+cambios que todavía no viajan tampoco: el hook sabe qué mandó y compara contra eso, así que un
+campo con edición local pendiente se salta hasta que su valor esté confirmado. El resto entra con
+`shouldDirty: false` para no ensuciar el estado del formulario.
+
+### Agregado: cada campo dice quién lo llenó y cuándo
+
+Un distintivo junto a la etiqueta, en el formulario y en el paso de resumen. En un envío de grupo
+son las iniciales de quien lo dejó así, con «Modificado por Ana López · 21 ago 14:30» en el tooltip;
+en uno individual es solo la fecha, porque el único actor posible es quien está mirando.
+
+Cuelga de la prop `badge` que `FieldRenderer` ya repartía a los nueve controles para los cambios de
+versión, que pasó de admitir un nodo a admitir un fragmento. `Text.jsx` no reenviaba `badge` aunque
+`Typography` ya lo soportara: era una línea, y con ella el resumen quedó cubierto.
+
+### Corregido: el detalle del envío no cargaba su historial
+
+`EnvioDetalle` nunca llamaba a `getMiEnvioHistorial`, así que su resumen no tenía de dónde sacar la
+autoría. Ahora lo carga y deriva el último autor de cada campo. `HistorialCampos` muestra el nombre
+junto a la fecha cuando viene, y `EventTimeline` dejó de ignorar el evento `actualizado`, que existe
+en el backend desde que hay corrección post-envío y no aparecía en la línea de tiempo.
+
+## [2.1.0] - 2026-08-21
+
+### Agregado: captura en equipo, con lo escrito viajando solo
+
+Cuarta de las seis fases de los envíos colaborativos; las tres anteriores fueron backend y viven en
+mariachi (2.9.0 a 2.12.0). Requiere mariachi con `colaborativo`, `grupo_id`, `datos_version` y
+`puede_enviar` en la respuesta del envío.
+
+Cuando el formulario es colaborativo el envío pertenece al grupo y varias personas capturan sobre el
+mismo. Eso obliga a cambiar cómo se guarda: el `PUT` manda `datos` completo y borraría de un golpe lo
+que escribió el resto, así que en ese modo `guardar()` sale por
+`PATCH /formularios/{slug}/envio/campos`, que hace merge campo por campo. En los formularios
+individuales no cambia nada.
+
+**Lo escrito se manda solo.** Un segundo y medio después de que la persona deja de teclear sale un
+lote con los campos que cambiaron desde el último envío. «Guardar avance» se queda como respaldo
+explícito y ahora dice en su tooltip que el guardado ya es automático.
+
+El disparador es la suscripción de react-hook-form y no el `onBlur` de cada campo, que era lo
+planeado. Dos razones: `onBlur` no toca ninguno de los nueve controles pero tampoco manda nada
+mientras alguien escribe un textarea largo sin salirse de él —justo el caso donde el compañero más
+necesita ver el avance—, y la suscripción cubre igual a los selects, checkboxes y calendarios sin
+tocar un solo control.
+
+**Los archivos nunca salen por ahí.** Su valor lo escribe la ruta de upload, que además mueve el
+objeto en el Acervo, así que el autosave los salta reconociéndolos por su tipo en la definición.
+
+**Enviar sigue siendo del coordinador.** En el último paso, quien no lo es ve el botón bloqueado con
+el motivo en el tooltip en vez de descubrirlo con un 403.
+
+### Agregado: traducción de paths entre el wizard y la API
+
+El wizard nombra los campos de un repeater `bases_datos.0.diccionario` y el backend los parsea como
+`bases_datos[0].diccionario`. Mientras los datos viajaban completos daba igual; ahora que viajan por
+campo, no. `helpers/fieldPath.js` traduce en ambos sentidos, aplana `datos` a paths y calcula el
+diff, con pruebas propias.
+
+## [2.0.0] - 2026-08-10
+
+### Cambiado: el inicio de sesión pasa a minerva, con mariachi 2.0.0
+
+**Incompatible, y no se puede desplegar solo.** Mariachi retiró
+`POST /autenticacion/iniciar-sesion` y `POST /autenticacion/cambiar-contrasena` al migrar su
+autenticación a minerva (OIDC). SIEEJ posteaba credenciales a esos dos endpoints, así que su
+pantalla de login respondería 404 en cuanto mariachi 2.0.0 salga.
+
+La sesión en sí **no cambia**: misma cookie, mismo origen, `GET /autenticacion/perfil` y
+`POST /autenticacion/refrescar` siguen exactamente igual, incluida la renovación ante 401. Lo único
+que cambia es cómo se obtiene esa sesión: el botón «Iniciar sesión» ahora redirige a
+`{api}/autenticacion/login`, que lleva a minerva y vuelve con la sesión puesta.
+
+Quien llegue sin un rol de la aplicación en minerva aterriza en `/inicio-sesion?auth_error=access_denied`
+con el motivo escrito, en vez de un formulario que nunca va a funcionar.
+
+**Se despliega junto con mariachi 2.0.0**, no antes ni después: entre uno y otro, el login queda roto.
+
+### Eliminado
+
+- La pantalla de cambio de contraseña y su ruta `/cambiar-contrasena`, con todo el flujo de
+  `must_change_password`. Minerva es quien administra las credenciales.
+- El campo de contraseña de la pantalla de inicio de sesión.
+
 ## [1.60.1] - 2026-09-10
 
 ### Cambiado: el punto de conjunto nuevo sale por la esquina de la pestaña

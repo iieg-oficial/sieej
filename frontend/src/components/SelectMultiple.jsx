@@ -103,7 +103,7 @@ const SelectMultiple = ({
                     ${hasThingSelected ? 'bg-white' : 'bg-[#F8F8F8] cursor-pointer hover:border-[#5C2472] hover:border-1'}
                     focus:outline-none focus:ring-1 focus:ring-[#5C2472] 
                     hover:shadow-lg hover:shadow-[#CECECE33] hover:bg-white
-                     ${getFieldError(errors, name) ? 'border border-[#EA4336] placeholder-[#EA4336] bg-white' : ''}
+                     ${getFieldError(errors, name) ? 'border border-[#EA4336] placeholder-[#B3261E] bg-white' : ''}
                 `}
                 onClick={() => setShowDropdown((prev) => !prev)}
                 {...register(name, {
@@ -224,7 +224,7 @@ const SelectMultiple = ({
                         </div>
                     ))}
                     {filteredOptions.length === 0 && (
-                        <div className="flex items-center font-garetregular w-full px-3 py-2 text-[#8E8E8E]">
+                        <div className="flex items-center font-garetregular w-full px-3 py-2 text-[#6B6B6B]">
                             No se encontraron opciones
                         </div>
                     )}

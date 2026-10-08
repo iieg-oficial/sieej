@@ -1,10 +1,10 @@
 import React from 'react';
 
 const STATE_CLASS = {
-    neutral: 'text-[#8E8E8E]',
+    neutral: 'text-[#6B6B6B]',
     ok: 'text-[#34A853]',
-    error: 'text-[#EA4336]',
-    limite: 'text-[#FF8300]',
+    error: 'text-[#B3261E]',
+    limite: 'text-[#9E5200]',
 };
 
 const FieldHints = ({ items = [] }) => {

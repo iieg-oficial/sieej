@@ -115,7 +115,7 @@ const Tooltip = ({ text, showIcon = true, size = 'normal', placement = 'top', ch
                         }}
                         className="
                             fixed z-[999] max-w-[min(280px,calc(100vw-16px))]
-                            text-[10px] text-white bg-[#8591AB] rounded px-2 py-1
+                            text-[10px] text-white bg-[#5B6670] rounded px-2 py-1
                             font-garetbold
                         "
                     >

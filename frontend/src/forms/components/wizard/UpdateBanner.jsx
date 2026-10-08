@@ -16,7 +16,7 @@ const buildLabelMap = (definicion) => {
 };
 
 const Badge = ({ tipo }) => (
-    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-garetbold bg-[#FEDAB2] text-[#FF8300]">
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-garetbold bg-[#FFE9CC] text-[#9E5200]">
         {TIPO_LABEL[tipo] || tipo}
     </span>
 );

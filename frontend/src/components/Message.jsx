@@ -6,7 +6,7 @@ import useGlobal from '@context/useGlobal';
 const messageStyles = {
     error: {
         bgColor: 'bg-[#FFD0CCFC]',
-        textColor: {color: '#EA4335'},
+        textColor: {color: '#B3261E'},
         borderColor: 'border-[#EA4336]',
     },
     warning: {

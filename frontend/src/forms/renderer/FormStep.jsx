@@ -3,7 +3,9 @@ import FieldRenderer from './FieldRenderer';
 import { evaluarShowWhen } from './conditional';
 import { layoutSlots, spacerClass } from '@helpers/gridLayout';
 
-const FormStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcarVisto }) => {
+const FormStep = ({
+    step, methods, catalogos, onUpload, cambiosStep = [], marcarVisto, autoria,
+}) => {
     methods.watch(step.id);
 
     const cambioPorField = useMemo(() => {
@@ -36,6 +38,7 @@ const FormStep = ({ step, methods, catalogos, onUpload, cambiosStep = [], marcar
                         catalogos={catalogos}
                         onUpload={(_n, file) => onUpload?.(fullName, file)}
                         cambioField={cambio}
+                        autoriaField={autoria?.[fullName]}
                         onInteract={marcarVisto ? () => marcarVisto(`${step.id}.${field.name}`) : undefined}
                     />
                 );

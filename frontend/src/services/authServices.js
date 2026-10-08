@@ -35,14 +35,16 @@ const fetchJson = async (url, options = {}) => {
     return data;
 };
 
-export const postLogin = async ({ username, password }) =>
-    fetchJson(buildUrl('/autenticacion/iniciar-sesion'), {
-        method: 'POST',
-        body: JSON.stringify({ username, password }),
-    });
+const currentReturnTo = () =>
+    encodeURIComponent(`${window.location.pathname}${window.location.search}`);
+
+export const buildLoginUrl = () =>
+    buildUrl(`/autenticacion/login?return_to=${currentReturnTo()}`);
 
 export const postLogout = async () =>
-    fetchJson(buildUrl('/autenticacion/cerrar-sesion'), { method: 'POST' });
+    fetchJson(buildUrl(`/autenticacion/cerrar-sesion?return_to=${currentReturnTo()}`), {
+        method: 'POST',
+    });
 
 export const postRefresh = async () =>
     fetchJson(buildUrl('/autenticacion/refrescar'), { method: 'POST' });
