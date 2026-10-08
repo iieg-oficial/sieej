@@ -4,7 +4,8 @@ import { useForm, FormProvider } from 'react-hook-form';
 import Tabs from '@forms/components/wizard/Tabs';
 import useAuth from '@context/useAuth';
 import useCatalogos from '@forms/context/useCatalogos';
-import { getMiEnvioDetalle } from '@services/formulariosServices';
+import { getMiEnvioDetalle, getMiEnvioHistorial } from '@services/formulariosServices';
+import { autoriaDesdeHistorial } from '@helpers/fieldPath';
 import SummaryStep from '@forms/renderer/SummaryStep';
 import SummaryPdfButton from '@forms/renderer/pdf/SummaryPdfButton';
 import UpdateFieldsButton from '@forms/components/UpdateFieldsButton';
@@ -41,7 +42,7 @@ const MOBILE_TABS = [
     { id: 'actividad', label: 'Actividad' },
 ];
 
-const EnvioDetalleContent = ({ envio }) => {
+const EnvioDetalleContent = ({ envio, autoria }) => {
     const { catalogos } = useCatalogos();
     const methods = useForm({ defaultValues: envio.datos || {} });
     const [activeTab, setActiveTab] = useState(0);
@@ -109,6 +110,7 @@ const EnvioDetalleContent = ({ envio }) => {
                             showPdfButton={false}
                             envioId={envio.id}
                             puedeActualizar={puedeActualizar}
+                            autoria={autoria}
                         />
                     </div>
                 </main>
@@ -142,6 +144,7 @@ const EnvioDetalle = () => {
     const { onFetch } = useAuth();
     const navigate = useNavigate();
     const [envio, setEnvio] = useState(null);
+    const [autoria, setAutoria] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -150,7 +153,12 @@ const EnvioDetalle = () => {
         setLoading(true);
         setError(null);
         getMiEnvioDetalle(onFetch, id)
-            .then((data) => { if (!cancelled) setEnvio(data); })
+            .then(async (data) => {
+                if (cancelled) return;
+                setEnvio(data);
+                const historial = await getMiEnvioHistorial(onFetch, id).catch(() => []);
+                if (!cancelled) setAutoria(autoriaDesdeHistorial(historial));
+            })
             .catch((err) => {
                 if (cancelled) return;
                 if (err.status === 403 || err.status === 404) {
@@ -177,7 +185,7 @@ const EnvioDetalle = () => {
     }
 
     if (!envio) return null;
-    return <EnvioDetalleContent envio={envio} />;
+    return <EnvioDetalleContent envio={envio} autoria={autoria} />;
 };
 
 export default EnvioDetalle;

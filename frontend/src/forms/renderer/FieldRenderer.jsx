@@ -10,6 +10,7 @@ import Typography from '@components/Typography';
 import Dragger from '@components/Dragger';
 import { openRangeOptions, resolveOptions } from './catalogResolver';
 import { placementClasses, startColOf, unitsOfColSpan } from '@helpers/gridLayout';
+import BadgeAutoria from '@forms/components/BadgeAutoria';
 
 const toRegExp = (raw) => {
     if (!raw) return undefined;
@@ -23,11 +24,13 @@ const toRegExp = (raw) => {
 };
 
 
-const CLASE_BADGE = 'inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-garetbold ml-2 bg-[#FEDAB2] text-[#FF8300]';
+const CLASE_BADGE = 'inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-garetbold ml-2 bg-[#FFE9CC] text-[#9E5200]';
 
 const LABEL_CAMBIO = { nuevo: 'Nuevo', eliminado: 'Cambió', modificado: 'Cambió' };
 
-const FieldRenderer = ({ field, placement, methods, catalogos, onUpload, cambioField, onInteract }) => {
+const FieldRenderer = ({
+    field, placement, methods, catalogos, onUpload, cambioField, autoriaField, onInteract,
+}) => {
     const { type, name, label, required, placeholder, tooltip, validation, layout } = field;
     const gridSpan = placement?.units ?? unitsOfColSpan(layout?.colSpan ?? 1);
     const startCol = placement?.col
@@ -41,9 +44,16 @@ const FieldRenderer = ({ field, placement, methods, catalogos, onUpload, cambioF
         onInteract?.();
     }, [onInteract]);
 
-    const badge = cambioField && LABEL_CAMBIO[cambioField.tipo]
+    const badgeCambio = cambioField && LABEL_CAMBIO[cambioField.tipo]
         ? <span className={CLASE_BADGE}>{LABEL_CAMBIO[cambioField.tipo]}</span>
         : null;
+
+    const badge = (badgeCambio || autoriaField) ? (
+        <React.Fragment>
+            {badgeCambio}
+            <BadgeAutoria autoria={autoriaField} />
+        </React.Fragment>
+    ) : null;
 
     if (type === 'info') {
         return (

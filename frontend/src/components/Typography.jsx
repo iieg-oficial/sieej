@@ -35,7 +35,7 @@ const Typography = ({
             {icon && <img src={icon} alt="" className="w-8 h-8" />}
             <Tag style={style} className={`${tagClass} ${className} tracking-normal`}>
                 {content}
-                {required && <span className="text-[#EA4336] ml-1">*</span>}
+                {required && <span className="text-[#B3261E] ml-1">*</span>}
                 {badge}
             </Tag>
             {tooltip && <Tooltip text={tooltip} size={tooltipModal && 'full'} placement={tooltipPlacement}/>}

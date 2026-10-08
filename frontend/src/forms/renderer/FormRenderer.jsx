@@ -1,10 +1,12 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import Typography from '@components/Typography';
 import StepRenderer from './StepRenderer';
 import NavigateStep from '@forms/components/wizard/NavigateStep';
 import useWizard from '@forms/context/useWizard';
 import useSubmission from '@forms/context/useSubmission';
+import useColaboracion from '@forms/hooks/useColaboracion';
+import PresenciaEditores from '@forms/components/PresenciaEditores';
 import useGlobal from '@context/useGlobal';
 import { requisitosPendientes, stepIncompleto, stepsConPendientes } from './completeness';
 import { tieneCamposEditables } from './editableFields';
@@ -21,8 +23,8 @@ const FormRenderer = ({
     });
     const { handleSubmit, reset, getValues, formState: { isDirty } } = methods;
     const { currentStep, goNext, goPrev, activeTab } = useWizard();
-    const { openModal, closeModal } = useGlobal();
-    const { marcarVisto } = useSubmission();
+    const { openModal, closeModal, onMessage } = useGlobal();
+    const { marcarVisto, capturarCampos, sincronizar } = useSubmission();
 
     useEffect(() => {
         if (envio?.datos) reset(envio.datos);
@@ -39,6 +41,22 @@ const FormRenderer = ({
     const isReadOnly = envio?.estado === 'enviado' || envio?.estado === 'expirado';
     const enviado = envio?.estado === 'enviado';
     const puedeActualizar = enviado && tieneCamposEditables(definicion);
+    const colaborativo = !!envio?.colaborativo;
+
+    const avisarFalloCaptura = useCallback((e) => {
+        onMessage?.(true, e?.status === 409
+            ? 'Alguien más cambió un campo que tenías abierto'
+            : 'No se pudo guardar automáticamente; sigue capturando');
+    }, [onMessage]);
+
+    const { presentes } = useColaboracion(methods, {
+        activo: colaborativo && !isReadOnly,
+        definicion,
+        capturar: capturarCampos,
+        sincronizar,
+        seccion: steps[currentStep]?.id,
+        onError: avisarFalloCaptura,
+    });
 
     const cambiosPorStep = useMemo(() => {
         const map = new Map();
@@ -60,9 +78,11 @@ const FormRenderer = ({
         ? stepsConPendientes(steps, valores)
         : [];
 
+    const soloCoordinador = isLast && colaborativo && envio?.puede_enviar === false;
+
     const bloqueoEnvio = faltantesEnvio.length
         ? `Faltan campos obligatorios en: ${faltantesEnvio.map(({ step: s }) => s.title || s.id).join(', ')}`
-        : null;
+        : (soloCoordinador ? 'Solo el coordinador del grupo puede enviar el formulario' : null);
 
     const handleSave = async (silent = false) => {
         const values = getValues();
@@ -115,6 +135,15 @@ const FormRenderer = ({
 
     return (
         <div className="w-full">
+            {colaborativo && (
+                <div className="mb-3 flex justify-end">
+                    <PresenciaEditores
+                        presentes={presentes}
+                        seccionActual={step.id}
+                        tituloSeccion={step.title}
+                    />
+                </div>
+            )}
             <NavigateStep
                 step={step}
                 isFirst={isFirst}
@@ -125,6 +154,7 @@ const FormRenderer = ({
                 nextDisabled={!!pendienteMsg || !!bloqueoEnvio}
                 nextTooltip={pendienteMsg || bloqueoEnvio}
                 saveDisabled={isReadOnly || !isDirty}
+                saveTooltip={colaborativo ? 'Tus cambios se guardan solos; esto los manda ya' : null}
                 onPrev={goPrev}
                 onSubmit={handleNext}
                 onSave={isReadOnly ? null : handleSave}
@@ -142,6 +172,7 @@ const FormRenderer = ({
                 onUpload={onUpload}
                 cambiosStep={cambiosPorStep.get(step.id) ?? []}
                 marcarVisto={marcarVisto}
+                autoria={envio?.autoria}
                 envioId={enviado ? envio?.id : undefined}
                 puedeActualizar={puedeActualizar}
             />

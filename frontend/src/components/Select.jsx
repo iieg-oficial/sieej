@@ -105,7 +105,7 @@ const Select = ({
                     font-garetmedium text-[14px] bg-[#F8F8F8] cursor-pointer
                     placeholder-[#6B6B6B] placeholder:font-garetregular
                     focus:outline-none focus:bg-[#FFFFFF] focus:ring focus:ring-[#4A148C]
-                    ${getFieldError(errors, name) ? 'border border-[#EA4336] placeholder-[#EA4336] bg-white' : ''}
+                    ${getFieldError(errors, name) ? 'border border-[#EA4336] placeholder-[#B3261E] bg-white' : ''}
                 `}
                 onClick={() => setShowDropdown((prev) => !prev)}
                 {...rest}
@@ -182,7 +182,7 @@ const Select = ({
                             </div>
                         ))}
                         {filteredOptions.length === 0 && (
-                            <div className="flex items-center font-garetregular w-full px-3 py-2 text-[#8E8E8E]">
+                            <div className="flex items-center font-garetregular w-full px-3 py-2 text-[#6B6B6B]">
                                 No se encontraron opciones
                             </div>
                         )}

@@ -48,7 +48,7 @@ const CalendarOptions = ({ options, optionValue, onSelectOption }) => {
                     focus-visible:ring-1 focus-visible:ring-[#5C2472]
                     ${selectedLabel
             ? 'bg-[#F0E2F5] text-[#5C2472]'
-            : 'bg-[#F8F8F8] text-[#8E8E8E] font-garetregular hover:bg-[#F0E2F5] hover:text-[#5C2472]'}`}
+            : 'bg-[#F8F8F8] text-[#6B6B6B] font-garetregular hover:bg-[#F0E2F5] hover:text-[#5C2472]'}`}
             >
                 <span className="truncate">{selectedLabel || PLACEHOLDER}</span>
                 <img

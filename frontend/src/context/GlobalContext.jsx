@@ -25,7 +25,7 @@ const GlobalProvider = ({ children }) => {
     const isTablet = screenSize.md;
     const isDesktop = !isMobile && !isTablet;
     const patternMessageEmail = 'El formato del correo electrónico es inválido';
-    const linkPrivacity = 'https://iieg.jalisco.gob.mx/aviso-de-privacidad';
+    const linkPrivacity = 'https://iieg.jalisco.gob.mx/acervo/iieg/avisos-de-privacidad.pdf';
     const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const regexTel = /^(\d{2}-?){4}\d{2}$/;
     const regexExt = /^\d{1,9}$/;

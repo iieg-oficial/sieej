@@ -5,7 +5,7 @@ import SummaryStep from './SummaryStep';
 
 const StepRenderer = ({
     step, methods, catalogos, onUpload, cambiosStep, marcarVisto,
-    envioId, puedeActualizar,
+    envioId, puedeActualizar, autoria,
 }) => {
     switch (step.type) {
     case 'form':
@@ -17,6 +17,7 @@ const StepRenderer = ({
                 onUpload={onUpload}
                 cambiosStep={cambiosStep}
                 marcarVisto={marcarVisto}
+                autoria={autoria}
             />
         );
     case 'repeater':
@@ -28,6 +29,7 @@ const StepRenderer = ({
                 onUpload={onUpload}
                 cambiosStep={cambiosStep}
                 marcarVisto={marcarVisto}
+                autoria={autoria}
             />
         );
     case 'summary':
@@ -39,6 +41,7 @@ const StepRenderer = ({
                 summaryStep={step}
                 envioId={envioId}
                 puedeActualizar={puedeActualizar}
+                autoria={autoria}
             />
         );
     default:

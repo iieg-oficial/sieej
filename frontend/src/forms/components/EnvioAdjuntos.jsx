@@ -28,7 +28,7 @@ const EnvioAdjuntos = ({ archivos = [] }) => {
                     <div className="min-w-0 flex-1">
                         <a
                             href={a.url_publica || '#'}
-                            target="_blank"
+                            download={a.url_publica ? a.filename_original || true : undefined}
                             rel="noopener noreferrer"
                             className="text-[13px] font-garetbold text-[#5C2472] hover:underline line-clamp-1"
                             aria-disabled={!a.url_publica}

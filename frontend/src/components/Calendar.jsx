@@ -186,7 +186,7 @@ const Calendar = ({
                         {WEEKDAYS.map((weekday) => (
                             <span
                                 key={weekday}
-                                className="h-8 flex items-center justify-center font-garetmedium text-[11px] text-[#8E8E8E]"
+                                className="h-8 flex items-center justify-center font-garetmedium text-[11px] text-[#6B6B6B]"
                             >
                                 {weekday}
                             </span>

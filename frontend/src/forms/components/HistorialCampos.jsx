@@ -51,7 +51,9 @@ const HistorialCampos = ({ items = [], field, catalogos }) => {
                             </span>
                         </span>
                         <span className="text-[11px] text-[#7C7C7C] font-garetregular shrink-0">
-                            {formatFecha(item.cambiado_en)}
+                            {item.actor_nombre
+                                ? `${item.actor_nombre} · ${formatFecha(item.cambiado_en)}`
+                                : formatFecha(item.cambiado_en)}
                         </span>
                     </li>
                 ))}
