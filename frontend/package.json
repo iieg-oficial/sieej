@@ -17,6 +17,7 @@
         "check:dead-code:strict": "knip"
     },
     "dependencies": {
+        "biombo": "file:vendor/biombo-0.6.3.tgz",
         "buffer": "^6.0.3",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
