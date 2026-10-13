@@ -15,6 +15,8 @@ const AUTH_ERRORS = {
     server_error: 'No se pudo completar el inicio de sesión. Intenta más tarde.',
 };
 
+const ImageSIEEJ = () => <img src={logoSIEEJ} alt="SIEEJ"/>;
+
 export default function Login() {
     const { onLogin, isAuthenticated, originPage, isAuthLoading } = useAuth();
     const navigate = useNavigate();
@@ -26,8 +28,6 @@ export default function Login() {
     const errorMessage = authError
         ? (AUTH_ERRORS[authError] || 'No se pudo iniciar sesión.')
         : null;
-
-    const ImageSIEEJ = ({ className }) => <img src={logoSIEEJ} alt="SIEEJ" className={`${className}`}/>;
 
     const handleClick = () => {
         setRedirecting(true);
