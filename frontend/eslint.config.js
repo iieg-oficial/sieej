@@ -25,4 +25,6 @@ export default [
     },
     { files: ['**/SummaryStep.jsx', '**/PdfForm.jsx'], rules: { 'max-lines': lines(500) } },
     { files: ['**/Modal.jsx'], rules: { 'jsx-a11y/no-noninteractive-element-interactions': 'off' } },
+    { files: ['src/main.jsx', 'src/helpers/analytics.js'], rules: { 'no-console': 'off' } },
+    { files: ['test/colaboracion.test.jsx'], rules: { 'react-hooks/globals': 'off' } },
 ];
