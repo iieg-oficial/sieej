@@ -73,7 +73,7 @@ describe('pistas de validación en el campo', () => {
 
         await enfocar(container);
         expect(pista(container, 'Ingresa un teléfono de 10 dígitos').className)
-            .toContain('text-[#8E8E8E]');
+            .toContain('text-[#6B6B6B]');
         expect(pista(container, 'Mínimo 10 caracteres')).toBeTruthy();
         expect(pista(container, '0/10 caracteres')).toBeTruthy();
     });
@@ -83,9 +83,9 @@ describe('pistas de validación en el campo', () => {
         await enfocar(container);
         await escribir(container, '333');
         expect(pista(container, 'Ingresa un teléfono de 10 dígitos').className)
-            .toContain('text-[#EA4336]');
+            .toContain('text-[#B3261E]');
         expect(pista(container, 'Mínimo 10 caracteres').className)
-            .toContain('text-[#EA4336]');
+            .toContain('text-[#B3261E]');
         expect(pista(container, '3/10 caracteres')).toBeTruthy();
     });
 
@@ -98,7 +98,7 @@ describe('pistas de validación en el campo', () => {
         expect(pista(container, 'Mínimo 10 caracteres').className)
             .toContain('text-[#34A853]');
         expect(pista(container, '10/10 caracteres').className)
-            .toContain('text-[#FF8300]');
+            .toContain('text-[#9E5200]');
     });
 
     it('deja visible el error de formato cuando el campo pierde el foco', async () => {
