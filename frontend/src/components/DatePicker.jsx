@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { ESCAPE_PRIORITY, useDismissOutside, useEscape } from 'biombo/react';
 import { useFormState } from 'react-hook-form';
 import ErrorsRequired from '@helpers/ErrorsRequired';
 import FieldHints from '@helpers/FieldHints';
@@ -39,14 +40,10 @@ const DatePicker = ({
         ? { limites: validarLimites, ...(validate ? { propia: validate } : {}) }
         : validate;
 
-    const handleClickOutside = useCallback((event) => {
-        if (wrapRef.current && !wrapRef.current.contains(event.target)) setOpen(false);
-    }, []);
+    const cerrar = () => setOpen(false);
 
-    useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [handleClickOutside]);
+    useDismissOutside(wrapRef, cerrar, { active: open });
+    useEscape(cerrar, { enabled: open, priority: ESCAPE_PRIORITY.menu });
 
     const handleSelect = (iso) => {
         setValue(name, iso, { shouldValidate: true, shouldDirty: true });
@@ -119,8 +116,6 @@ const DatePicker = ({
                         if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             setOpen((prev) => !prev);
-                        } else if (e.key === 'Escape') {
-                            setOpen(false);
                         }
                     }}
                     {...rest}
@@ -157,7 +152,7 @@ const DatePicker = ({
                         optionValue={optionValue}
                         onSelectOption={handleSelectOption}
                         onSelect={handleSelect}
-                        onClose={() => setOpen(false)}
+                        onClose={cerrar}
                     />
                 )}
             </div>

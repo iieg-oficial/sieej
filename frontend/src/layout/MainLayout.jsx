@@ -1,4 +1,5 @@
-import { useEffect, useCallback, useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef } from 'react';
+import { ESCAPE_PRIORITY, useDismissOutside, useEscape } from 'biombo/react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import useGlobal from '@context/useGlobal';
 import useAuth from '@context/useAuth';
@@ -22,7 +23,6 @@ const Header = () => {
     const { formularios } = useForms();
     const [ menuOpen, setMenuOpen ] = useState(false);
     const menuRef = useRef(null);
-    const menuButtonRef = useRef(null);
 
     const incompleteCount = useMemo(
         () => (formularios || []).filter((f) => f.estado_envio === 'en_proceso').length,
@@ -35,25 +35,10 @@ const Header = () => {
 
     const handleMenuToggle = () => setMenuOpen((prev) => !prev);
 
-    const handleClickOutside = useCallback((event) => {
-        if (
-            menuRef.current && !menuRef.current.contains(event.target)
-            && menuButtonRef.current && !menuButtonRef.current.contains(event.target)
-        ) {
-            setMenuOpen(false);
-        }
-    }, []);
+    const cerrarMenu = () => setMenuOpen(false);
 
-    useEffect(() => {
-        if (!menuOpen) return;
-        document.addEventListener('mousedown', handleClickOutside);
-        const handleEsc = (e) => e.key === 'Escape' && setMenuOpen(false);
-        document.addEventListener('keydown', handleEsc);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-            document.removeEventListener('keydown', handleEsc);
-        };
-    }, [menuOpen, handleClickOutside]);
+    useDismissOutside(menuRef, cerrarMenu, { active: menuOpen });
+    useEscape(cerrarMenu, { enabled: menuOpen, priority: ESCAPE_PRIORITY.menu });
 
     return (
         <header
@@ -82,9 +67,8 @@ const Header = () => {
                     {user?.nombre} {user?.apellido}<br />
                     <span className="opacity-75 text-[10px]">{user?.email}</span>
                 </div>
-                <div className="relative flex items-center gap-2">
+                <div ref={menuRef} className="relative flex items-center gap-2">
                     <button
-                        ref={menuButtonRef}
                         type="button"
                         onClick={handleMenuToggle}
                         aria-haspopup="menu"
@@ -105,7 +89,6 @@ const Header = () => {
                     />
                     {menuOpen && (
                         <div
-                            ref={menuRef}
                             role="menu"
                             className="
                                 absolute top-full right-0 mt-2 w-56 bg-white shadow-lg shadow-[#B6A6BC99] rounded-md

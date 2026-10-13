@@ -1,4 +1,5 @@
 import React, { useEffect, useId, useMemo, useRef } from 'react';
+import { ESCAPE_PRIORITY, Portal, useDismissOutside, useEscape, useFocusTrap, useScrollLock } from 'biombo/react';
 import useGlobal from '@context/useGlobal';
 import errorIcon from '@assets/icons/ico_sección_error.svg';
 import infoIcon from '@assets/icons/ico_avance_guardado.svg';
@@ -57,19 +58,16 @@ const MODAL_DATA = {
     },
 };
 
-const FOCUSABLE_SELECTOR = [
-    'a[href]', 'button:not([disabled])', 'input:not([disabled])',
-    'select:not([disabled])', 'textarea:not([disabled])',
-    '[tabindex]:not([tabindex="-1"])',
-].join(',');
-
 const Modal = () => {
     const { isModalOpen, modalType, modalTitle, modalMessage, modalButtons, closeModal } = useGlobal();
     const { icon, title, message, buttons } = useMemo(() => MODAL_DATA[modalType] || {}, [modalType]);
     const titleId = useId();
     const descriptionId = useId();
     const dialogRef = useRef(null);
-    const lastFocusRef = useRef(null);
+    const { getTrapProps } = useFocusTrap(dialogRef, { active: isModalOpen });
+    const { getDismissProps } = useDismissOutside(dialogRef, closeModal, { active: isModalOpen });
+    useScrollLock(isModalOpen);
+    useEscape(() => closeModal(), { enabled: isModalOpen, priority: ESCAPE_PRIORITY.modal });
 
     useEffect(() => {
         if (modalType === 'success' && isModalOpen) {
@@ -78,88 +76,51 @@ const Modal = () => {
         }
     }, [isModalOpen, modalType, closeModal]);
 
-    useEffect(() => {
-        if (!isModalOpen) return undefined;
-
-        lastFocusRef.current = document.activeElement;
-        const dialog = dialogRef.current;
-        const focusables = dialog?.querySelectorAll(FOCUSABLE_SELECTOR);
-        focusables?.[0]?.focus();
-
-        const handleKeyDown = (e) => {
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                closeModal();
-                return;
-            }
-            if (e.key !== 'Tab' || !focusables?.length) return;
-            const first = focusables[0];
-            const last = focusables[focusables.length - 1];
-            if (e.shiftKey && document.activeElement === first) {
-                e.preventDefault();
-                last.focus();
-            } else if (!e.shiftKey && document.activeElement === last) {
-                e.preventDefault();
-                first.focus();
-            }
-        };
-
-        document.addEventListener('keydown', handleKeyDown);
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-            if (lastFocusRef.current && typeof lastFocusRef.current.focus === 'function') {
-                lastFocusRef.current.focus();
-            }
-        };
-    }, [isModalOpen, closeModal]);
-
     if (!isModalOpen) return null;
 
     const renderedButtons = modalButtons || (buttons ? buttons(closeModal) : []);
 
     return (
-        <div
-            className="fixed inset-0 bg-black/40 flex justify-center items-center z-50"
-            onClick={closeModal}
-            role="presentation"
-        >
-            <div
-                ref={dialogRef}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby={titleId}
-                aria-describedby={descriptionId}
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={() => {}}
-                className="flex flex-col justify-center items-center space-y-15 p-12 rounded-2xl shadow-lg w-[90%] max-w-[812px] min-h-[312px] bg-white overflow-auto"
-            >
-                {icon && icon}
-                <div className="flex flex-col text-center space-y-7">
-                    <Typography
-                        as="h2"
-                        titleName={modalTitle || title}
-                        className="text-[21px]"
-                    />
-                    <span id={titleId} className="sr-only">{modalTitle || title}</span>
-                    <Typography
-                        as="span"
-                        titleName={modalMessage || message}
-                        className="text-[18px]"
-                    />
-                    <span id={descriptionId} className="sr-only">{modalMessage || message}</span>
-                </div>
-                <div className="flex flex-wrap gap-4 md:gap-15 justify-center">
-                    {renderedButtons.map((button, index) => (
-                        <Button
-                            key={`${button.label}-${index}`}
-                            label={button.label}
-                            variant={button.variant}
-                            onClick={button.onClick}
+        <Portal>
+            <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+                <div
+                    ref={dialogRef}
+                    {...getTrapProps()}
+                    {...getDismissProps()}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby={titleId}
+                    aria-describedby={descriptionId}
+                    className="flex flex-col justify-center items-center space-y-15 p-12 rounded-2xl shadow-lg w-[90%] max-w-[812px] min-h-[312px] bg-white overflow-auto"
+                >
+                    {icon && icon}
+                    <div className="flex flex-col text-center space-y-7">
+                        <Typography
+                            as="h2"
+                            titleName={modalTitle || title}
+                            className="text-[21px]"
                         />
-                    ))}
+                        <span id={titleId} className="sr-only">{modalTitle || title}</span>
+                        <Typography
+                            as="span"
+                            titleName={modalMessage || message}
+                            className="text-[18px]"
+                        />
+                        <span id={descriptionId} className="sr-only">{modalMessage || message}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-4 md:gap-15 justify-center">
+                        {renderedButtons.map((button, index) => (
+                            <Button
+                                key={`${button.label}-${index}`}
+                                label={button.label}
+                                variant={button.variant}
+                                onClick={button.onClick}
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
-        </div>
+        </Portal>
     );
 };
 

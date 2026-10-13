@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ESCAPE_PRIORITY, useDismissOutside, useEscape } from 'biombo/react';
 import { useFormState } from 'react-hook-form';
 import ErrorsRequired from '@helpers/ErrorsRequired';
 import { getFieldError } from '@helpers/formErrors';
@@ -35,19 +36,13 @@ const Select = ({
         setShowDropdown(false);
     };
 
-    const handleClickOutside = useCallback((event) => {
-        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-            setShowDropdown(false);
-            setSearchTerm(null);
-        }
-    }, [dropdownRef]);
+    const cerrar = () => {
+        setShowDropdown(false);
+        setSearchTerm(null);
+    };
 
-    useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [handleClickOutside]);
+    useDismissOutside(dropdownRef, cerrar, { active: showDropdown });
+    useEscape(cerrar, { enabled: showDropdown, priority: ESCAPE_PRIORITY.menu });
 
     useEffect(() => setSelectedValue(watchedValue), [watchedValue]);
 
@@ -62,9 +57,7 @@ const Select = ({
     }, [showDropdown, searchEnabled]);
 
     const handleSearchKeyDown = (e) => {
-        if (e.key === 'Escape') {
-            setShowDropdown(false);
-        } else if (e.key === 'Enter') {
+        if (e.key === 'Enter') {
             e.preventDefault();
             if (filteredOptions.length > 0) handleSelect(filteredOptions[0].value);
         }
@@ -89,9 +82,7 @@ const Select = ({
                 aria-haspopup="listbox"
                 aria-controls={`${name}-listbox`}
                 onKeyDown={(e) => {
-                    if (e.key === 'Escape') {
-                        setShowDropdown(false);
-                    } else if (!searchEnabled && (e.key === 'Enter' || e.key === ' ')) {
+                    if (!searchEnabled && (e.key === 'Enter' || e.key === ' ')) {
                         e.preventDefault();
                         setShowDropdown((prev) => !prev);
                     }

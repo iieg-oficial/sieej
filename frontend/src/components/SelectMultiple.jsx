@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ESCAPE_PRIORITY, useDismissOutside, useEscape } from 'biombo/react';
 import { useFormState } from 'react-hook-form';
 import arrowDown from '@assets/icons/ico_down_arrow.svg';
 import ErrorsRequired from '@helpers/ErrorsRequired';
@@ -48,19 +49,13 @@ const SelectMultiple = ({
         setValue(name, newValues);
     };
 
-    const handleClickOutside = useCallback((event) => {
-        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-            setShowDropdown(false);
-            setSearchTerm('');
-        }
-    }, []);
-    
-    useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [handleClickOutside]);
+    const cerrar = () => {
+        setShowDropdown(false);
+        setSearchTerm('');
+    };
+
+    useDismissOutside(dropdownRef, cerrar, { active: showDropdown });
+    useEscape(cerrar, { enabled: showDropdown, priority: ESCAPE_PRIORITY.menu });
 
     useEffect(() => {
         const fieldValue = getValues(name);
@@ -90,9 +85,7 @@ const SelectMultiple = ({
                 aria-controls={`${name}-listbox`}
                 aria-expanded={showDropdown}
                 onKeyDown={(e) => {
-                    if (e.key === 'Escape') {
-                        setShowDropdown(false);
-                    } else if (!searchEnabled && (e.key === 'Enter' || e.key === ' ')) {
+                    if (!searchEnabled && (e.key === 'Enter' || e.key === ' ')) {
                         e.preventDefault();
                         setShowDropdown((prev) => !prev);
                     }
@@ -157,9 +150,6 @@ const SelectMultiple = ({
                                     : (placeholder || 'Busca o selecciona una o más opciones')}
                                 onChange={setSearchTerm}
                                 onOpen={() => setShowDropdown(true)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Escape') setShowDropdown(false);
-                                }}
                                 activo={hasThingSelected}
                             />
                         )}

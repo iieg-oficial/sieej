@@ -6,6 +6,30 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+### Agregado
+
+- biombo 0.6.3 vendorizado en `frontend/vendor` para el manejo de superficies: trampa de foco, Esc
+  por capas, clic fuera, bloqueo de scroll y posición anclada. Los dos Dockerfile copian `vendor`
+  antes del `npm ci`.
+- Pruebas del modal, del tooltip y de los desplegables.
+
+### Cambiado
+
+- El modal global se monta en un portal, atrapa el foco aunque cambie su contenido, deja inerte el
+  resto de la página, bloquea el scroll mientras está abierto y devuelve el foco al cerrar. Se cierra
+  con Esc o con un clic en el fondo que empieza y termina fuera del diálogo.
+- Los tooltips normal y chico se colocan con biombo: arriba por preferencia, abajo si no caben y
+  acotados al viewport. Cuando el tooltip envuelve un elemento sin ícono, se centra en ese elemento.
+- El tooltip de pantalla completa atrapa el foco y se cierra con Esc o con un clic fuera.
+- `Select`, `SelectMultiple`, `DatePicker` y el menú de usuario se cierran con Esc aunque el foco no
+  esté en el control, y con un clic fuera solo si la presión empieza y termina fuera.
+
+### Corregido
+
+- El botón de flecha del menú de usuario ya cierra el menú; antes lo cerraba y lo volvía a abrir.
+- El modal global ya no regresa el foco al primer botón cada vez que se vuelve a renderizar.
+- Las pruebas de pistas de validación esperan los colores con contraste AA de 2.2.1.
+
 ## [2.4.0] - 2026-09-24
 
 ### Corregido
