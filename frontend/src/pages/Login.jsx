@@ -27,7 +27,7 @@ export default function Login() {
         ? (AUTH_ERRORS[authError] || 'No se pudo iniciar sesión.')
         : null;
 
-    const ImageSIEEJ = ({ className }) => <img src={logoSIEEJ} alt="SIEEJ" className={`${className}`}/>
+    const ImageSIEEJ = ({ className }) => <img src={logoSIEEJ} alt="SIEEJ" className={`${className}`}/>;
 
     const handleClick = () => {
         setRedirecting(true);
@@ -92,5 +92,5 @@ export default function Login() {
                 </div>
             </div>
         </CardPage>
-    )
+    );
 };
