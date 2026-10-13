@@ -6,6 +6,17 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ## [No publicado]
 
+### Cambiado
+
+- El lint del frontend usa `@ghegar/eslint-config` 0.2.0, vendorizado en `frontend/vendor/`, sobre
+  ESLint 10. Se agregan punto y coma, `case` indentado, `no-console` y `no-use-before-define`, y se
+  retira `eslint-plugin-react`.
+
+### Corregido
+
+- El logo de la pantalla de acceso se declaraba dentro del render: se volvía a montar en cada render
+  y salía con `class="undefined"`.
+
 ## [2.4.0] - 2026-09-24
 
 ### Corregido
