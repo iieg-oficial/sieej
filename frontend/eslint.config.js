@@ -1,6 +1,6 @@
-import base from '@ghegar/eslint-config';
-import react from '@ghegar/eslint-config/react';
-import reactApp from '@ghegar/eslint-config/react-app';
+import base from '@npmegar/eslint-config';
+import react from '@npmegar/eslint-config/react';
+import reactApp from '@npmegar/eslint-config/react-app';
 
 const lines = (max) => ['error', { max, skipBlankLines: true, skipComments: true }];
 
