@@ -40,7 +40,7 @@ const NoMatch = () => {
                 />
             </div>
         </main>
-    )
-}
+    );
+};
   
 export default NoMatch;
