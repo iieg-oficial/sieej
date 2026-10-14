@@ -8,9 +8,9 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 ### Cambiado
 
-- El lint del frontend usa `@ghegar/eslint-config` 0.2.0, vendorizado en `frontend/vendor/`, sobre
-  ESLint 10. Se agregan punto y coma, `case` indentado, `no-console` y `no-use-before-define`, y se
-  retira `eslint-plugin-react`.
+- El lint del frontend usa `@npmegar/eslint-config` 0.4.0 desde npm, sobre ESLint 10.12. Se agregan
+  punto y coma, `case` indentado, `no-console` y `no-use-before-define`, y se retira
+  `eslint-plugin-react`.
 
 ### Corregido
 
