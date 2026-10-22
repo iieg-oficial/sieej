@@ -80,72 +80,72 @@ const FieldRenderer = ({
     };
 
     switch (type) {
-    case 'text':
-    case 'email':
-    case 'tel':
-        return (
-            <Input {...baseProps} {...patternProps} type="text" maxLength={validation?.maxLength}
-                onFocus={notifyInteract} />
-        );
-    case 'textarea':
-        return (
-            <Input {...baseProps} {...patternProps} type="textarea" maxLength={validation?.maxLength}
-                onFocus={notifyInteract} />
-        );
-    case 'number':
-        return (
-            <Input {...baseProps} type="number" onFocus={notifyInteract} />
-        );
-    case 'date':
-        return (
-            <DatePicker {...baseProps} {...dateProps} onFocus={notifyInteract} />
-        );
-    case 'date_range':
-        return (
-            <DateRangePicker {...baseProps} {...dateProps}
-                field={field}
-                opciones={openRangeOptions(field, catalogos)}
-                disabled={field.disabled}
-                onFocus={notifyInteract} />
-        );
-    case 'select':
-        return (
-            <Select {...baseProps} options={resolveOptions(field, catalogos)}
-                onFocus={notifyInteract} />
-        );
-    case 'select_multiple':
-        return (
-            <SelectMultiple {...baseProps} options={resolveOptions(field, catalogos)}
-                onFocus={notifyInteract} />
-        );
-    case 'radio':
-        return (
-            <Radio {...baseProps} options={resolveOptions(field, catalogos)}
-                onChange={notifyInteract} />
-        );
-    case 'checkbox':
-        return (
-            <Checkbox {...baseProps} onChange={notifyInteract} />
-        );
-    case 'file':
-        return (
-            <Dragger
-                {...baseProps}
-                accept={field.accept?.join(',')}
-                maxSizeMB={field.maxSizeMB}
-                onFile={async (files) => {
-                    const file = Array.isArray(files) ? files[0] : files;
-                    if (!file) return null;
-                    notifyInteract();
-                    return onUpload?.(name, file);
-                }}
-            />
-        );
-    default:
-        return (
-            <Input {...baseProps} {...patternProps} type="text" maxLength={validation?.maxLength}
-                onFocus={notifyInteract} />
-        );
+        case 'text':
+        case 'email':
+        case 'tel':
+            return (
+                <Input {...baseProps} {...patternProps} type="text" maxLength={validation?.maxLength}
+                    onFocus={notifyInteract} />
+            );
+        case 'textarea':
+            return (
+                <Input {...baseProps} {...patternProps} type="textarea" maxLength={validation?.maxLength}
+                    onFocus={notifyInteract} />
+            );
+        case 'number':
+            return (
+                <Input {...baseProps} type="number" onFocus={notifyInteract} />
+            );
+        case 'date':
+            return (
+                <DatePicker {...baseProps} {...dateProps} onFocus={notifyInteract} />
+            );
+        case 'date_range':
+            return (
+                <DateRangePicker {...baseProps} {...dateProps}
+                    field={field}
+                    opciones={openRangeOptions(field, catalogos)}
+                    disabled={field.disabled}
+                    onFocus={notifyInteract} />
+            );
+        case 'select':
+            return (
+                <Select {...baseProps} options={resolveOptions(field, catalogos)}
+                    onFocus={notifyInteract} />
+            );
+        case 'select_multiple':
+            return (
+                <SelectMultiple {...baseProps} options={resolveOptions(field, catalogos)}
+                    onFocus={notifyInteract} />
+            );
+        case 'radio':
+            return (
+                <Radio {...baseProps} options={resolveOptions(field, catalogos)}
+                    onChange={notifyInteract} />
+            );
+        case 'checkbox':
+            return (
+                <Checkbox {...baseProps} onChange={notifyInteract} />
+            );
+        case 'file':
+            return (
+                <Dragger
+                    {...baseProps}
+                    accept={field.accept?.join(',')}
+                    maxSizeMB={field.maxSizeMB}
+                    onFile={async (files) => {
+                        const file = Array.isArray(files) ? files[0] : files;
+                        if (!file) return null;
+                        notifyInteract();
+                        return onUpload?.(name, file);
+                    }}
+                />
+            );
+        default:
+            return (
+                <Input {...baseProps} {...patternProps} type="text" maxLength={validation?.maxLength}
+                    onFocus={notifyInteract} />
+            );
     }
 };
 

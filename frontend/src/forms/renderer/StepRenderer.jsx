@@ -8,44 +8,44 @@ const StepRenderer = ({
     envioId, puedeActualizar, autoria,
 }) => {
     switch (step.type) {
-    case 'form':
-        return (
-            <FormStep
-                step={step}
-                methods={methods}
-                catalogos={catalogos}
-                onUpload={onUpload}
-                cambiosStep={cambiosStep}
-                marcarVisto={marcarVisto}
-                autoria={autoria}
-            />
-        );
-    case 'repeater':
-        return (
-            <RepeaterStep
-                step={step}
-                methods={methods}
-                catalogos={catalogos}
-                onUpload={onUpload}
-                cambiosStep={cambiosStep}
-                marcarVisto={marcarVisto}
-                autoria={autoria}
-            />
-        );
-    case 'summary':
-        return (
-            <SummaryStep
-                definicion={{ steps: step.allSteps, nombre: step.formNombre, descripcion: step.formDescripcion }}
-                methods={methods}
-                catalogos={catalogos}
-                summaryStep={step}
-                envioId={envioId}
-                puedeActualizar={puedeActualizar}
-                autoria={autoria}
-            />
-        );
-    default:
-        return <p>Tipo de step no soportado: {step.type}</p>;
+        case 'form':
+            return (
+                <FormStep
+                    step={step}
+                    methods={methods}
+                    catalogos={catalogos}
+                    onUpload={onUpload}
+                    cambiosStep={cambiosStep}
+                    marcarVisto={marcarVisto}
+                    autoria={autoria}
+                />
+            );
+        case 'repeater':
+            return (
+                <RepeaterStep
+                    step={step}
+                    methods={methods}
+                    catalogos={catalogos}
+                    onUpload={onUpload}
+                    cambiosStep={cambiosStep}
+                    marcarVisto={marcarVisto}
+                    autoria={autoria}
+                />
+            );
+        case 'summary':
+            return (
+                <SummaryStep
+                    definicion={{ steps: step.allSteps, nombre: step.formNombre, descripcion: step.formDescripcion }}
+                    methods={methods}
+                    catalogos={catalogos}
+                    summaryStep={step}
+                    envioId={envioId}
+                    puedeActualizar={puedeActualizar}
+                    autoria={autoria}
+                />
+            );
+        default:
+            return <p>Tipo de step no soportado: {step.type}</p>;
     }
 };
 
