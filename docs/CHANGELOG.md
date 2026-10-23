@@ -16,6 +16,8 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 - El logo de la pantalla de acceso se declaraba dentro del render: se volvía a montar en cada render
   y salía con `class="undefined"`.
+- El build de Docker fallaba en `npm ci`: el `@ghegar/eslint-config` vendorizado en `vendor/` no se
+  copiaba antes de instalar.
 
 ## [2.4.0] - 2026-09-24
 
