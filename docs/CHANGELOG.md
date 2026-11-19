@@ -4,7 +4,7 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
-## [No publicado]
+## [2.4.1] - 2026-11-17
 
 ### Cambiado
 
