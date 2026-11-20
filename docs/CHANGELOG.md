@@ -4,7 +4,20 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
-## [No publicado]
+## [2.4.1] - 2026-11-17
+
+### Cambiado
+
+- El lint del frontend usa `@ghegar/eslint-config` 0.2.0, vendorizado en `frontend/vendor/`, sobre
+  ESLint 10. Se agregan punto y coma, `case` indentado, `no-console` y `no-use-before-define`, y se
+  retira `eslint-plugin-react`.
+
+### Corregido
+
+- El logo de la pantalla de acceso se declaraba dentro del render: se volvía a montar en cada render
+  y salía con `class="undefined"`.
+- El build de Docker fallaba en `npm ci`: el `@ghegar/eslint-config` vendorizado en `vendor/` no se
+  copiaba antes de instalar.
 
 ### Agregado
 

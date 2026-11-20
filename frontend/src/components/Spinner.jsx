@@ -33,7 +33,7 @@ const Spinner = ({
             </svg>
             { message && <span>{message}</span>}
         </div>
-    )
-}
+    );
+};
 
 export default Spinner;

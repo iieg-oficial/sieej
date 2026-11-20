@@ -24,7 +24,7 @@ const Label = ({
                 {labelName}
             </label>
         </Tooltip>
-    )
+    );
 };
 
 export default Label;
