@@ -4,7 +4,7 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y
 [SemVer](https://semver.org/lang/es/).
 
-## [No publicado]
+## [2.4.1] - 2026-11-17
 
 ### Cambiado
 
@@ -16,6 +16,8 @@ Todas las notas relevantes del proyecto SIEEJ. Formato basado en
 
 - El logo de la pantalla de acceso se declaraba dentro del render: se volvía a montar en cada render
   y salía con `class="undefined"`.
+- El build de Docker fallaba en `npm ci`: el `@ghegar/eslint-config` vendorizado en `vendor/` no se
+  copiaba antes de instalar.
 
 ## [2.4.0] - 2026-09-24
 
